@@ -1081,6 +1081,119 @@ const slides = [
   }
 },
 
+/* ── 新增：快速客戶部署 + 護城河 ── */
+
+{
+  section: '護城河',
+  title: '快速客戶部署 — FDE 模型',
+  text: `Palantir 嘅秘密武器唔係軟件，係<span class="hl">Forward Deployed Engineers (FDE)</span> — 頂尖工程師駐場客戶，幾日內交付。<br><br>關鍵：<span class="hl-green">唔使遷移數據</span>。Ontology 直接映射客戶現有系統（SAP、Oracle、CSV、API），第一日就有統一視圖。Workshop 幾小時建應用，AIP 即時加 AI。<br><br>傳統 SI（Accenture/Deloitte）要<span class="hl-red">6-18 個月</span>做數據遷移，Palantir 用<span class="hl-green">幾日到幾週</span>。`,
+  buildSVG(svg) {
+    addDefs(svg);
+    // Timeline: Day 1 → Day 3 → Week 1 → Week 2
+    const steps=[
+      {x:80,label:'第 1 天',sub:'數據映射',detail:'Ontology 對接\n現有 DB/API',color:'#1a73e8',icon:'🔗'},
+      {x:280,label:'第 3 天',sub:'統一視圖',detail:'跨系統\n知識圖譜',color:'#34a853',icon:'🗺️'},
+      {x:480,label:'第 1 週',sub:'應用上線',detail:'Workshop\n構建介面',color:'#f9ab00',icon:'⚡'},
+      {x:680,label:'第 2 週',sub:'AI 決策',detail:'AIP 模型\n投入使用',color:'#ea4335',icon:'🧠'},
+    ];
+    // Progress bar
+    const bar=svgEl('line',{x1:80,y1:180,x2:680,y2:180,stroke:'#dadce0','stroke-width':4,'stroke-linecap':'round'});
+    bar.id='s-fde-bar';svg.appendChild(bar);
+    const barFill=svgEl('line',{x1:80,y1:180,x2:680,y2:180,stroke:'#34a853','stroke-width':4,'stroke-linecap':'round'});
+    barFill.id='s-fde-fill';svg.appendChild(barFill);
+    steps.forEach((s,i)=>{
+      const g=svgEl('g',{id:`s-fde-step${i}`});g.style.opacity='0';
+      // Circle node
+      const c=svgEl('circle',{cx:s.x,cy:180,r:20,fill:s.color+'18',stroke:s.color,'stroke-width':2.5});c.style.opacity='1';g.appendChild(c);
+      const ic=svgEl('text',{x:s.x,y:182,'text-anchor':'middle','dominant-baseline':'middle','font-size':16});ic.textContent=s.icon;ic.style.opacity='1';g.appendChild(ic);
+      // Label above
+      const lb=svgEl('text',{x:s.x,y:135,'text-anchor':'middle','dominant-baseline':'middle',fill:s.color,'font-size':14,'font-weight':600});lb.textContent=s.label;lb.style.opacity='1';g.appendChild(lb);
+      const sb=svgEl('text',{x:s.x,y:152,'text-anchor':'middle','dominant-baseline':'middle',fill:'#5f6368','font-size':11});sb.textContent=s.sub;sb.style.opacity='1';g.appendChild(sb);
+      // Detail below
+      const lines=s.detail.split('\n');
+      lines.forEach((ln,j)=>{
+        const dt=svgEl('text',{x:s.x,y:220+j*16,'text-anchor':'middle','dominant-baseline':'middle',fill:'#5f6368','font-size':10});dt.textContent=ln;dt.style.opacity='1';g.appendChild(dt);
+      });
+      svg.appendChild(g);
+    });
+    // VS comparison
+    const vsG=svgEl('g',{id:'s-fde-vs'});vsG.style.opacity='0';
+    const r1=svgEl('rect',{x:120,y:290,width:250,height:70,rx:8,fill:'#fce8e6',stroke:'#ea4335','stroke-width':1.5});r1.style.opacity='1';vsG.appendChild(r1);
+    const t1a=svgEl('text',{x:245,y:315,'text-anchor':'middle','dominant-baseline':'middle',fill:'#ea4335','font-size':13,'font-weight':600});t1a.textContent='傳統 SI（Accenture 等）';t1a.style.opacity='1';vsG.appendChild(t1a);
+    const t1b=svgEl('text',{x:245,y:340,'text-anchor':'middle','dominant-baseline':'middle',fill:'#ea4335','font-size':18,'font-weight':700});t1b.textContent='6 – 18 個月';t1b.style.opacity='1';vsG.appendChild(t1b);
+    const r2=svgEl('rect',{x:430,y:290,width:250,height:70,rx:8,fill:'#e6f4ea',stroke:'#34a853','stroke-width':1.5});r2.style.opacity='1';vsG.appendChild(r2);
+    const t2a=svgEl('text',{x:555,y:315,'text-anchor':'middle','dominant-baseline':'middle',fill:'#34a853','font-size':13,'font-weight':600});t2a.textContent='Palantir FDE';t2a.style.opacity='1';vsG.appendChild(t2a);
+    const t2b=svgEl('text',{x:555,y:340,'text-anchor':'middle','dominant-baseline':'middle',fill:'#34a853','font-size':18,'font-weight':700});t2b.textContent='幾日 – 幾週';t2b.style.opacity='1';vsG.appendChild(t2b);
+    // VS label
+    const vsLabel=svgEl('text',{x:400,y:325,'text-anchor':'middle','dominant-baseline':'middle',fill:'#5f6368','font-size':16,'font-weight':700});vsLabel.textContent='vs';vsLabel.style.opacity='1';vsG.appendChild(vsLabel);
+    svg.appendChild(vsG);
+    // FDE badge
+    const badge=svgEl('g',{id:'s-fde-badge'});badge.style.opacity='0';
+    const br=svgEl('rect',{x:200,y:390,width:400,height:35,rx:17,fill:'#e8f0fe',stroke:'#1a73e8','stroke-width':1.5});br.style.opacity='1';badge.appendChild(br);
+    const bt=svgEl('text',{x:400,y:408,'text-anchor':'middle','dominant-baseline':'middle',fill:'#1a73e8','font-size':12,'font-weight':600});bt.textContent='核心：Ontology 映射現有系統，唔使數據遷移';bt.style.opacity='1';badge.appendChild(bt);
+    svg.appendChild(badge);
+  },
+  async animate() {
+    await drawPath($('s-fde-bar'),800);
+    await drawPath($('s-fde-fill'),1200);
+    for(let i=0;i<4;i++) await show($(`s-fde-step${i}`),{dur:350,scale:0,delay:0});
+    await wait(300);
+    await show($('s-fde-vs'),{dur:500,dy:15});
+    await wait(200);
+    await show($('s-fde-badge'),{dur:400,scale:0});
+  }
+},
+
+{
+  section: '護城河',
+  title: '點解極難複製 Palantir 嘅路',
+  text: `唔係寫唔出類似軟件 — 係<span class="hl">系統性護城河</span>疊加到幾乎無法突破。<br><br>六層護城河：<span class="hl">政府壁壘</span>（20年安全許可）、<span class="hl">Ontology 深度</span>（跨行業知識圖譜）、<span class="hl-green">數據飛輪</span>（越多客戶 → 越快部署 → 越多客戶）、<span class="hl-yellow">FDE 文化</span>（頂尖人才願意駐場）、<span class="hl-red">轉換成本</span>（換走 = 重建整個數據模型）、<span class="hl">Apollo 基建</span>（支援氣隙網絡嘅部署平台）。`,
+  buildSVG(svg) {
+    addDefs(svg);
+    // Concentric fortress rings (moat layers)
+    const moats=[
+      {r:180,label:'轉換成本',sub:'換走 = 重建數據模型',color:'#ea4335',fill:'#fce8e610'},
+      {r:150,label:'數據飛輪',sub:'越多客戶 → 越快部署',color:'#f9ab00',fill:'#fef7e015'},
+      {r:120,label:'FDE 文化',sub:'頂尖工程師願意駐場',color:'#34a853',fill:'#e6f4ea20'},
+      {r:90,label:'Ontology 深度',sub:'跨行業知識圖譜累積',color:'#1a73e8',fill:'#e8f0fe30'},
+      {r:60,label:'Apollo 基建',sub:'氣隙 + 多環境部署',color:'#7b1fa2',fill:'#f3e5f540'},
+      {r:30,label:'政府壁壘',sub:'20年安全許可',color:'#202124',fill:'#f1f3f4'},
+    ];
+    const cx=400,cy=240;
+    moats.forEach((m,i)=>{
+      const g=svgEl('g',{id:`s-moat-ring${i}`});g.style.opacity='0';
+      const c=svgEl('circle',{cx,cy,r:m.r,fill:m.fill,stroke:m.color,'stroke-width':2,'stroke-dasharray':i===0?'none':'6 3'});c.style.opacity='1';g.appendChild(c);
+      // Label at right side
+      const lx=cx+m.r+8, ly=cy-m.r*0.3+i*2;
+      // Only show labels for outer 4 rings (inner ones too crowded)
+      if(i<4){
+        const lb=svgEl('text',{x:lx>720?cx-m.r-8:lx, y:ly, 'text-anchor':lx>720?'end':'start','dominant-baseline':'middle',fill:m.color,'font-size':11,'font-weight':600});
+        lb.textContent=m.label;lb.style.opacity='1';g.appendChild(lb);
+        const sb=svgEl('text',{x:lx>720?cx-m.r-8:lx, y:ly+14, 'text-anchor':lx>720?'end':'start','dominant-baseline':'middle',fill:'#5f6368','font-size':9});
+        sb.textContent=m.sub;sb.style.opacity='1';g.appendChild(sb);
+      }
+      svg.appendChild(g);
+    });
+    // Center: PLTR logo
+    const logo=svgEl('g',{id:'s-moat-logo'});logo.style.opacity='0';
+    const lc=svgEl('circle',{cx,cy,r:22,fill:'#1a73e8',stroke:'#1557b0','stroke-width':2});lc.style.opacity='1';logo.appendChild(lc);
+    const lt=svgEl('text',{x:cx,y:cy,'text-anchor':'middle','dominant-baseline':'middle',fill:'#fff','font-size':18,'font-weight':700});lt.textContent='P';lt.style.opacity='1';logo.appendChild(lt);
+    svg.appendChild(logo);
+    // Bottom insight
+    const badge=svgEl('g',{id:'s-moat-badge'});badge.style.opacity='0';
+    const br=svgEl('rect',{x:150,y:440,width:500,height:35,rx:17,fill:'#fef7e0',stroke:'#f9ab00','stroke-width':1.5});br.style.opacity='1';badge.appendChild(br);
+    const bt=svgEl('text',{x:400,y:458,'text-anchor':'middle','dominant-baseline':'middle',fill:'#e37400','font-size':12,'font-weight':600});bt.textContent='唔係一個產品，係一個需要 20 年建立嘅系統性壁壘';bt.style.opacity='1';badge.appendChild(bt);
+    svg.appendChild(badge);
+  },
+  async animate() {
+    // Rings expand outward
+    for(let i=5;i>=0;i--) await show($(`s-moat-ring${i}`),{dur:350,scale:0});
+    await show($('s-moat-logo'),{dur:400,scale:0});
+    await wait(400);
+    await show($('s-moat-badge'),{dur:500,dy:10});
+  }
+},
+
 {
   section: '快速部署',
   title: '完整全景',
