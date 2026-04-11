@@ -183,12 +183,36 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
 /* Responsive */
 @media(max-width:768px){
   .page-container{padding:12px}
+  .top-bar{padding:0 12px;gap:12px}
+  .top-bar h1{font-size:14px}
+  .top-nav{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;gap:2px;scrollbar-width:none}
+  .top-nav::-webkit-scrollbar{display:none}
+  .top-nav a{font-size:11px;padding:5px 10px;flex-shrink:0}
+  .hero-section{padding:28px 20px}
+  .hero-section h2{font-size:20px}
   .hero-stats{grid-template-columns:1fr}
+  .hero-stat .num{font-size:22px}
   .compare-grid{grid-template-columns:1fr}
-  .top-nav{display:none}
+  .card-grid{grid-template-columns:1fr}
   .code-compare{grid-template-columns:1fr}
-  .gantt-label{width:100px;font-size:10px}
-  .bar-label{width:80px}
+  .summary-section{padding:20px 16px}
+  .summary-section h2{font-size:16px}
+  .bar-label{width:70px;font-size:11px}
+  .bar-fill{font-size:10px;padding-left:6px}
+  .gantt-label{width:80px;font-size:10px}
+  .gantt-bar{font-size:9px;padding-left:4px}
+  .gantt-header{margin-left:80px}
+  .gantt-week{font-size:8px}
+  .roadmap{flex-direction:column}
+  .layer-num{width:40px;font-size:16px}
+  .layer-content h4{font-size:12px}
+  .layer-content p{font-size:11px}
+  .table-wrap{margin:0 -16px;padding:0 16px}
+  .arch-diagram{padding:16px 12px}
+  .arch-box{padding:6px 10px;font-size:11px;min-width:80px}
+  .highlight-box{padding:16px}
+  .highlight-box p{font-size:12px}
+  .insight-item{padding:12px;gap:10px}
 }
 </style>
 </head>
