@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>可行性分析 — Solo Dev + Factory Partner</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a73e8;--blue-bg:#e8f0fe;
+  --green:#34a853;--green-bg:#e6f4ea;
+  --red:#ea4335;--red-bg:#fce8e6;
+  --yellow:#f9ab00;--yellow-bg:#fef7e0;
+  --purple:#7b1fa2;--purple-bg:#f3e5f5;
+  --surface:#fff;--bg:#f8f9fa;
+  --text:#202124;--text2:#5f6368;--border:#dadce0;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px rgba(60,64,67,.15);
+  --shadow2:0 1px 3px rgba(60,64,67,.3),0 4px 8px rgba(60,64,67,.15);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Google Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.top-bar{height:56px;display:flex;align-items:center;padding:0 24px;gap:24px;background:var(--surface);box-shadow:var(--shadow);position:sticky;top:0;z-index:50}
+.top-bar h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.top-nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.top-nav a{font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px;transition:all 150ms var(--ease);white-space:nowrap;flex-shrink:0}
+.top-nav a:hover{background:var(--bg);color:var(--text)}
+.top-nav a.active{background:var(--blue-bg);color:var(--blue);font-weight:500}
+
+.page{max-width:960px;margin:0 auto;padding:24px}
+.card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:28px;margin-bottom:24px}
+.card h2{font-size:20px;font-weight:500;margin-bottom:6px}
+.card .sub{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+
+.hero{text-align:center;padding:40px 28px;border-top:4px solid var(--yellow)}
+.hero h2{font-size:26px;margin-bottom:10px}
+
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);font-weight:600;color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover{background:var(--bg)}
+
+.layer{border-radius:10px;padding:20px;margin-bottom:14px;border-left:4px solid var(--border)}
+.layer h3{font-size:15px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.layer p{font-size:13px;color:var(--text2);line-height:1.7}
+.layer ul{font-size:13px;color:var(--text2);line-height:1.8;padding-left:20px;margin-top:6px}
+.layer .diff{display:flex;gap:10px;margin-top:10px;font-size:12px}
+.layer .diff div{padding:6px 12px;border-radius:6px;flex:1;text-align:center}
+
+.tag{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600}
+
+.stars{letter-spacing:2px}
+
+.phase{border-radius:10px;padding:18px;margin-bottom:12px;border:1.5px solid var(--border)}
+.phase h3{font-size:14px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.phase p{font-size:13px;color:var(--text2);line-height:1.6}
+.phase .kill{margin-top:8px;padding:8px 12px;border-radius:6px;background:var(--red-bg);font-size:12px;color:var(--red);font-weight:500}
+
+.box{padding:16px 20px;border-radius:10px;margin-top:16px}
+
+.footer{text-align:center;padding:24px;font-size:12px;color:var(--text2)}
+
+@media(max-width:768px){
+  .page{padding:12px}
+  .hero h2{font-size:22px}
+  .layer .diff{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <h1><span class="logo">W</span> 倉儲自動化平台</h1>
+  <nav class="top-nav">
+    <a href="industry-landscape.html">行業全景</a>
+    <a href="product-overview.html">產品定位</a>
+    <a href="competitive-landscape.html">競爭分析</a>
+    <a href="system-backbone.html">系統架構</a>
+    <a href="feasibility.html" class="active">可行性</a>
+    <a href="pltr-explainer.html">PLTR 解析</a>
+    <a href="pltr-moat.html">護城河分析</a>
+  </nav>
+</header>
+
+<main class="page">
+
+<section class="card hero">
+  <h2>可行性分析</h2>
+  <p class="sub" style="max-width:650px;margin:0 auto">Solo dev（全職工作 + vibe coding）+ 中國工廠 partner（唔識 code）<br>呢個組合做唔做得到？誠實答案。</p>
+</section>
+
+<!-- Resources -->
+<section class="card">
+  <h2>你有嘅 vs 你冇嘅</h2>
+  <table>
+    <thead><tr><th>資源</th><th>狀態</th><th>備註</th></tr></thead>
+    <tbody>
+      <tr><td>Java/Spring 經驗</td><td style="color:var(--green);font-weight:600">✓ 有</td><td>核心技術棧 match</td></tr>
+      <tr><td>AI coding 工具</td><td style="color:var(--green);font-weight:600">✓ 有</td><td>對 CRUD 有效，對 real-time 系統有限</td></tr>
+      <tr><td>真實客戶場景</td><td style="color:var(--green);font-weight:600">✓ 有</td><td>Partner 工廠 = Day 1 pilot site</td></tr>
+      <tr><td>機器人測試人手</td><td style="color:var(--green);font-weight:600">✓ 有</td><td>Partner 員工做物理測試</td></tr>
+      <tr><td>全職時間</td><td style="color:var(--red);font-weight:600">✗ 冇</td><td>每週只有 15-20 小時</td></tr>
+      <tr><td>倉儲行業經驗</td><td style="color:var(--red);font-weight:600">✗ 冇</td><td>Domain modeling 依賴 partner 溝通，成本高</td></tr>
+      <tr><td>Real-time systems 經驗</td><td style="color:var(--red);font-weight:600">✗ 冇</td><td>Workflow engine + robot control 需要</td></tr>
+      <tr><td>機器人硬件經驗</td><td style="color:var(--red);font-weight:600">✗ 冇</td><td>從未碰過 AMR API</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Difficulty -->
+<section class="card">
+  <h2>軟件難度 — 逐層誠實評估</h2>
+  <p class="sub">之前講「軟件唔複雜」係錯嘅。以下係逐層拆解。</p>
+
+  <div class="layer" style="border-left-color:var(--yellow)">
+    <h3>Layer 1: WMS Adapter <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">中-高</span></h3>
+    <p><strong>唔係寫個 REST client 咁簡單。</strong></p>
+    <ul>
+      <li>Partner 工廠可能根本冇 WMS — 可能係 Excel / 微信群 / 手寫單</li>
+      <li>中國 WMS API 文檔質量參差，可能要直連數據庫</li>
+      <li>唔止 read — 任務完成後要 write back 更新庫存</li>
+      <li>認證機制每個 WMS 唔同（OAuth / API key / 微信掃碼）</li>
+      <li>API down / timeout / rate limit / 格式變更</li>
+    </ul>
+    <div class="diff">
+      <div style="background:var(--red-bg);color:var(--red)">之前評估：低</div>
+      <div style="background:var(--yellow-bg);color:var(--yellow)">實際：中-高</div>
+    </div>
+  </div>
+
+  <div class="layer" style="border-left-color:var(--blue)">
+    <h3>Layer 2: Ontology 數據模型 <span class="tag" style="background:var(--blue-bg);color:var(--blue)">中</span></h3>
+    <p><strong>唔止係 JPA entities。</strong></p>
+    <ul>
+      <li>需要深入倉儲行業知識 — 你冇，partner 有但佢唔識 code</li>
+      <li>溝通鴻溝：partner 講「上架」，你理解嘅可能唔同</li>
+      <li>Edge cases 極多：唔同倉唔同規則、批次管理、效期管理</li>
+      <li>Schema evolution：model 不斷變，migration 要管理</li>
+    </ul>
+    <div class="diff">
+      <div style="background:var(--red-bg);color:var(--red)">之前評估：低</div>
+      <div style="background:var(--blue-bg);color:var(--blue)">實際：中</div>
+    </div>
+  </div>
+
+  <div class="layer" style="border-left-color:var(--red)">
+    <h3>Layer 3: Workflow Engine <span class="tag" style="background:var(--red-bg);color:var(--red)">非常高 ⚠️</span></h3>
+    <p><strong>唔係狀態機。係 concurrent job scheduler + resource allocator。整個項目最難嘅部分。</strong></p>
+    <ul>
+      <li><strong>並發控制</strong>：10 個機器人同時揀 50 張單，邊個做邊張？</li>
+      <li><strong>資源分配</strong>：最近嘅？電量最多嘅？載重合適嘅？— optimization problem</li>
+      <li><strong>死鎖預防</strong>：兩個機器人去同一條通道</li>
+      <li><strong>異常恢復</strong>：機器人中途冇電 / 卡住 / 撞嘢</li>
+      <li><strong>優先級</strong>：急單插隊，已分配嘅任務要唔要重排？</li>
+      <li><strong>一致性</strong>：任務做到一半失敗，庫存數據點 rollback？</li>
+    </ul>
+    <p style="margin-top:8px">Spring State Machine 搞唔掂。實質係建 mini Kubernetes scheduler。</p>
+    <div class="diff">
+      <div style="background:var(--red-bg);color:var(--red)">之前評估：低（「狀態機」）</div>
+      <div style="background:var(--red-bg);color:var(--red)">實際：非常高</div>
+    </div>
+  </div>
+
+  <div class="layer" style="border-left-color:var(--red)">
+    <h3>Layer 4: Robot API <span class="tag" style="background:var(--red-bg);color:var(--red)">非常高 ⚠️</span></h3>
+    <p><strong>唔係 HTTP call。係 real-time, safety-critical 系統。</strong></p>
+    <ul>
+      <li>中國機器人 API 可能係 proprietary protocol / TCP / ROS / gRPC</li>
+      <li>Persistent connection，唔係 request-response</li>
+      <li>管理倉庫地圖：上傳 layout、定義路線、充電站</li>
+      <li>實時狀態 tracking：位置、電量、任務進度</li>
+      <li>命令確認鏈：send → 收到? → 開始? → 完成?</li>
+      <li>Multi-robot 交通管理：防碰撞、排隊、讓路</li>
+      <li><strong>安全</strong>：send 錯指令 = 機器人撞人/撞貨</li>
+      <li>文檔可能只有中文、要簽 NDA、要用 Windows SDK</li>
+    </ul>
+    <div class="diff">
+      <div style="background:var(--red-bg);color:var(--red)">之前評估：低（「HTTP call」）</div>
+      <div style="background:var(--red-bg);color:var(--red)">實際：非常高</div>
+    </div>
+  </div>
+
+  <div class="layer" style="border-left-color:var(--purple)">
+    <h3>Layer 5: 之前完全冇提嘅嘢 <span class="tag" style="background:var(--purple-bg);color:var(--purple)">中-高</span></h3>
+    <table>
+      <tbody>
+        <tr><td><strong>Robot Simulator</strong></td><td style="color:var(--red)">高</td><td>冇物理機器人點測？寫 simulator 本身就係一個項目</td></tr>
+        <tr><td><strong>部署</strong></td><td style="color:var(--yellow)">中</td><td>工廠冇穩定網絡，需要 on-premise</td></tr>
+        <tr><td><strong>監控</strong></td><td style="color:var(--yellow)">中</td><td>24/7 運行，半夜出事邊個處理？</td></tr>
+        <tr><td><strong>網絡</strong></td><td style="color:var(--yellow)">中</td><td>工廠 WiFi 唔穩定，斷線重連</td></tr>
+        <tr><td><strong>日誌/審計</strong></td><td style="color:var(--yellow)">中</td><td>出事要追蹤邊個指令去咗邊</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Vibe Coding Limits -->
+<section class="card">
+  <h2>Vibe Coding 嘅真實限制</h2>
+  <p class="sub">「AI coding 令 1 人 ≈ 3-5 人」— 只適用於 CRUD / web app。</p>
+  <table>
+    <thead><tr><th>任務類型</th><th>AI 幫助</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td>CRUD API</td><td><span class="stars" style="color:var(--green)">★★★★★</span></td><td>AI 最強項</td></tr>
+      <tr><td>Web UI</td><td><span class="stars" style="color:var(--green)">★★★★☆</span></td><td>成熟模式</td></tr>
+      <tr><td>WMS Adapter</td><td><span class="stars" style="color:var(--yellow)">★★★☆☆</span></td><td>每個 WMS 唔同，AI 冇見過中國 WMS</td></tr>
+      <tr><td>Domain Modeling</td><td><span class="stars" style="color:var(--yellow)">★★☆☆☆</span></td><td>需要行業知識，AI 冇</td></tr>
+      <tr><td>Concurrent Scheduler</td><td><span class="stars" style="color:var(--red)">★★☆☆☆</span></td><td>AI 容易寫出 race condition</td></tr>
+      <tr><td>Robot API</td><td><span class="stars" style="color:var(--red)">★☆☆☆☆</span></td><td>Proprietary protocol，AI 冇見過</td></tr>
+      <tr><td>Debug 硬件問題</td><td><span class="stars" style="color:var(--red)">☆☆☆☆☆</span></td><td>機器人唔動、延遲高 → AI 幫唔到</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Conclusion -->
+<section class="card">
+  <h2>修正後嘅結論</h2>
+
+  <h3 style="font-size:15px;margin:16px 0 10px">按 Phase 嘅可行性</h3>
+  <table>
+    <thead><tr><th>Phase</th><th>內容</th><th>Solo dev?</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 0</td><td>驗證機器人有冇 API</td><td style="color:var(--green);font-weight:600">✓ 唔使寫 code</td></tr>
+      <tr><td>Phase 1</td><td>WMS adapter (read-only) + dashboard</td><td style="color:var(--green);font-weight:600">✓ 可以做</td></tr>
+      <tr><td>Phase 2</td><td>1 台機器人 + 1 個簡單任務</td><td style="color:var(--yellow);font-weight:600">△ 非常挑戰</td></tr>
+      <tr><td>完整產品</td><td>Multi-robot orchestration</td><td style="color:var(--red);font-weight:600">✗ 需要團隊</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:15px;margin:20px 0 10px">Micro-MVP：大幅縮小 scope 先有可能</h3>
+  <table>
+    <thead><tr><th>原本 scope</th><th>Micro-MVP</th></tr></thead>
+    <tbody>
+      <tr><td>Multi-WMS adapter</td><td><strong>只接 partner 嗰個系統</strong></td></tr>
+      <tr><td>Multi-robot orchestration</td><td><strong>只控制 1 台機器人</strong></td></tr>
+      <tr><td>Real-time workflow</td><td><strong>Sequential，一次一個任務</strong></td></tr>
+      <tr><td>全流程（收貨→出庫）</td><td><strong>只做一個流程（例如搬運）</strong></td></tr>
+      <tr><td>Concurrent</td><td><strong>唔做，排隊執行</strong></td></tr>
+      <tr><td>Robot traffic management</td><td><strong>唔做（只有 1 台）</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="box" style="background:var(--yellow-bg);border:1.5px solid var(--yellow)">
+    <p style="font-size:13px;line-height:1.7"><strong>誠實面對：</strong>Micro-MVP 同 <a href="product-overview.html" style="color:var(--blue)">product-overview</a> 嘅願景差距好大。願景係 multi-WMS + multi-robot + AI，Micro-MVP 係 1 WMS + 1 robot + sequential。但 micro-MVP 驗證嘅係最核心嘅假設 — adapter 能唔能接入 WMS，能唔能控制機器人。</p>
+  </div>
+</section>
+
+<!-- Phases -->
+<section class="card">
+  <h2>建議路徑</h2>
+
+  <div class="phase" style="border-color:var(--red)">
+    <h3><span class="tag" style="background:var(--red-bg);color:var(--red)">Phase 0</span> Kill or Continue（而家）</h3>
+    <p>確認 partner 工廠用咩品牌機器人。攞機器人 API 文檔。確認現有 WMS / 管理方式。</p>
+    <div class="kill">如果冇 API 或 partner 唔願意投入時間 → 停止，唔好浪費時間。</div>
+  </div>
+
+  <div class="phase" style="border-color:var(--green)">
+    <h3><span class="tag" style="background:var(--green-bg);color:var(--green)">Phase 1</span> 只做數據層（Month 1-3）</h3>
+    <p>寫 adapter 讀 partner WMS 數據 → 建 ontology 模型 → read-only dashboard。<strong>唔碰機器人。</strong></p>
+  </div>
+
+  <div class="phase" style="border-color:var(--yellow)">
+    <h3><span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">Phase 2</span> 1 台機器人 + 1 個任務（Month 4-6）</h3>
+    <p>只控制 1 台機器人做 1 種任務（A 點搬到 B 點）。Sequential execution。Partner 現場測試。</p>
+    <div class="kill" style="background:var(--yellow-bg);color:#b45309">呢個係技術驗證點 — 如果做唔到，後面全部唔使諗。</div>
+  </div>
+
+  <div class="phase" style="border-color:var(--blue)">
+    <h3><span class="tag" style="background:var(--blue-bg);color:var(--blue)">Phase 3</span> 如果 Phase 2 work（Month 7+）</h3>
+    <p>加第 2 個任務類型。考慮搵第二個開發者。先穩定再 scale。</p>
+  </div>
+</section>
+
+<!-- Risks -->
+<section class="card">
+  <h2>最大風險</h2>
+  <p class="sub">最大風險唔係你嘅 coding 能力。</p>
+  <div class="layer" style="border-left-color:var(--red)">
+    <h3>1. 機器人 API 質量 <span class="tag" style="background:var(--red-bg);color:var(--red)">你控制唔到</span></h3>
+    <p>如果機器人廠商冇開放 API、文檔差、或者需要 Windows SDK → 你做唔到 remote 開發。</p>
+  </div>
+  <div class="layer" style="border-left-color:var(--yellow)">
+    <h3>2. Partner 配合度 <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">軟性風險</span></h3>
+    <p>Partner 要出人出時間：攞 API 文檔、安排測試、回報 bug、錄影現場。如果佢太忙 → 你卡死。</p>
+  </div>
+  <div class="layer" style="border-left-color:var(--yellow)">
+    <h3>3. 行業知識溝通 <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">隱性成本</span></h3>
+    <p>你唔識倉儲，佢唔識 code。「上架」呢個詞你哋可能有唔同理解。溝通成本會比預期高好多。</p>
+  </div>
+</section>
+
+<footer class="footer">
+  呢個分析係基於項目實際技術需求嘅誠實評估。最後更新：2026-04。
+</footer>
+
+</main>
+</body>
+</html>
