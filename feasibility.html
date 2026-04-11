@@ -141,7 +141,9 @@ tr:hover{background:var(--bg)}
 
   <div class="layer" style="border-left-color:var(--red)">
     <h3>Layer 3: Workflow Engine <span class="tag" style="background:var(--red-bg);color:var(--red)">非常高 ⚠️</span></h3>
-    <p><strong>唔係狀態機。係 concurrent job scheduler + resource allocator。整個項目最難嘅部分。</strong></p>
+    <p><strong>唔係狀態機。係 concurrent job scheduler + resource allocator + item router。整個項目最難嘅部分。</strong></p>
+
+    <p style="margin-top:12px;font-size:13px;font-weight:600">3a. 任務排程 + 並發</p>
     <ul>
       <li><strong>並發控制</strong>：10 個機器人同時揀 50 張單，邊個做邊張？</li>
       <li><strong>資源分配</strong>：最近嘅？電量最多嘅？載重合適嘅？— optimization problem</li>
@@ -150,7 +152,30 @@ tr:hover{background:var(--bg)}
       <li><strong>優先級</strong>：急單插隊，已分配嘅任務要唔要重排？</li>
       <li><strong>一致性</strong>：任務做到一半失敗，庫存數據點 rollback？</li>
     </ul>
-    <p style="margin-top:8px">Spring State Machine 搞唔掂。實質係建 mini Kubernetes scheduler。</p>
+
+    <p style="margin-top:12px;font-size:13px;font-weight:600">3b. 貨物屬性 → Robot Routing（信任 DB 數據）</p>
+    <p style="font-size:13px;color:var(--text2)">唔同貨需要唔同 robot。SKU 屬性（重量、尺寸、易碎、溫區）從 WMS DB 取得，workflow engine 根據屬性自動 route：</p>
+    <table>
+      <thead><tr><th>貨物</th><th>重量</th><th>Robot</th><th>Workflow</th></tr></thead>
+      <tbody>
+        <tr><td>小件輕貨</td><td>&lt;5kg</td><td>AMR goods-to-person</td><td>AMR 搬架→人揀→AMR 搬回</td></tr>
+        <tr><td>中件標準</td><td>5-30kg</td><td>AMR transport</td><td>AMR 直接搬箱</td></tr>
+        <tr><td>大件重貨</td><td>&gt;30kg</td><td>AGV 叉車</td><td>叉車搬 pallet</td></tr>
+        <tr><td>易碎品</td><td>any</td><td>人工揀 + robot 搬</td><td>Robot 搬到人→人揀→robot 送走</td></tr>
+        <tr><td>冷鏈</td><td>any</td><td>冷庫專用 robot</td><td>限時，唔能久離冷區</td></tr>
+        <tr><td>異形件</td><td>any</td><td>可能人工</td><td>管狀、袋裝，robot 夾唔住</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:12px;font-size:13px;font-weight:600">3c. Order Splitting + 匯合</p>
+    <p style="font-size:13px;color:var(--text2)">一張單 3 件唔同類型貨 → 拆 3 個 sub-task → 3 種 robot/人處理 → 匯合打包：</p>
+    <ul>
+      <li>拆單：根據 DB 嘅 SKU 屬性自動拆成唔同 robot 嘅 sub-task</li>
+      <li>匯合同步：3 個 sub-task 完成時間唔同，等齊先打包？先到先包？</li>
+      <li>部分失敗：1 個 sub-task 失敗，其他 2 個點處理？</li>
+    </ul>
+
+    <p style="margin-top:8px;font-size:13px;color:var(--text2)">Spring State Machine 搞唔掂呢個。實質係建 mini Kubernetes scheduler。</p>
   </div>
 
   <div class="layer" style="border-left-color:var(--red)">
@@ -169,35 +194,8 @@ tr:hover{background:var(--bg)}
   </div>
 
   <div class="layer" style="border-left-color:var(--red)">
-    <h3>Layer 5: 貨物屬性 → Robot Routing <span class="tag" style="background:var(--red-bg);color:var(--red)">高 ⚠️</span></h3>
-    <p><strong>同一個倉嘅貨物差異巨大：50g 手機殼到 500kg 棧板。唔同貨需要唔同 robot + 唔同 workflow。</strong></p>
-    <table>
-      <thead><tr><th>貨物</th><th>重量</th><th>Robot</th><th>Workflow</th></tr></thead>
-      <tbody>
-        <tr><td>小件輕貨</td><td>&lt;5kg</td><td>AMR goods-to-person</td><td>AMR 搬架→人揀→AMR 搬回</td></tr>
-        <tr><td>中件標準</td><td>5-30kg</td><td>AMR transport</td><td>AMR 直接搬箱</td></tr>
-        <tr><td>大件重貨</td><td>&gt;30kg</td><td>AGV 叉車</td><td>叉車搬 pallet</td></tr>
-        <tr><td>易碎品</td><td>any</td><td>人工揀 + robot 搬</td><td>Robot 搬到人→人揀→robot 送走</td></tr>
-        <tr><td>冷鏈</td><td>any</td><td>冷庫專用 robot</td><td>限時，唔能久離冷區</td></tr>
-        <tr><td>異形件</td><td>any</td><td>可能人工</td><td>管狀、袋裝，robot 夾唔住</td></tr>
-      </tbody>
-    </table>
-    <p style="margin-top:10px"><strong>Detection 問題：</strong>系統點知件貨幾重幾大？WMS 主數據經常唔準、入庫過磅需要硬件（秤 + 3D scanner）、Camera AI 需要 training data。新 SKU 可能完全冇數據。</p>
-  </div>
-
-  <div class="layer" style="border-left-color:var(--red)">
-    <h3>Layer 6: Order Splitting + 匯合 <span class="tag" style="background:var(--red-bg);color:var(--red)">高 ⚠️</span></h3>
-    <p><strong>一張單 3 件唔同類型貨 → 拆 3 個 sub-task → 3 種 robot/人處理 → 匯合打包。</strong></p>
-    <ul>
-      <li>拆單邏輯：根據貨物屬性自動拆成唔同 robot 嘅 sub-task</li>
-      <li>匯合同步：3 個 sub-task 完成時間唔同，等齊先打包？先到先包？</li>
-      <li>部分失敗：1 個 sub-task 失敗，其他 2 個點處理？</li>
-    </ul>
-  </div>
-
-  <div class="layer" style="border-left-color:var(--yellow)">
-    <h3>Layer 7: 客戶可配置 Workflow <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">中-高</span></h3>
-    <p><strong>如果 workflow hardcoded，每個客戶都要改 code。必須做成 configurable。但 rule editor 太複雜倉管唔會用。</strong></p>
+    <h3>Layer 5: 客戶可配置 Workflow <span class="tag" style="background:var(--red-bg);color:var(--red)">高 ⚠️</span></h3>
+    <p><strong>如果 workflow hardcoded，每個客戶都要改 code。必須做成 configurable。</strong></p>
     <ul>
       <li><strong>規則衝突</strong>：兩條規則 match 同一件貨，用邊條？</li>
       <li><strong>規則遺漏</strong>：新情況冇 match 到任何規則</li>
@@ -207,7 +205,7 @@ tr:hover{background:var(--bg)}
     <p style="margin-top:10px"><strong>AI-Driven 方案：</strong></p>
     <table>
       <tbody>
-        <tr><td><strong>Level 1 智能默認</strong></td><td style="color:var(--yellow)">中</td><td>根據 SKU 屬性自動建議 workflow，覆蓋 80%</td></tr>
+        <tr><td><strong>Level 1 智能默認</strong></td><td style="color:var(--yellow)">中-高</td><td>後端邏輯中等，但 <strong>config UI 係隱藏成本</strong>：forms、validation、preview、override — vibe coding 幫到 UI 組件但幫唔到 UX 設計同業務 edge case</td></tr>
         <tr><td><strong>Level 2 自然語言</strong></td><td style="color:var(--red)">高</td><td>「大件用叉車，小件用 AMR」→ AI 生成規則</td></tr>
         <tr><td><strong>Level 3 學習模式</strong></td><td style="color:var(--red)">非常高</td><td>觀察人工操作 → 自動學習 routing（需大量數據）</td></tr>
       </tbody>
