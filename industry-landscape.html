@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>倉儲 / ERP / 數據平台 — 行業全景</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a73e8;--blue-bg:#e8f0fe;
+  --green:#34a853;--green-bg:#e6f4ea;
+  --red:#ea4335;--red-bg:#fce8e6;
+  --yellow:#f9ab00;--yellow-bg:#fef7e0;
+  --purple:#7b1fa2;--purple-bg:#f3e5f5;
+  --surface:#fff;--bg:#f8f9fa;
+  --text:#202124;--text2:#5f6368;--border:#dadce0;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px rgba(60,64,67,.15);
+  --shadow2:0 1px 3px rgba(60,64,67,.3),0 4px 8px rgba(60,64,67,.15);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Google Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Top Bar */
+.top-bar{
+  height:56px;display:flex;align-items:center;padding:0 24px;
+  background:var(--surface);box-shadow:var(--shadow);position:sticky;top:0;z-index:50;
+}
+.top-bar h1{font-size:18px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:10px}
+.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+
+/* Page Container */
+.page-container{max-width:1200px;margin:0 auto;padding:24px}
+
+/* Quadrant Section */
+.quadrant-section{
+  background:var(--surface);border-radius:12px;box-shadow:var(--shadow2);
+  padding:24px;margin-bottom:32px;position:relative;
+}
+.quadrant-section h2{font-size:20px;font-weight:500;margin-bottom:16px;color:var(--text)}
+.quadrant-wrap{position:relative;width:100%;overflow-x:auto}
+.quadrant-wrap svg{width:100%;min-width:700px;display:block}
+svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
+
+/* Tooltip */
+.tooltip{
+  position:fixed;z-index:200;pointer-events:none;
+  background:var(--surface);border-radius:8px;box-shadow:var(--shadow2);
+  padding:12px 16px;max-width:280px;opacity:0;transition:opacity 150ms var(--ease);
+  font-size:13px;line-height:1.5;
+}
+.tooltip.show{opacity:1}
+.tooltip .tt-name{font-weight:600;font-size:14px;margin-bottom:4px}
+.tooltip .tt-role{color:var(--text2);font-size:12px;margin-bottom:6px}
+.tooltip .tt-row{display:flex;justify-content:space-between;gap:12px}
+.tooltip .tt-label{color:var(--text2)}
+.tooltip .tt-val{font-weight:500}
+.tooltip .tt-val.pos{color:var(--green)}
+.tooltip .tt-val.neg{color:var(--red)}
+.tooltip .tt-val.neu{color:var(--yellow)}
+.tooltip .tt-click{margin-top:6px;font-size:11px;color:var(--blue);text-align:center}
+
+/* Detail Overlay */
+.detail-overlay{
+  position:fixed;top:0;right:0;width:420px;height:100vh;z-index:100;
+  background:var(--surface);box-shadow:-4px 0 24px rgba(60,64,67,.2);
+  transform:translateX(100%);transition:transform 300ms var(--ease);
+  overflow-y:auto;padding:32px 28px;
+}
+.detail-overlay.open{transform:translateX(0)}
+.detail-close{
+  position:absolute;top:16px;right:16px;width:36px;height:36px;border:none;
+  background:var(--bg);border-radius:50%;cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;color:var(--text2);
+  transition:background 150ms var(--ease);
+}
+.detail-close:hover{background:var(--border)}
+.detail-badge{
+  display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:500;margin-bottom:12px;
+}
+.detail-name{font-size:24px;font-weight:500;margin-bottom:4px}
+.detail-role{font-size:14px;color:var(--text2);margin-bottom:20px}
+.detail-section{margin-bottom:20px}
+.detail-section h3{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.detail-section h3::before{content:'';width:14px;height:2px;background:var(--blue);border-radius:1px}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric-card{
+  background:var(--bg);border-radius:8px;padding:12px;
+}
+.metric-card .mc-label{font-size:11px;color:var(--text2);margin-bottom:2px}
+.metric-card .mc-val{font-size:18px;font-weight:500}
+.metric-card .mc-note{font-size:11px;color:var(--text2);margin-top:2px}
+.metric-card .mc-val.pos{color:var(--green)}
+.metric-card .mc-val.neg{color:var(--red)}
+.metric-card .mc-val.neu{color:var(--yellow)}
+.detail-text{font-size:14px;color:var(--text);line-height:1.7}
+.detail-text .hl{color:var(--blue);font-weight:500}
+.detail-text .hl-green{color:var(--green);font-weight:500}
+.detail-text .hl-red{color:var(--red);font-weight:500}
+.detail-source{font-size:11px;color:var(--text2);margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+.est{font-style:italic;color:var(--text2)}
+
+/* Backdrop */
+.backdrop{
+  position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.3);
+  opacity:0;pointer-events:none;transition:opacity 200ms var(--ease);
+}
+.backdrop.show{opacity:1;pointer-events:auto}
+
+/* Summary Sections */
+.summary-section{
+  background:var(--surface);border-radius:12px;box-shadow:var(--shadow);
+  padding:28px;margin-bottom:24px;
+}
+.summary-section h2{font-size:18px;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.summary-section h2 .icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0}
+
+/* Role Cards */
+.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.role-card{border-radius:10px;padding:20px;border:1.5px solid var(--border);transition:box-shadow 200ms var(--ease)}
+.role-card:hover{box-shadow:var(--shadow2)}
+.role-card h3{font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.role-card p{font-size:13px;color:var(--text2);line-height:1.6}
+.role-card .role-examples{margin-top:10px;font-size:12px;color:var(--text2);padding-top:8px;border-top:1px solid var(--border)}
+
+/* Profit Table */
+.profit-table{width:100%;border-collapse:collapse;font-size:13px}
+.profit-table th{
+  text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);
+  font-weight:600;color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;
+  position:sticky;top:0;background:var(--surface);
+}
+.profit-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.profit-table tr:hover{background:var(--bg)}
+.profit-table .pos{color:var(--green);font-weight:500}
+.profit-table .neg{color:var(--red);font-weight:500}
+.profit-table .neu{color:var(--yellow);font-weight:500}
+.profit-table .na{color:var(--text2);font-style:italic}
+.table-wrap{overflow-x:auto;margin-top:8px}
+
+/* Insight Cards */
+.insight-list{display:flex;flex-direction:column;gap:12px}
+.insight-item{
+  display:flex;gap:16px;padding:16px;border-radius:8px;background:var(--bg);
+  border-left:4px solid var(--blue);
+}
+.insight-num{
+  width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;
+}
+.insight-body h4{font-size:14px;font-weight:500;margin-bottom:4px}
+.insight-body p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Footer */
+.page-footer{text-align:center;padding:24px;font-size:12px;color:var(--text2)}
+
+@media(max-width:768px){
+  .page-container{padding:12px}
+  .detail-overlay{width:100%;height:70vh;top:auto;bottom:0;left:0;right:0;transform:translateY(100%);border-radius:16px 16px 0 0}
+  .detail-overlay.open{transform:translateY(0)}
+  .role-grid{grid-template-columns:1fr}
+  .metric-grid{grid-template-columns:1fr}
+  .quadrant-section{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <h1><span class="logo">W</span> 倉儲 / ERP / 數據平台 — 行業全景</h1>
+</header>
+
+<main class="page-container">
+  <section class="quadrant-section">
+    <h2>行業象限圖</h2>
+    <div class="quadrant-wrap"><svg id="qsvg" viewBox="0 0 1000 680"></svg></div>
+  </section>
+
+  <section class="summary-section" id="sec-roles">
+    <h2><span class="icon" style="background:var(--blue)">&#9672;</span> 行業四大分類</h2>
+    <div class="role-grid" id="role-grid"></div>
+  </section>
+
+  <section class="summary-section" id="sec-profit">
+    <h2><span class="icon" style="background:var(--green)">$</span> 盈利能力分析</h2>
+    <div class="table-wrap"><table class="profit-table" id="profit-table"></table></div>
+  </section>
+
+  <section class="summary-section" id="sec-insights">
+    <h2><span class="icon" style="background:var(--yellow)">!</span> 關鍵洞察</h2>
+    <div class="insight-list" id="insight-list"></div>
+  </section>
+
+  <footer class="page-footer">
+    所有財務數據來自公開年報、10-K、招股書。標記 <span class="est">(estimation)</span> 為推算值。最後更新：2026-04
+  </footer>
+</main>
+
+<div class="backdrop" id="backdrop"></div>
+<div class="detail-overlay" id="detail-panel"><button class="detail-close" id="detail-close">&times;</button><div id="detail-content"></div></div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ── Helpers ── */
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+function show(el,{dur=500,delay:d=0,dx=0,dy=0,scale:sc}={}){
+  return new Promise(resolve=>{
+    if(!el){resolve();return}
+    const t0=`translate(${dx}px,${dy}px)`+(sc!=null?` scale(${sc})`:'');
+    el.style.transform=t0;el.style.opacity='0';
+    setTimeout(()=>{
+      el.style.transition=`opacity ${dur}ms var(--ease),transform ${dur}ms var(--ease)`;
+      el.style.opacity='1';el.style.transform='translate(0,0) scale(1)';
+      setTimeout(resolve,dur);
+    },d);
+  });
+}
+function showAll(els,stagger=80,opts={}){
+  return Promise.all(els.map((el,i)=>show(el,{...opts,delay:(opts.delay||0)+i*stagger})));
+}
+function drawPath(el,dur=600,d=0){
+  return new Promise(resolve=>{
+    if(!el){resolve();return}
+    let len;try{len=el.getTotalLength()}catch(e){len=200}
+    el.style.strokeDasharray=len;el.style.strokeDashoffset=len;el.style.opacity='1';
+    setTimeout(()=>{
+      el.style.transition=`stroke-dashoffset ${dur}ms var(--ease)`;el.style.strokeDashoffset='0';
+      setTimeout(resolve,dur);
+    },d);
+  });
+}
+
+function svgEl(tag,attrs={}){
+  const el=document.createElementNS(NS,tag);
+  for(let[k,v]of Object.entries(attrs))el.setAttribute(k,v);
+  el.style.opacity='0';return el;
+}
+function addTo(parent,...els){els.forEach(el=>parent.appendChild(el));return els}
+
+/* ── Company Data ── */
+/* Axes: X = 有自研 WMS (left) → 冇自研 WMS (right)
+         Y = 有機器人 (top) → 冇機器人 (bottom)
+   Quadrants: tl=全棧, tr=機器人+對接, bl=純WMS/SaaS, br=純機器人/數據平台 */
+const COMPANIES = [
+  // Top-Left: 全棧 Full Stack (自研 WMS + 機器人)
+  {
+    id:'hikrobot', name:'海康機器人', quadrant:'tl',
+    qx:0.20, qy:0.88,
+    revenueM:823, revenueLabel:'$823M / ¥59.29億 (FY2024)',
+    grossMargin:40.3, netMargin:13.5, netMarginNote:'estimation',
+    profitable:true, profitStatus:'pos',
+    role:'全棧倉儲自動化 (iWMS + 全品類機器人)', roleShort:'全棧自動化',
+    tooltip:'唯一盈利嘅中國倉儲機器人公司',
+    hasDetail:true,
+    source:'海康機器人招股書',
+  },
+  {
+    id:'quicktron', name:'快倉', quadrant:'tl',
+    qx:0.28, qy:0.75,
+    revenueM:null, revenueLabel:'未公開 (菜鳥/阿里生態)',
+    grossMargin:null, netMargin:null, netMarginNote:'未公開',
+    profitable:null, profitStatus:'na',
+    role:'自研 WMS + AGV/AMR', roleShort:'全棧自動化',
+    tooltip:'背靠菜鳥/阿里，天貓倉千台級驗證',
+    hasDetail:false,
+  },
+  {
+    id:'hairou', name:'海柔創新', quadrant:'tl',
+    qx:0.18, qy:0.78,
+    revenueM:null, revenueLabel:'未公開 (private)',
+    grossMargin:null, netMargin:null, netMarginNote:'未公開',
+    profitable:null, profitStatus:'na',
+    role:'自研 HAIQ WMS + ACR 箱式機器人', roleShort:'全棧自動化',
+    tooltip:'ACR tote 技術領先，存儲密度極高',
+    hasDetail:false,
+  },
+  {
+    id:'megvii', name:'曠視', quadrant:'tl',
+    qx:0.35, qy:0.68,
+    revenueM:null, revenueLabel:'未公開 (private)',
+    grossMargin:null, netMargin:null, netMarginNote:'未公開',
+    profitable:null, profitStatus:'na',
+    role:'河圖平台 (多機調度 + WMS) + AMR', roleShort:'AI 全棧',
+    tooltip:'河圖平台，AI 視覺驅動倉儲',
+    hasDetail:false,
+  },
+  // Top-Right: 機器人 + 對接 (有機器人，對接第三方 WMS)
+  {
+    id:'geekplus', name:'極智嘉', quadrant:'tr',
+    qx:0.68, qy:0.85,
+    revenueM:334, revenueLabel:'$334M / ¥24.09億 (FY2024)',
+    grossMargin:34.8, netMargin:-3.8, netMarginNote:'調整後',
+    profitable:false, profitStatus:'neg',
+    role:'AMR/ACR 機器人，主推對接 SAP/Oracle WMS', roleShort:'機器人+對接',
+    tooltip:'全球化最高中國 AMR 廠商，40國銷售網絡',
+    hasDetail:true,
+    source:'極智嘉招股書 (HKEX: 02590)',
+  },
+  // Bottom-Left: 純 WMS / SaaS / ERP (冇機器人)
+  {
+    id:'sap', name:'SAP', quadrant:'bl',
+    qx:0.08, qy:0.30,
+    revenueM:34180, revenueLabel:'$34.18B (FY2024)',
+    grossMargin:null, netMargin:9.1, netMarginNote:'GAAP',
+    profitable:true, profitStatus:'pos',
+    role:'企業 ERP (含 SAP EWM 倉儲模組)', roleShort:'企業 ERP',
+    tooltip:'全球最大企業 ERP，含 EWM 倉儲管理',
+    hasDetail:true,
+    source:'SAP FY2024 Annual Report',
+  },
+  {
+    id:'manh', name:'Manhattan Assoc.', quadrant:'bl',
+    qx:0.15, qy:0.35,
+    revenueM:1042, revenueLabel:'$1.04B (2024)',
+    grossMargin:null, netMargin:null, netMarginNote:'盈利',
+    profitable:true, profitStatus:'pos',
+    role:'專業雲端 WMS', roleShort:'專業 WMS',
+    tooltip:'WMS Gartner 領導者 17年',
+    hasDetail:false,
+    source:'Manhattan FY2024 Earnings',
+  },
+  {
+    id:'blueyonder', name:'Blue Yonder', quadrant:'bl',
+    qx:0.22, qy:0.38,
+    revenueM:1360, revenueLabel:'$1.36B (FY2024)',
+    grossMargin:null, netMargin:null, netMarginNote:'Private',
+    profitable:null, profitStatus:'na',
+    role:'WMS + TMS 供應鏈', roleShort:'WMS + TMS',
+    tooltip:'WMS 增長 32%，近 800 雲端站點',
+    hasDetail:false,
+    source:'Blue Yonder FY2024 公告',
+  },
+  {
+    id:'jst', name:'聚水潭', quadrant:'bl',
+    qx:0.30, qy:0.18,
+    revenueM:126, revenueLabel:'$126M / ¥9.1億 (FY2024)',
+    grossMargin:68.5, netMargin:1, netMarginNote:'勉強打平',
+    profitable:null, profitStatus:'neu',
+    role:'電商 SaaS ERP + WMS', roleShort:'電商 SaaS',
+    tooltip:'中國電商 SaaS 第一，市佔 24.4%',
+    hasDetail:true,
+    source:'聚水潭招股書 (HKEX: 06687)',
+  },
+  {
+    id:'wdt', name:'旺店通', quadrant:'bl',
+    qx:0.38, qy:0.12,
+    revenueM:null, revenueLabel:'未公開 (private)',
+    grossMargin:null, netMargin:null, netMarginNote:'未公開',
+    profitable:null, profitStatus:'na',
+    role:'電商 SaaS ERP + WMS', roleShort:'電商 SaaS',
+    tooltip:'電商 ERP，聚水潭主要競爭者',
+    hasDetail:false,
+  },
+  {
+    id:'gyy', name:'管易雲', quadrant:'bl',
+    qx:0.42, qy:0.08,
+    revenueM:null, revenueLabel:'未公開 (金蝶子公司)',
+    grossMargin:null, netMargin:null, netMarginNote:'未公開',
+    profitable:null, profitStatus:'na',
+    role:'電商 SaaS ERP', roleShort:'電商 SaaS',
+    tooltip:'金蝶旗下電商 ERP，11萬+客戶',
+    hasDetail:false,
+  },
+  // Bottom-Right: 冇自研 WMS + 冇機器人 (數據/AI 平台、Integration Layer)
+  {
+    id:'palantir', name:'Palantir', quadrant:'br',
+    qx:0.75, qy:0.35,
+    revenueM:2870, revenueLabel:'$2.87B (FY2024)',
+    grossMargin:null, netMargin:16, netMarginNote:'GAAP',
+    profitable:true, profitStatus:'pos',
+    role:'數據整合 + AI 決策 (Ontology)', roleShort:'數據/AI',
+    tooltip:'Ontology + AIP，坐喺 WMS/ERP 上面嘅決策層',
+    hasDetail:true,
+    source:'Palantir FY2024 10-K',
+  },
+  {
+    id:'snowflake', name:'Snowflake', quadrant:'br',
+    qx:0.65, qy:0.12,
+    revenueM:3630, revenueLabel:'$3.63B (FY2025)',
+    grossMargin:null, netMargin:null, netMarginNote:'淨虧 $1.29B',
+    profitable:false, profitStatus:'neg',
+    role:'雲數據倉庫', roleShort:'數據基建',
+    tooltip:'雲數據平台，消費制計費',
+    hasDetail:false,
+    source:'Snowflake FY2025 10-K',
+  },
+  {
+    id:'databricks', name:'Databricks', quadrant:'br',
+    qx:0.88, qy:0.22,
+    revenueM:5400, revenueLabel:'$5.4B ARR (private)',
+    grossMargin:null, netMargin:null, netMarginNote:'FCF 正數',
+    profitable:null, profitStatus:'neu',
+    role:'數據湖倉 + AI', roleShort:'數據基建',
+    tooltip:'最高估值 AI 數據公司 ($134B)',
+    hasDetail:false,
+    source:'Databricks Series L 公告 (2025.12)',
+  },
+];
+
+/* ── Detail Page Content (5 companies) ── */
+const DETAILS = {
+  sap: {
+    badge:{text:'企業 ERP',bg:'var(--blue-bg)',color:'var(--blue)'},
+    name:'SAP',
+    role:'全球最大企業 ERP 供應商 — 企業嘅「記錄管理者」',
+    metrics:[
+      {label:'年收入',val:'$34.18B',note:'FY2024, €34.18B',cls:''},
+      {label:'雲收入',val:'$17.14B',note:'+25% YoY',cls:'pos'},
+      {label:'淨利率',val:'9.1%',note:'GAAP',cls:'pos'},
+      {label:'雲 ERP 增長',val:'+33%',note:'Cloud ERP Suite',cls:'pos'},
+    ],
+    whyProfit:`<p class="detail-text">30 年企業客戶鎖定效應，<span class="hl">轉換成本極高</span>（換 SAP 等於企業「換血」）。雲端轉型成功：雲收入佔比已超 50%，訂閱制令收入更可預測。</p>
+<p class="detail-text" style="margin-top:8px">但 GAAP 淨利率只有 9.1%，遠低於 Oracle (19.8%)。原因：<span class="hl-red">雲轉型投入巨大</span> — 收購 Qualtrics ($8B)、Signavio、LeanIX 等公司，加上重組費用拉低利潤。</p>`,
+    insight:'盈利靠嘅係客戶遷移成本極高，唔係技術護城河。企業唔係因為 SAP 好用而用 SAP，係因為換走 SAP 太痛苦。',
+    source:'SAP Integrated Report 2024 (sap.com/integrated-reports/2024)',
+  },
+  palantir: {
+    badge:{text:'數據/AI 平台',bg:'var(--yellow-bg)',color:'var(--yellow)'},
+    name:'Palantir',
+    role:'數據整合 + AI 決策平台 — 企業嘅「大腦」',
+    metrics:[
+      {label:'年收入',val:'$2.87B',note:'FY2024, +29% YoY',cls:''},
+      {label:'淨利率',val:'16%',note:'GAAP',cls:'pos'},
+      {label:'市值',val:'$359B',note:'P/S > 100x',cls:''},
+      {label:'政府:商業',val:'55:45',note:'收入佔比',cls:''},
+    ],
+    whyProfit:`<p class="detail-text"><span class="hl-green">已盈利</span>，2024 年淨利率 16%（上年 9.4%）。核心原因：</p>
+<p class="detail-text" style="margin-top:8px">1. <span class="hl">政府合約長期穩定</span> — 美國國防部、CIA 等長約，收入可預測<br>2. <span class="hl">AIP 帶動商業加速</span> — 商業收入增長 >40%<br>3. <span class="hl">毛利率極高</span> (>80%) — 純軟件，無硬件成本<br>4. 規模效應顯現 — 收入增長 29% 但費用增速低於收入</p>`,
+    insight:'估值極高 (P/S >100x)，市場 bet 嘅係 Ontology + AIP 會成為新一代企業軟件基礎設施。風險：如果 AI 決策唔能形成平台壟斷，估值會大幅回調。',
+    source:'Palantir 2024 10-K (investors.palantir.com)',
+  },
+  geekplus: {
+    badge:{text:'倉儲機器人',bg:'var(--red-bg)',color:'var(--red)'},
+    name:'極智嘉 Geek+',
+    role:'倉儲 AMR 機器人 + WMS — 倉庫嘅「手腳」',
+    metrics:[
+      {label:'年收入',val:'¥24.09億',note:'FY2024, ~$334M',cls:''},
+      {label:'毛利率',val:'34.8%',note:'AMR: 39%',cls:''},
+      {label:'淨利率',val:'-3.8%',note:'調整後',cls:'neg'},
+      {label:'累計交付',val:'~56,000 台',note:'截至 2024.12',cls:''},
+    ],
+    whyProfit:`<p class="detail-text"><span class="hl-red">仍虧損</span>，但接近打平。帳面淨虧 ¥8.32 億 vs 調整後僅虧 ¥0.92 億（差額係優先股公允價值變動，非現金）。</p>
+<p class="detail-text" style="margin-top:8px">錢去咗邊：<br>• <span class="hl">銷售費用 19%</span> — 40 國自建銷售網絡<br>• <span class="hl">研發費用 12%</span> — AMR/ACR/叉車/人形機器人多條產線<br>• 三項費用合計 ¥9.18 億 > 毛利 ¥8.40 億</p>
+<p class="detail-text" style="margin-top:8px">好消息：<span class="hl-green">2025 H1 EBITDA 首次轉正</span> (+¥0.12 億)。Unit economics 已經 work。</p>`,
+    insight:'生意本身 profitable（毛利 35-39%），虧損係全球化擴張嘅代價。對比海康機器人：同樣嘅機器人生意，自建 vs 借母公司渠道，決定咗虧損 vs 盈利。',
+    source:'極智嘉招股書 (HKEX: 02590)',
+  },
+  hikrobot: {
+    badge:{text:'全棧自動化',bg:'var(--green-bg)',color:'var(--green)'},
+    name:'海康機器人 Hikrobot',
+    role:'全棧倉儲自動化（自研 iWMS + 全品類機器人）',
+    metrics:[
+      {label:'年收入',val:'¥59.29億',note:'FY2024, ~$823M',cls:''},
+      {label:'毛利率',val:'40.3%',note:'移動機器人',cls:'pos'},
+      {label:'淨利率',val:'~13.5%',note:'estimation',cls:'pos'},
+      {label:'AMR 累計',val:'10 萬台',note:'截至 2024.5',cls:''},
+    ],
+    whyProfit:`<p class="detail-text"><span class="hl-green">唯一盈利嘅中國倉儲機器人公司</span>。核心原因：</p>
+<p class="detail-text" style="margin-top:8px">1. <span class="hl">母公司海康威視供應鏈</span> — 自研核心部件，硬件成本遠低於競爭對手<br>2. <span class="hl">現成銷售渠道</span> — 唔使燒錢自建 40 國銷售團隊（對比極智嘉）<br>3. <span class="hl">全品類覆蓋</span> — AGV/AMR/AS-RS 全有，客戶可以一站式採購</p>`,
+    insight:'證明咗「母公司生態」比「獨立創業」更容易盈利。但受美國制裁清單影響（海康威視被列入 Entity List），海外擴張嚴重受限。<br><br><span class="est">淨利率 ~13.5% 為根據公開數據推算 (estimation)</span>',
+    source:'海康機器人創業板 IPO 招股書',
+  },
+  jst: {
+    badge:{text:'電商 SaaS',bg:'var(--yellow-bg)',color:'var(--yellow)'},
+    name:'聚水潭 Jushuitan',
+    role:'中國電商 SaaS ERP 第一 — 電商嘅「訂單管家」',
+    metrics:[
+      {label:'年收入',val:'¥9.1億',note:'FY2024, ~$126M',cls:''},
+      {label:'毛利率',val:'68.5%',note:'SaaS 典型',cls:'pos'},
+      {label:'淨利率',val:'~1%',note:'勉強打平',cls:'neu'},
+      {label:'市佔率',val:'24.4%',note:'中國第一',cls:'pos'},
+    ],
+    whyProfit:`<p class="detail-text"><span class="hl">勉強打平</span>，2024 年帳面盈利 ¥0.11 億，但主要靠 ¥9,000 萬遞延所得稅。剔除後仍虧 ~¥8,000 萬。</p>
+<p class="detail-text" style="margin-top:8px">SaaS 嘅困境：<br>• <span class="hl-green">毛利率極高 68.5%</span> — 純軟件，邊際成本幾乎為零<br>• <span class="hl-red">但銷售+研發吃掉 50%+</span> — 中國市場獲客成本高<br>• 客戶年費 <span class="hl">¥3,000–9,000</span> — 單客價值低，需要靠量取勝</p>
+<p class="detail-text" style="margin-top:8px">24.4% 市佔率（超過第 2-5 名總和）仍然只有 $126M 收入，反映中國電商 SaaS 市場天花板有限。</p>`,
+    insight:'中國 SaaS 嘅縮影：毛利高但客戶付費意願低。安永 2024 報告指中國 SaaS 行業大部分虧損（平均銷售費用率 30%，國際只有 20%）。聚水潭已經係表現最好嘅。',
+    source:'聚水潭招股書 (HKEX: 06687)、藍湖資本 (bluelakecap.com)',
+  },
+};
+
+/* ── Chart Constants ── */
+const CL=100, CR=950, CT=55, CB=630; // chart bounds
+const CW=CR-CL, CH=CB-CT;
+const MX=CL+CW/2, MY=CT+CH/2; // center
+
+function mapQ(qx,qy){ return { cx: CL + qx*CW, cy: CB - qy*CH }; }
+function dotR(rm){ if(!rm) return 14; return Math.max(12, Math.min(40, Math.log10(rm)*10)); }
+
+const QCOLORS = {
+  tl:{fill:'rgba(26,115,232,0.06)',label:'全棧 Full Stack',lc:'rgba(26,115,232,0.45)',dot:'#e8f0fe',stroke:'#1a73e8'},
+  tr:{fill:'rgba(249,171,0,0.06)',label:'機器人 + 對接',lc:'rgba(249,171,0,0.45)',dot:'#fef7e0',stroke:'#f9ab00'},
+  bl:{fill:'rgba(52,168,83,0.06)',label:'純 WMS / SaaS / ERP',lc:'rgba(52,168,83,0.45)',dot:'#e6f4ea',stroke:'#34a853'},
+  br:{fill:'rgba(123,31,162,0.06)',label:'數據/AI 平台',lc:'rgba(123,31,162,0.45)',dot:'#f3e5f5',stroke:'#7b1fa2'},
+};
+
+const PROFIT_STROKE = {pos:'#34a853',neg:'#ea4335',neu:'#f9ab00',na:'#dadce0'};
+
+/* ── Build Quadrant SVG ── */
+function buildQuadrant(){
+  const svg = $('qsvg');
+  svg.innerHTML = '';
+
+  // Quadrant background fills
+  const bgTL = svgEl('rect',{x:CL,y:CT,width:CW/2,height:CH/2,fill:QCOLORS.tl.fill,rx:0});bgTL.style.opacity='1';
+  const bgTR = svgEl('rect',{x:MX,y:CT,width:CW/2,height:CH/2,fill:QCOLORS.tr.fill,rx:0});bgTR.style.opacity='1';
+  const bgBL = svgEl('rect',{x:CL,y:MY,width:CW/2,height:CH/2,fill:QCOLORS.bl.fill,rx:0});bgBL.style.opacity='1';
+  const bgBR = svgEl('rect',{x:MX,y:MY,width:CW/2,height:CH/2,fill:QCOLORS.br.fill,rx:0});bgBR.style.opacity='1';
+  addTo(svg, bgTL, bgTR, bgBL, bgBR);
+
+  // Axes
+  const axH = svgEl('line',{x1:CL,y1:MY,x2:CR,y2:MY,stroke:'#dadce0','stroke-width':1.5});axH.id='ax-h';
+  const axV = svgEl('line',{x1:MX,y1:CT,x2:MX,y2:CB,stroke:'#dadce0','stroke-width':1.5});axV.id='ax-v';
+  addTo(svg, axH, axV);
+
+  // Axis labels
+  const axLabels = [];
+  const alLeft = svgEl('text',{x:CL,y:CB+28,'text-anchor':'start','dominant-baseline':'middle',fill:'#5f6368','font-size':13,'font-weight':600});
+  alLeft.textContent='← 有自研 WMS';alLeft.style.opacity='0';axLabels.push(alLeft);
+  const alRight = svgEl('text',{x:CR,y:CB+28,'text-anchor':'end','dominant-baseline':'middle',fill:'#5f6368','font-size':13,'font-weight':600});
+  alRight.textContent='冇自研 WMS →';alRight.style.opacity='0';axLabels.push(alRight);
+  const alTop = svgEl('text',{x:CL-14,y:CT,'text-anchor':'end','dominant-baseline':'middle',fill:'#5f6368','font-size':12,'font-weight':600,transform:`rotate(-90,${CL-14},${CT})`});
+  alTop.textContent='有機器人 ↑';alTop.style.opacity='0';axLabels.push(alTop);
+  const alBot = svgEl('text',{x:CL-14,y:CB,'text-anchor':'start','dominant-baseline':'middle',fill:'#5f6368','font-size':12,'font-weight':600,transform:`rotate(-90,${CL-14},${CB})`});
+  alBot.textContent='↓ 冇機器人';alBot.style.opacity='0';axLabels.push(alBot);
+  addTo(svg, ...axLabels);
+
+  // Quadrant labels (light, background text)
+  const qLabels = [];
+  const qlTL = svgEl('text',{x:CL+(MX-CL)/2, y:CT+40,'text-anchor':'middle','dominant-baseline':'middle',fill:QCOLORS.tl.lc,'font-size':15,'font-weight':600});
+  qlTL.textContent=QCOLORS.tl.label;qlTL.style.opacity='0';qLabels.push(qlTL);
+  const qlTR = svgEl('text',{x:MX+(CR-MX)/2, y:CT+40,'text-anchor':'middle','dominant-baseline':'middle',fill:QCOLORS.tr.lc,'font-size':15,'font-weight':600});
+  qlTR.textContent=QCOLORS.tr.label;qlTR.style.opacity='0';qLabels.push(qlTR);
+  const qlBL = svgEl('text',{x:CL+(MX-CL)/2, y:CB-20,'text-anchor':'middle','dominant-baseline':'middle',fill:QCOLORS.bl.lc,'font-size':15,'font-weight':600});
+  qlBL.textContent=QCOLORS.bl.label;qlBL.style.opacity='0';qLabels.push(qlBL);
+  const qlBR = svgEl('text',{x:MX+(CR-MX)/2, y:CB-20,'text-anchor':'middle','dominant-baseline':'middle',fill:QCOLORS.br.lc,'font-size':15,'font-weight':600});
+  qlBR.textContent=QCOLORS.br.label;qlBR.style.opacity='0';qLabels.push(qlBR);
+  addTo(svg, ...qLabels);
+
+  // Company dots
+  const dotGroups = [];
+  COMPANIES.forEach(c => {
+    const {cx, cy} = mapQ(c.qx, c.qy);
+    const r = dotR(c.revenueM);
+    const q = QCOLORS[c.quadrant] || QCOLORS.c;
+    const g = svgEl('g',{'data-id':c.id});
+    g.style.opacity = '0';
+    g.style.cursor = c.hasDetail ? 'pointer' : 'default';
+
+    // Dot circle
+    const circle = svgEl('circle',{cx,cy,r,fill:q.dot,stroke:PROFIT_STROKE[c.profitStatus],'stroke-width':2.5});
+    circle.style.opacity='1';
+    g.appendChild(circle);
+
+    // Name label
+    const labelY = cy + r + 14;
+    const label = svgEl('text',{x:cx, y: labelY > CB-10 ? cy - r - 8 : labelY, 'text-anchor':'middle','dominant-baseline':'middle',fill:'#202124','font-size':11,'font-weight':500});
+    label.textContent = c.name;
+    label.style.opacity='1';
+    g.appendChild(label);
+
+    // Revenue label (small, under name)
+    if(c.revenueM){
+      const revY = labelY > CB-10 ? cy - r - 20 : labelY + 13;
+      const rev = svgEl('text',{x:cx, y:revY, 'text-anchor':'middle','dominant-baseline':'middle',fill:'#5f6368','font-size':9,'font-weight':400});
+      const fmt = c.revenueM >= 1000 ? `$${(c.revenueM/1000).toFixed(1)}B` : `$${c.revenueM}M`;
+      rev.textContent = fmt;
+      rev.style.opacity='1';
+      g.appendChild(rev);
+    }
+
+    svg.appendChild(g);
+    dotGroups.push(g);
+
+    // Interaction
+    g.addEventListener('mouseenter', e => showTooltip(c, e));
+    g.addEventListener('mousemove', e => moveTooltip(e));
+    g.addEventListener('mouseleave', hideTooltip);
+    if(c.hasDetail){
+      g.addEventListener('click', () => openDetail(c.id));
+      g.style.cursor = 'pointer';
+    }
+  });
+
+  return {axH, axV, axLabels, qLabels, dotGroups};
+}
+
+/* ── Tooltip ── */
+function showTooltip(c, e){
+  const tt = $('tooltip');
+  const marginCls = c.profitStatus==='pos'?'pos':c.profitStatus==='neg'?'neg':'neu';
+  tt.innerHTML = `
+    <div class="tt-name">${c.name}</div>
+    <div class="tt-role">${c.role}</div>
+    <div class="tt-row"><span class="tt-label">收入</span><span class="tt-val">${c.revenueLabel}</span></div>
+    ${c.netMargin!=null?`<div class="tt-row"><span class="tt-label">淨利率</span><span class="tt-val ${marginCls}">${c.netMargin}% ${c.netMarginNote?'('+c.netMarginNote+')':''}</span></div>`
+      :`<div class="tt-row"><span class="tt-label">淨利率</span><span class="tt-val">${c.netMarginNote||'—'}</span></div>`}
+    <div style="margin-top:4px;font-size:12px;color:var(--text2)">${c.tooltip}</div>
+    ${c.hasDetail?'<div class="tt-click">點擊查看詳情 →</div>':''}
+  `;
+  moveTooltip(e);
+  tt.classList.add('show');
+}
+function moveTooltip(e){
+  const tt=$('tooltip');
+  let x=e.clientX+16, y=e.clientY+16;
+  if(x+280>window.innerWidth) x=e.clientX-296;
+  if(y+200>window.innerHeight) y=e.clientY-200;
+  tt.style.left=x+'px'; tt.style.top=y+'px';
+}
+function hideTooltip(){ $('tooltip').classList.remove('show'); }
+
+/* ── Detail Panel ── */
+function openDetail(id){
+  const d = DETAILS[id]; if(!d) return;
+  const panel = $('detail-panel');
+  const content = $('detail-content');
+
+  content.innerHTML = `
+    <div class="detail-badge" style="background:${d.badge.bg};color:${d.badge.color}">${d.badge.text}</div>
+    <div class="detail-name">${d.name}</div>
+    <div class="detail-role">${d.role}</div>
+
+    <div class="detail-section">
+      <h3>關鍵指標</h3>
+      <div class="metric-grid">
+        ${d.metrics.map(m=>`
+          <div class="metric-card">
+            <div class="mc-label">${m.label}</div>
+            <div class="mc-val ${m.cls}">${m.val}</div>
+            <div class="mc-note">${m.note}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>點解${d.metrics.some(m=>m.cls==='neg')?'虧損':d.metrics.some(m=>m.cls==='neu')?'勉強打平':'盈利'}？</h3>
+      ${d.whyProfit}
+    </div>
+
+    <div class="detail-section">
+      <h3>核心洞察</h3>
+      <p class="detail-text">${d.insight}</p>
+    </div>
+
+    <div class="detail-source">數據來源：${d.source}</div>
+  `;
+
+  panel.classList.add('open');
+  $('backdrop').classList.add('show');
+
+  // Dim other dots
+  document.querySelectorAll('#qsvg g[data-id]').forEach(g=>{
+    g.style.transition='opacity 200ms var(--ease)';
+    g.style.opacity = g.getAttribute('data-id')===id ? '1' : '0.3';
+  });
+}
+
+function closeDetail(){
+  $('detail-panel').classList.remove('open');
+  $('backdrop').classList.remove('show');
+  document.querySelectorAll('#qsvg g[data-id]').forEach(g=>{
+    g.style.opacity='1';
+  });
+}
+
+$('detail-close').addEventListener('click', closeDetail);
+$('backdrop').addEventListener('click', closeDetail);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDetail(); });
+
+/* ── Build Summary: Role Cards ── */
+function buildRoles(){
+  const roles = [
+    {
+      title:'全棧 Full Stack',
+      color:'var(--blue)',bg:'var(--blue-bg)',
+      desc:'自研 WMS + 自研機器人，端到端控制。硬件毛利 35-40%，盈利靠供應鏈成本控制。唯一盈利路徑：母公司生態（海康）。',
+      examples:'代表：海康機器人 (¥59.29億, 盈利)、快倉、海柔、曠視',
+    },
+    {
+      title:'機器人 + 對接',
+      color:'var(--yellow)',bg:'var(--yellow-bg)',
+      desc:'有機器人但主推對接第三方 WMS（SAP/Oracle）。全球化擴張燒錢，銷售費用率 19%。Unit economics work，虧損係擴張代價。',
+      examples:'代表：極智嘉 (¥24.09億, 調整後虧 -3.8%)',
+    },
+    {
+      title:'純 WMS / SaaS / ERP',
+      color:'var(--green)',bg:'var(--green-bg)',
+      desc:'冇機器人，純軟件。SaaS 毛利 55-68%，但中國市場獲客成本高。企業 ERP（SAP）靠客戶鎖定盈利，電商 SaaS 靠量取勝。',
+      examples:'代表：SAP ($34.18B)、Manhattan ($1.04B)、聚水潭 (¥9.1億)',
+    },
+    {
+      title:'數據/AI 平台',
+      color:'var(--purple)',bg:'var(--purple-bg)',
+      desc:'冇 WMS 冇機器人，坐喺所有系統上面做數據整合 + AI 決策。Ontology 映射現有 DB，唔取代而係增強。毛利 >80%。',
+      examples:'代表：Palantir ($2.87B, 16% 淨利)、Snowflake ($3.63B, 虧損)',
+    },
+  ];
+
+  $('role-grid').innerHTML = roles.map(r=>`
+    <div class="role-card" style="border-color:${r.color}">
+      <h3><span style="color:${r.color}">●</span> ${r.title}</h3>
+      <p>${r.desc}</p>
+      <div class="role-examples">${r.examples}</div>
+    </div>
+  `).join('');
+}
+
+/* ── Build Summary: Profit Table ── */
+function buildProfitTable(){
+  const tbl = $('profit-table');
+  const rows = COMPANIES.filter(c=>c.revenueM || c.hasDetail).sort((a,b)=>(b.revenueM||0)-(a.revenueM||0));
+
+  const whyMap = {
+    sap:'客戶鎖定效應極高，但雲轉型投入拉低淨利至 9.1%',
+    palantir:'政府合約穩定 + AIP 商業加速，毛利 >80%',
+    snowflake:'高增長但燒錢擴張，FY2025 淨虧 $1.29B',
+    databricks:'私有公司，FCF 已轉正，AI 產品 $1.4B ARR',
+    jst:'SaaS 毛利高 (68.5%) 但中國市場獲客成本高，單客價值低',
+    geekplus:'Unit economics work（毛利 35%），虧損係全球化擴張代價',
+    hikrobot:'唯一盈利：母公司供應鏈 + 現成渠道，毛利 40.3%',
+    manh:'WMS Gartner 領導者 17 年，$1B+ 收入穩定盈利',
+    blueyonder:'WMS +32% 增長，NRR 101.2%，Apollo PE 持有',
+  };
+
+  tbl.innerHTML = `
+    <thead><tr>
+      <th>公司</th><th>角色</th><th>收入</th><th>毛利率</th><th>淨利率</th><th>盈利?</th><th>原因</th>
+    </tr></thead>
+    <tbody>
+    ${rows.map(c=>{
+      const marginCls = c.profitStatus==='pos'?'pos':c.profitStatus==='neg'?'neg':c.profitStatus==='neu'?'neu':'na';
+      const profitIcon = c.profitable===true?'<span class="pos">✓ 盈利</span>':c.profitable===false?'<span class="neg">✗ 虧損</span>':c.profitStatus==='neu'?'<span class="neu">~ 打平</span>':'<span class="na">未知</span>';
+      return `<tr${c.hasDetail?' style="cursor:pointer" onclick="openDetail(\''+c.id+'\')"':''}>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.roleShort}</td>
+        <td>${c.revenueLabel}</td>
+        <td>${c.grossMargin!=null?c.grossMargin+'%':'—'}</td>
+        <td class="${marginCls}">${c.netMargin!=null?c.netMargin+'%'+(c.netMarginNote==='estimation'?' <span class="est">(est.)</span>':''):c.netMarginNote||'—'}</td>
+        <td>${profitIcon}</td>
+        <td style="font-size:12px;color:var(--text2);max-width:240px">${whyMap[c.id]||'—'}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  `;
+}
+
+/* ── Build Summary: Insights ── */
+function buildInsights(){
+  const insights = [
+    {
+      title:'執行系統毛利高但客戶價值低',
+      text:'聚水潭毛利率 68.5%，遠高於 SAP 嘅 GAAP 淨利率 9.1%。但 SAP 年收入 $34.18B vs 聚水潭 $126M — 差距 270 倍。SaaS 靠量，ERP 靠鎖定。',
+      color:'var(--green)',
+    },
+    {
+      title:'智能系統估值高但多數虧損',
+      text:'Palantir 已盈利 (16% 淨利率) 但 P/S >100x。Snowflake 年虧 $1.29B，C3.ai 仍未盈利。市場賭嘅係「數據決策」會成為下一代基礎設施。',
+      color:'var(--yellow)',
+    },
+    {
+      title:'專業 WMS 是隱形冠軍',
+      text:'Manhattan Associates 穩定盈利，$1.04B 收入。Blue Yonder WMS 增長 32%。呢啲公司冇 AI 光環，但商業模式最穩健。',
+      color:'var(--blue)',
+    },
+    {
+      title:'中國 SaaS 行業整體虧損',
+      text:'安永 2024 報告：中國 SaaS 平均銷售費用率 30%（國際 20%），大部分公司虧損。聚水潭 68.5% 毛利率仍然只能勉強打平 — 呢個係市場結構問題，唔係個別公司問題。',
+      color:'var(--red)',
+    },
+    {
+      title:'全球化擴張是機器人公司虧損主因',
+      text:'極智嘉調整後淨虧率只有 -3.8%（帳面 -34.5% 包含優先股非現金虧損），2025 H1 EBITDA 首次轉正。海康機器人靠母公司渠道盈利 (~13.5% 淨利率)，證明機器人生意本身 unit economics 可行。',
+      color:'var(--purple)',
+    },
+  ];
+
+  $('insight-list').innerHTML = insights.map((ins,i)=>`
+    <div class="insight-item" style="border-left-color:${ins.color}">
+      <div class="insight-num" style="background:${ins.color}">${i+1}</div>
+      <div class="insight-body">
+        <h4>${ins.title}</h4>
+        <p>${ins.text}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Init & Animate ── */
+async function init(){
+  const {axH,axV,axLabels,qLabels,dotGroups} = buildQuadrant();
+  buildRoles();
+  buildProfitTable();
+  buildInsights();
+
+  // Animate quadrant
+  await Promise.all([drawPath(axH,600), drawPath(axV,600)]);
+  await showAll(qLabels, 100, {dur:400});
+  await showAll(axLabels, 80, {dur:400, dy:8});
+
+  // Dots by quadrant group
+  const groups = {};
+  dotGroups.forEach(g=>{
+    const id = g.getAttribute('data-id');
+    const c = COMPANIES.find(x=>x.id===id);
+    const q = c?c.quadrant:'c';
+    if(!groups[q]) groups[q]=[];
+    groups[q].push(g);
+  });
+  for(const q of ['tl','tr','bl','br']){
+    if(groups[q]) await showAll(groups[q], 120, {dur:350, scale:0});
+  }
+
+  // Animate below-fold on scroll
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.style.transition='opacity 500ms var(--ease), transform 500ms var(--ease)';
+        entry.target.style.opacity='1';
+        entry.target.style.transform='translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  },{threshold:0.1});
+
+  document.querySelectorAll('.summary-section').forEach(s=>{
+    s.style.opacity='0';
+    s.style.transform='translateY(20px)';
+    observer.observe(s);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
