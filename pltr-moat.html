@@ -373,29 +373,8 @@ function buildLayers(){
   svg.appendChild(bracket);
 }
 
-/* ── Scroll Animation ── */
-function initScrollAnim(){
-  const observer=new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.style.transition='opacity 500ms cubic-bezier(0.4,0,0.2,1),transform 500ms cubic-bezier(0.4,0,0.2,1)';
-        entry.target.style.opacity='1';
-        entry.target.style.transform='translateY(0)';
-        observer.unobserve(entry.target);
-      }
-    });
-  },{threshold:0.1});
-
-  document.querySelectorAll('.card').forEach(s=>{
-    s.style.opacity='0';
-    s.style.transform='translateY(20px)';
-    observer.observe(s);
-  });
-}
-
 buildCurve();
 buildLayers();
-initScrollAnim();
 </script>
 </body>
 </html>
