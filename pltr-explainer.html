@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>How Palantir Engineers Deploy Fast</title>
+<title>Palantir 工程師如何快速交付</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -95,7 +95,13 @@ svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
 <body>
 
 <header class="top-bar">
-  <h1><span class="logo">P</span> How Palantir Engineers Deploy Fast</h1>
+  <h1><span class="logo">W</span> 倉儲自動化平台</h1>
+  <nav style="display:flex;gap:4px;margin-left:auto">
+    <a href="industry-landscape.html" style="font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px">行業全景</a>
+    <a href="product-overview.html" style="font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px">產品定位</a>
+    <a href="system-backbone.html" style="font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px">系統架構</a>
+    <a href="pltr-explainer.html" style="font-size:13px;color:var(--blue);text-decoration:none;padding:6px 14px;border-radius:18px;background:var(--blue-bg);font-weight:500">PLTR 解析</a>
+  </nav>
 </header>
 
 <main class="slide-area">
@@ -110,10 +116,10 @@ svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
 </main>
 
 <nav class="bottom-nav">
-  <button class="btn btn-outline" id="prev-btn" onclick="go(-1)">&#8592; Back</button>
+  <button class="btn btn-outline" id="prev-btn" onclick="go(-1)">&#8592; 上一頁</button>
   <div class="dots" id="dots"></div>
   <span class="counter" id="counter"></span>
-  <button class="btn btn-filled" id="next-btn" onclick="go(1)">Next &#8594;</button>
+  <button class="btn btn-filled" id="next-btn" onclick="go(1)">下一頁 &#8594;</button>
 </nav>
 
 <script>
@@ -213,11 +219,11 @@ function addTo(parent, ...els) { els.forEach(el => parent.appendChild(el)); retu
 /* ── Slide Data ── */
 const slides = [
 
-/* ── SECTION 1: WHAT IS PALANTIR ── */
+/* ── 第一部分：什麼是 PALANTIR ── */
 {
-  section: 'What is Palantir',
-  title: 'What is Palantir?',
-  text: `Palantir builds <span class="hl">data operating systems</span> for the world's most important institutions — defense, intelligence, healthcare, energy, and finance.<br><br>Three products: <span class="hl">Gotham</span> (defense), <span class="hl">Foundry</span> (enterprise), and <span class="hl">AIP</span> (AI platform). All share one core idea: the <span class="hl">Ontology</span>.`,
+  section: '什麼是 Palantir',
+  title: '什麼是 Palantir？',
+  text: `Palantir 為全球最重要的機構——國防、情報、醫療、能源和金融——構建<span class="hl">數據作業系統</span>。<br><br>三大產品：<span class="hl">Gotham</span>（國防）、<span class="hl">Foundry</span>（企業）、<span class="hl">AIP</span>（AI 平台）。共用一個核心理念：<span class="hl">本體 (Ontology)</span>。`,
   buildSVG(svg) {
     addDefs(svg);
     // Central logo
@@ -225,9 +231,9 @@ const slides = [
     const logoT = T(400,120,'P',{fill:'#fff',size:36,weight:700}); logoT.id='s0-logoT';
     // Three product cards
     const cards = [
-      {x:100,label:'Gotham',sub:'Defense & Intelligence',color:'#1a73e8',bg:'#e8f0fe',icon:'🛡️'},
-      {x:325,label:'Foundry',sub:'Enterprise Data',color:'#34a853',bg:'#e6f4ea',icon:'🏭'},
-      {x:550,label:'AIP',sub:'AI Platform',color:'#f9ab00',bg:'#fef7e0',icon:'🤖'},
+      {x:100,label:'Gotham',sub:'國防與情報',color:'#1a73e8',bg:'#e8f0fe',icon:'🛡️'},
+      {x:325,label:'Foundry',sub:'企業數據',color:'#34a853',bg:'#e6f4ea',icon:'🏭'},
+      {x:550,label:'AIP',sub:'AI 平台',color:'#f9ab00',bg:'#fef7e0',icon:'🤖'},
     ];
     cards.forEach((c,i) => {
       const g = G({id:`s0-card${i}`});
@@ -249,18 +255,18 @@ const slides = [
 },
 
 {
-  section: 'What is Palantir',
-  title: 'The Data Chaos Problem',
-  text: `Large organizations have data trapped in <span class="hl-red">dozens of disconnected silos</span> — databases, spreadsheets, APIs, legacy systems, manual processes.<br><br>No single source of truth. No unified view. Every integration is a <span class="hl-red">fragile point-to-point connection</span> that breaks when anything changes.`,
+  section: '什麼是 Palantir',
+  title: '數據混亂問題',
+  text: `大型組織的數據被困在<span class="hl-red">數十個斷開的孤島</span>中——資料庫、試算表、API、舊系統、人工流程。<br><br>沒有單一事實來源，沒有統一視圖。每個整合都是一條<span class="hl-red">脆弱的點對點連接</span>，任何變更都會導致斷裂。`,
   buildSVG(svg) {
     addDefs(svg);
     const silos = [
-      {x:80,y:80,label:'Database',icon:'🗄️'},
-      {x:320,y:60,label:'Spreadsheets',icon:'📊'},
+      {x:80,y:80,label:'資料庫',icon:'🗄️'},
+      {x:320,y:60,label:'試算表',icon:'📊'},
       {x:580,y:90,label:'REST APIs',icon:'🔌'},
-      {x:150,y:300,label:'Legacy ERP',icon:'🏢'},
-      {x:400,y:330,label:'File Shares',icon:'📁'},
-      {x:620,y:310,label:'Manual Entry',icon:'✍️'},
+      {x:150,y:300,label:'舊 ERP',icon:'🏢'},
+      {x:400,y:330,label:'共享檔案',icon:'📁'},
+      {x:620,y:310,label:'人工輸入',icon:'✍️'},
     ];
     // Draw broken connections first
     const pairs=[[0,1],[1,2],[0,3],[1,4],[2,5],[3,4],[4,5]];
@@ -298,18 +304,18 @@ const slides = [
 },
 
 {
-  section: 'What is Palantir',
-  title: 'The Ontology — Their Secret Weapon',
-  text: `The <span class="hl">Ontology</span> is Palantir's core innovation: a <span class="hl">semantic data layer</span> that models real-world objects and their relationships.<br><br>Instead of tables and columns, you work with <span class="hl">Employees</span>, <span class="hl">Equipment</span>, <span class="hl">Missions</span>, <span class="hl">Facilities</span> — connected as a living knowledge graph. Every application reads from the same truth.`,
+  section: '什麼是 Palantir',
+  title: '本體 (Ontology) — 秘密武器',
+  text: `<span class="hl">本體 (Ontology)</span> 是 Palantir 的核心創新：一個<span class="hl">語義數據層</span>，用來建模真實世界的物件及其關係。<br><br>你不再處理表格和欄位，而是直接操作<span class="hl">員工</span>、<span class="hl">設備</span>、<span class="hl">任務</span>、<span class="hl">設施</span>——以知識圖譜的形式連接。所有應用程式從同一個真相讀取。`,
   buildSVG(svg) {
     addDefs(svg);
     const nodes=[
-      {cx:400,cy:180,label:'Mission',color:'#1a73e8',bg:'#e8f0fe'},
-      {cx:200,cy:120,label:'Employee',color:'#34a853',bg:'#e6f4ea'},
-      {cx:600,cy:120,label:'Equipment',color:'#f9ab00',bg:'#fef7e0'},
-      {cx:160,cy:300,label:'Facility',color:'#ea4335',bg:'#fce8e6'},
-      {cx:400,cy:370,label:'Supply',color:'#1a73e8',bg:'#e8f0fe'},
-      {cx:640,cy:300,label:'Vehicle',color:'#34a853',bg:'#e6f4ea'},
+      {cx:400,cy:180,label:'任務',color:'#1a73e8',bg:'#e8f0fe'},
+      {cx:200,cy:120,label:'員工',color:'#34a853',bg:'#e6f4ea'},
+      {cx:600,cy:120,label:'設備',color:'#f9ab00',bg:'#fef7e0'},
+      {cx:160,cy:300,label:'設施',color:'#ea4335',bg:'#fce8e6'},
+      {cx:400,cy:370,label:'物資',color:'#1a73e8',bg:'#e8f0fe'},
+      {cx:640,cy:300,label:'車輛',color:'#34a853',bg:'#e6f4ea'},
     ];
     const edges=[[0,1],[0,2],[0,3],[0,4],[0,5],[1,3],[2,5],[3,4],[4,5]];
     edges.forEach(([a,b],i)=>{
@@ -335,16 +341,16 @@ const slides = [
 },
 
 {
-  section: 'What is Palantir',
-  title: 'Data Integration Layer',
-  text: `Palantir connects to <span class="hl">any data source</span> through adapters — databases, APIs, file systems, streaming feeds, legacy protocols.<br><br>Data flows through transformation pipelines into the Ontology. Each adapter is <span class="hl">independent and replaceable</span> — no point-to-point spaghetti.`,
+  section: '什麼是 Palantir',
+  title: '數據整合層',
+  text: `Palantir 透過適配器連接<span class="hl">任何數據源</span>——資料庫、API、檔案系統、串流資料、舊協議。<br><br>數據經過轉換管道流入本體。每個適配器<span class="hl">獨立且可替換</span>——不再有點對點的義大利麵架構。`,
   buildSVG(svg) {
     addDefs(svg);
     const sources=[
       {y:60,label:'PostgreSQL',icon:'🗄️'},
       {y:155,label:'REST API',icon:'🔌'},
       {y:250,label:'S3 / SFTP',icon:'📦'},
-      {y:345,label:'Kafka Stream',icon:'📡'},
+      {y:345,label:'Kafka 串流',icon:'📡'},
     ];
     sources.forEach((s,i)=>{
       const g=G({id:`s3-src${i}`});
@@ -357,7 +363,7 @@ const slides = [
     sources.forEach((s,i)=>{
       const g=G({id:`s3-adp${i}`});
       g.appendChild(R(230,s.y+10,100,50,{fill:'#e8f0fe',stroke:'#1a73e8',rx:6}));
-      const t=T(280,s.y+35,'Adapter',{fill:'#1a73e8',size:11,weight:500}); t.style.opacity='1'; g.appendChild(t);
+      const t=T(280,s.y+35,'適配器',{fill:'#1a73e8',size:11,weight:500}); t.style.opacity='1'; g.appendChild(t);
       svg.appendChild(g);
       // Arrow source → adapter
       const a1=L(160,s.y+35,230,s.y+35,{stroke:'#5f6368',arrow:'grey'}); a1.id=`s3-arr1-${i}`;
@@ -371,8 +377,8 @@ const slides = [
     // Ontology circle
     const ont=G({id:'s3-ont'});
     ont.appendChild(C(570,250,80,{fill:'#e8f0fe',stroke:'#1a73e8',sw:3}));
-    const t1=T(570,240,'Unified',{fill:'#1a73e8',size:14,weight:600}); t1.style.opacity='1'; ont.appendChild(t1);
-    const t2=T(570,260,'Ontology',{fill:'#1a73e8',size:14,weight:600}); t2.style.opacity='1'; ont.appendChild(t2);
+    const t1=T(570,240,'統一',{fill:'#1a73e8',size:14,weight:600}); t1.style.opacity='1'; ont.appendChild(t1);
+    const t2=T(570,260,'本體',{fill:'#1a73e8',size:14,weight:600}); t2.style.opacity='1'; ont.appendChild(t2);
     svg.appendChild(ont);
   },
   async animate() {
@@ -390,15 +396,15 @@ const slides = [
 },
 
 {
-  section: 'What is Palantir',
-  title: 'Foundry in Action',
-  text: `<span class="hl">Foundry</span> is where it all comes together — raw, messy data goes in, and <span class="hl-green">clean, actionable ontology objects</span> come out.<br><br>Engineers build pipelines, analysts build dashboards, operators make decisions — all on the same unified data layer. No more "which spreadsheet is the latest?"`,
+  section: '什麼是 Palantir',
+  title: 'Foundry 實戰',
+  text: `<span class="hl">Foundry</span> 是一切匯聚之處——原始、雜亂的數據進去，<span class="hl-green">乾淨、可操作的本體物件</span>出來。<br><br>工程師建管道，分析師建儀表板，營運人員做決策——全部基於同一個統一數據層。不再有「哪個試算表才是最新的？」`,
   buildSVG(svg) {
     addDefs(svg);
     // Left: messy data
     const messy=G({id:'s4-messy'});
     messy.appendChild(R(30,80,200,340,{fill:'#fce8e6',stroke:'#ea4335',rx:10}));
-    const mt=T(130,105,'Raw Data',{fill:'#c5221f',size:13,weight:600}); mt.style.opacity='1'; messy.appendChild(mt);
+    const mt=T(130,105,'原始數據',{fill:'#c5221f',size:13,weight:600}); mt.style.opacity='1'; messy.appendChild(mt);
     const rows=['id,nm,val,??','2024-01-x,broken','NULL,widget,42.0','"err",dup,dup','mixed_CASE,data','01/02/24,ambig','??,unknown,NaN'];
     rows.forEach((r,i)=>{
       const t=T(130,140+i*35,r,{fill:'#5f6368',size:10,anchor:'middle'}); t.style.opacity='1'; t.setAttribute('font-family','monospace'); messy.appendChild(t);
@@ -415,12 +421,12 @@ const slides = [
     // Right: clean objects
     const clean=G({id:'s4-clean'});
     clean.appendChild(R(400,80,350,340,{fill:'#e6f4ea',stroke:'#34a853',rx:10}));
-    const ct=T(575,105,'Ontology Objects',{fill:'#137333',size:13,weight:600}); ct.style.opacity='1'; clean.appendChild(ct);
+    const ct=T(575,105,'本體物件',{fill:'#137333',size:13,weight:600}); ct.style.opacity='1'; clean.appendChild(ct);
     const objs=[
-      {y:140,label:'Employee: John Smith',icon:'👤'},
-      {y:200,label:'Equipment: Widget-A42',icon:'⚙️'},
-      {y:260,label:'Facility: Building-7',icon:'🏢'},
-      {y:320,label:'Order: PO-2024-0891',icon:'📋'},
+      {y:140,label:'員工：John Smith',icon:'👤'},
+      {y:200,label:'設備：Widget-A42',icon:'⚙️'},
+      {y:260,label:'設施：Building-7',icon:'🏢'},
+      {y:320,label:'訂單：PO-2024-0891',icon:'📋'},
     ];
     objs.forEach((o,i)=>{
       const g=G({id:`s4-obj${i}`});
@@ -442,20 +448,20 @@ const slides = [
   }
 },
 
-/* ── SECTION 2: HOW ENGINEERS BUILD FAST ── */
+/* ── 第二部分：如何快速構建 ── */
 {
-  section: 'Building Fast',
-  title: 'Pipeline Builder — Visual Data Flows',
-  text: `Engineers build data pipelines <span class="hl">visually</span> — drag source nodes, add transformations, connect outputs. No boilerplate, no infrastructure setup.<br><br>Each node is a <span class="hl-green">self-contained transform</span> (SQL, Python, or Java). The platform handles orchestration, scheduling, and monitoring automatically.`,
+  section: '快速構建',
+  title: '管道建造器 — 視覺化數據流',
+  text: `工程師<span class="hl">視覺化</span>地構建數據管道——拖拽來源節點、添加轉換、連接輸出。無需樣板程式碼，無需基礎設施配置。<br><br>每個節點是一個<span class="hl-green">自包含的轉換</span>（SQL、Python 或 Java）。平台自動處理編排、排程和監控。`,
   buildSVG(svg) {
     addDefs(svg);
     const nodes=[
-      {x:40,y:200,w:110,label:'Raw Orders',color:'#ea4335',bg:'#fce8e6'},
-      {x:200,y:100,w:110,label:'Clean',color:'#1a73e8',bg:'#e8f0fe'},
-      {x:200,y:300,w:110,label:'Validate',color:'#1a73e8',bg:'#e8f0fe'},
-      {x:400,y:200,w:110,label:'Join & Enrich',color:'#1a73e8',bg:'#e8f0fe'},
-      {x:580,y:120,w:130,label:'Dashboard',color:'#34a853',bg:'#e6f4ea'},
-      {x:580,y:280,w:130,label:'Ontology Sync',color:'#34a853',bg:'#e6f4ea'},
+      {x:40,y:200,w:110,label:'原始訂單',color:'#ea4335',bg:'#fce8e6'},
+      {x:200,y:100,w:110,label:'清洗',color:'#1a73e8',bg:'#e8f0fe'},
+      {x:200,y:300,w:110,label:'驗證',color:'#1a73e8',bg:'#e8f0fe'},
+      {x:400,y:200,w:110,label:'Join 與豐富',color:'#1a73e8',bg:'#e8f0fe'},
+      {x:580,y:120,w:130,label:'儀表板',color:'#34a853',bg:'#e6f4ea'},
+      {x:580,y:280,w:130,label:'本體同步',color:'#34a853',bg:'#e6f4ea'},
     ];
     const edges=[[0,1],[0,2],[1,3],[2,3],[3,4],[3,5]];
     edges.forEach(([a,b],i)=>{
@@ -490,11 +496,11 @@ const slides = [
   }
 },
 
-/* ── DAG DEEP-DIVE (3 slides) ── */
+/* ── DAG 深入探討（3 頁）── */
 {
-  section: 'Building Fast',
-  title: 'The Cron Problem',
-  text: `With sh + cron or Informatica, <span class="hl-red">you</span> are the orchestrator. You manually decide run order, set schedules, and wire dependencies between jobs.<br><br>Add a new job → figure out where it fits. Change a schedule → <span class="hl-red">cascade of broken dependencies</span>. Most of your time goes to <span class="hl-red">plumbing, not logic</span>.`,
+  section: '快速構建',
+  title: 'Cron 的問題',
+  text: `用 sh + cron 或 Informatica，<span class="hl-red">你</span>就是編排者。你手動決定執行順序、設定排程、接線 job 之間的依賴。<br><br>新增一個 job → 要想辦法放在哪裡。改一個排程 → <span class="hl-red">依賴關係連鎖崩壞</span>。大部分時間花在<span class="hl-red">接水管，而不是邏輯</span>。`,
   buildSVG(svg) {
     addDefs(svg);
     const jobs=[
@@ -521,7 +527,7 @@ const slides = [
     });
     const warn=G({id:'dag1-warn'});
     warn.appendChild(R(200,460,400,30,{fill:'#fce8e6',stroke:'#ea4335',rx:15}));
-    const wt=T(400,475,'💀  One schedule change breaks everything',{fill:'#c5221f',size:11,weight:500}); wt.style.opacity='1'; warn.appendChild(wt);
+    const wt=T(400,475,'💀  改一個排程，全部崩潰',{fill:'#c5221f',size:11,weight:500}); wt.style.opacity='1'; warn.appendChild(wt);
     svg.appendChild(warn);
   },
   async animate(){
@@ -535,9 +541,9 @@ const slides = [
 },
 
 {
-  section: 'Building Fast',
-  title: 'Declare, Don\'t Wire — Auto DAG',
-  text: `In Foundry, each transform declares what it <span class="hl">reads</span> and what it <span class="hl-green">writes</span>. The platform scans every declaration and <span class="hl">auto-builds the execution DAG</span>.<br><br>Add a new transform → DAG updates itself. Rename an output → compiler catches every broken link. <span class="hl-green">Zero manual wiring.</span>`,
+  section: '快速構建',
+  title: '聲明，不接線 — 自動 DAG',
+  text: `在 Foundry 中，每個轉換聲明它<span class="hl">讀取</span>什麼和<span class="hl-green">寫入</span>什麼。平台掃描所有聲明，<span class="hl">自動構建執行 DAG</span>。<br><br>新增轉換 → DAG 自動更新。重新命名輸出 → 編譯器捕捉每個斷開的連結。<span class="hl-green">零手動接線。</span>`,
   buildSVG(svg) {
     addDefs(svg);
     const tfs=[
@@ -582,7 +588,7 @@ const slides = [
     // "Clean DAG" label
     const cl=G({id:'dag2-clean'});
     cl.appendChild(R(575,440,150,30,{fill:'#e6f4ea',stroke:'#34a853',rx:15}));
-    const clt=T(650,455,'✓ Clean DAG',{fill:'#137333',size:11,weight:600}); clt.style.opacity='1'; cl.appendChild(clt);
+    const clt=T(650,455,'✓ 乾淨的 DAG',{fill:'#137333',size:11,weight:600}); clt.style.opacity='1'; cl.appendChild(clt);
     svg.appendChild(cl);
   },
   async animate(){
@@ -600,21 +606,21 @@ const slides = [
 },
 
 {
-  section: 'Building Fast',
-  title: 'Smart Execution — Parallel & Fault-Tolerant',
-  text: `Foundry executes the DAG in <span class="hl">topological order</span>. Independent branches run <span class="hl-green">in parallel</span> — no waiting for unrelated jobs.<br><br>If a node <span class="hl-red">fails</span>, only its downstream descendants are skipped. Other branches <span class="hl-green">continue unaffected</span>. No more "one cron job fails → everything breaks."`,
+  section: '快速構建',
+  title: '智慧執行 — 平行且容錯',
+  text: `Foundry 以<span class="hl">拓撲順序</span>執行 DAG。獨立分支<span class="hl-green">平行執行</span>——無需等待無關的 job。<br><br>如果一個節點<span class="hl-red">失敗</span>，只跳過其下游後代。其他分支<span class="hl-green">不受影響地繼續</span>。不再有「一個 cron job 失敗 → 全部崩潰」。`,
   buildSVG(svg) {
     addDefs(svg);
     const nodes=[
-      {cx:400,cy:45, label:'Extract'},
-      {cx:200,cy:155,label:'Clean A'},
-      {cx:600,cy:155,label:'Clean B'},
-      {cx:100,cy:275,label:'Enrich'},
-      {cx:300,cy:275,label:'Validate'},
-      {cx:500,cy:275,label:'Aggregate'},
-      {cx:700,cy:275,label:'Index'},
-      {cx:200,cy:395,label:'Report'},
-      {cx:600,cy:395,label:'Dashboard'},
+      {cx:400,cy:45, label:'抽取'},
+      {cx:200,cy:155,label:'清洗 A'},
+      {cx:600,cy:155,label:'清洗 B'},
+      {cx:100,cy:275,label:'豐富'},
+      {cx:300,cy:275,label:'驗證'},
+      {cx:500,cy:275,label:'聚合'},
+      {cx:700,cy:275,label:'索引'},
+      {cx:200,cy:395,label:'報表'},
+      {cx:600,cy:395,label:'儀表板'},
     ];
     const edges=[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[3,7],[4,7],[5,8],[6,8]];
     edges.forEach(([a,b],i)=>{
@@ -630,12 +636,12 @@ const slides = [
     });
     const par=G({id:'dag3-parallel'});
     par.appendChild(R(310,118,180,24,{fill:'#e6f4ea',stroke:'#34a853',rx:12}));
-    const pt=T(400,130,'⚡ run in parallel',{fill:'#137333',size:10,weight:500}); pt.style.opacity='1'; par.appendChild(pt);
+    const pt=T(400,130,'⚡ 平行執行',{fill:'#137333',size:10,weight:500}); pt.style.opacity='1'; par.appendChild(pt);
     svg.appendChild(par);
     const leg=G({id:'dag3-legend'});
-    [{x:170,label:'✓ Success',fill:'#e6f4ea',stroke:'#34a853'},
-     {x:350,label:'✕ Failed',fill:'#fce8e6',stroke:'#ea4335'},
-     {x:520,label:'⊘ Skipped',fill:'#f8f9fa',stroke:'#9aa0a6'}
+    [{x:170,label:'✓ 成功',fill:'#e6f4ea',stroke:'#34a853'},
+     {x:350,label:'✕ 失敗',fill:'#fce8e6',stroke:'#ea4335'},
+     {x:520,label:'⊘ 跳過',fill:'#f8f9fa',stroke:'#9aa0a6'}
     ].forEach(it=>{
       const r=R(it.x,462,130,24,{fill:it.fill,stroke:it.stroke,rx:12}); r.style.opacity='1'; leg.appendChild(r);
       const t=T(it.x+65,474,it.label,{fill:it.stroke,size:10,weight:500}); t.style.opacity='1'; leg.appendChild(t);
@@ -667,9 +673,9 @@ const slides = [
 },
 
 {
-  section: 'Building Fast',
-  title: 'Workshop — Build Apps in Hours',
-  text: `<span class="hl">Workshop</span> is Palantir's low-code app builder. Drag widgets onto a canvas, bind them to ontology objects, wire up actions.<br><br>An operational dashboard that would take a team <span class="hl-red">months</span> to build from scratch takes <span class="hl-green">hours</span> in Workshop. Because the Ontology handles the data layer, you just focus on the UI.`,
+  section: '快速構建',
+  title: 'Workshop — 幾小時構建應用',
+  text: `<span class="hl">Workshop</span> 是 Palantir 的低程式碼應用建造器。將元件拖到畫布上，綁定本體物件，接上操作。<br><br>一個從零開始需要團隊花<span class="hl-red">數月</span>的營運儀表板，在 Workshop 中只需<span class="hl-green">幾小時</span>。因為本體處理數據層，你只需專注於 UI。`,
   buildSVG(svg) {
     addDefs(svg);
     // Canvas background
@@ -677,16 +683,16 @@ const slides = [
     // Top bar
     const bar=G({id:'s6-bar'});
     bar.appendChild(R(50,30,700,40,{fill:'#1a73e8',stroke:'#1a73e8',rx:0,a:{rx:12}}));
-    const bt=T(400,50,'Operations Dashboard',{fill:'#fff',size:14,weight:500}); bt.style.opacity='1'; bar.appendChild(bt);
+    const bt=T(400,50,'營運儀表板',{fill:'#fff',size:14,weight:500}); bt.style.opacity='1'; bar.appendChild(bt);
     svg.appendChild(bar);
     // Widgets
     const widgets=[
-      {x:70,y:90,w:320,h:180,label:'📊 Map View',bg:'#e8f0fe',stroke:'#1a73e8'},
-      {x:410,y:90,w:320,h:100,label:'📈 KPI Charts',bg:'#e6f4ea',stroke:'#34a853'},
-      {x:410,y:210,w:320,h:60,label:'🔔 Alert Feed',bg:'#fef7e0',stroke:'#f9ab00'},
-      {x:70,y:290,w:320,h:80,label:'📋 Task Table',bg:'#e8f0fe',stroke:'#1a73e8'},
-      {x:410,y:290,w:150,h:80,label:'▶ Actions',bg:'#e6f4ea',stroke:'#34a853'},
-      {x:580,y:290,w:150,h:80,label:'⚙ Filters',bg:'#f8f9fa',stroke:'#dadce0'},
+      {x:70,y:90,w:320,h:180,label:'📊 地圖視圖',bg:'#e8f0fe',stroke:'#1a73e8'},
+      {x:410,y:90,w:320,h:100,label:'📈 KPI 圖表',bg:'#e6f4ea',stroke:'#34a853'},
+      {x:410,y:210,w:320,h:60,label:'🔔 告警訊息',bg:'#fef7e0',stroke:'#f9ab00'},
+      {x:70,y:290,w:320,h:80,label:'📋 任務表格',bg:'#e8f0fe',stroke:'#1a73e8'},
+      {x:410,y:290,w:150,h:80,label:'▶ 操作',bg:'#e6f4ea',stroke:'#34a853'},
+      {x:580,y:290,w:150,h:80,label:'⚙ 篩選器',bg:'#f8f9fa',stroke:'#dadce0'},
     ];
     widgets.forEach((w,i)=>{
       const g=G({id:`s6-w${i}`});
@@ -697,7 +703,7 @@ const slides = [
     // "Hours not months" badge
     const badge=G({id:'s6-badge'});
     badge.appendChild(R(280,400,240,45,{fill:'#e6f4ea',stroke:'#34a853',rx:22}));
-    const bt2=T(400,422,'Built in 4 hours ⚡',{fill:'#137333',size:13,weight:600}); bt2.style.opacity='1'; badge.appendChild(bt2);
+    const bt2=T(400,422,'4 小時完成構建 ⚡',{fill:'#137333',size:13,weight:600}); bt2.style.opacity='1'; badge.appendChild(bt2);
     svg.appendChild(badge);
   },
   async animate() {
@@ -711,16 +717,16 @@ const slides = [
 },
 
 {
-  section: 'Building Fast',
-  title: 'AIP — AI on the Ontology',
-  text: `<span class="hl">AIP</span> (Artificial Intelligence Platform) lets LLMs operate directly on the Ontology — not on raw text, but on <span class="hl">real, structured, permissioned data</span>.<br><br>An operator asks a question in natural language → the LLM reads ontology objects → reasons over relationships → triggers <span class="hl-green">real actions</span> (approve, route, alert).`,
+  section: '快速構建',
+  title: 'AIP — 本體上的 AI',
+  text: `<span class="hl">AIP</span>（人工智慧平台）讓 LLM 直接操作本體——不是處理原始文字，而是處理<span class="hl">真實的、結構化的、有權限控制的數據</span>。<br><br>操作員用自然語言提問 → LLM 讀取本體物件 → 推理關係 → 觸發<span class="hl-green">實際操作</span>（審核、路由、告警）。`,
   buildSVG(svg) {
     addDefs(svg);
     // User query
     const q=G({id:'s7-query'});
     q.appendChild(R(30,200,180,60,{fill:'#f8f9fa',stroke:'#dadce0',rx:30}));
-    const qt=T(120,222,'👤 "Route order',{fill:'#202124',size:11}); qt.style.opacity='1'; q.appendChild(qt);
-    const qt2=T(120,238,'to nearest depot"',{fill:'#202124',size:11}); qt2.style.opacity='1'; q.appendChild(qt2);
+    const qt=T(120,222,'👤 「把訂單路由',{fill:'#202124',size:11}); qt.style.opacity='1'; q.appendChild(qt);
+    const qt2=T(120,238,'到最近的倉庫」',{fill:'#202124',size:11}); qt2.style.opacity='1'; q.appendChild(qt2);
     svg.appendChild(q);
     // Arrow to LLM
     const a1=L(210,230,290,230,{stroke:'#1a73e8',sw:2,arrow:'blue'}); a1.id='s7-a1'; svg.appendChild(a1);
@@ -728,14 +734,14 @@ const slides = [
     const llm=G({id:'s7-llm'});
     llm.appendChild(R(290,180,140,100,{fill:'#e8f0fe',stroke:'#1a73e8',rx:16,sw:3}));
     const lt=T(360,215,'🧠',{size:28}); lt.style.opacity='1'; llm.appendChild(lt);
-    const lt2=T(360,248,'LLM + Ontology',{fill:'#1a73e8',size:10,weight:600}); lt2.style.opacity='1'; llm.appendChild(lt2);
+    const lt2=T(360,248,'LLM + 本體',{fill:'#1a73e8',size:10,weight:600}); lt2.style.opacity='1'; llm.appendChild(lt2);
     svg.appendChild(llm);
     // Actions fanning out
     const actions=[
-      {x:560,y:80,label:'📍 Find depot',color:'#1a73e8'},
-      {x:560,y:180,label:'✅ Approve route',color:'#34a853'},
-      {x:560,y:280,label:'📨 Notify driver',color:'#f9ab00'},
-      {x:560,y:380,label:'📊 Log decision',color:'#5f6368'},
+      {x:560,y:80,label:'📍 找到倉庫',color:'#1a73e8'},
+      {x:560,y:180,label:'✅ 審核路線',color:'#34a853'},
+      {x:560,y:280,label:'📨 通知司機',color:'#f9ab00'},
+      {x:560,y:380,label:'📊 記錄決策',color:'#5f6368'},
     ];
     actions.forEach((a,i)=>{
       const line=L(430,230,a.x,a.y+20,{stroke:a.color,sw:2,arrow:i===0?'blue':i===1?'green':i===2?'yellow':'grey'});
@@ -759,9 +765,9 @@ const slides = [
 },
 
 {
-  section: 'Building Fast',
-  title: 'Ontology SDK — Type-Safe APIs',
-  text: `Palantir <span class="hl">auto-generates</span> TypeScript and Python SDKs directly from the Ontology schema. Every object type, property, and link becomes a <span class="hl">type-safe API</span>.<br><br>No manual API wiring. No REST endpoint design. Change the ontology → SDK regenerates → compiler catches breaks. This is why PLTR engineers move so fast.`,
+  section: '快速構建',
+  title: 'Ontology SDK — 型別安全的 API',
+  text: `Palantir 從本體 schema 直接<span class="hl">自動生成</span> TypeScript 和 Python SDK。每個物件型別、屬性和連結都變成<span class="hl">型別安全的 API</span>。<br><br>無需手動接 API，無需設計 REST 端點。修改本體 → SDK 重新生成 → 編譯器捕捉斷裂。這就是 PLTR 工程師為什麼這麼快。`,
   buildSVG(svg) {
     addDefs(svg);
     // Code block (left)
@@ -791,9 +797,9 @@ const slides = [
     svg.appendChild(code);
     // Ontology objects (right)
     const objs=[
-      {y:100,label:'Employee',icon:'👤',color:'#1a73e8'},
-      {y:200,label:'Mission',icon:'🎯',color:'#34a853'},
-      {y:300,label:'Facility',icon:'🏢',color:'#f9ab00'},
+      {y:100,label:'員工',icon:'👤',color:'#1a73e8'},
+      {y:200,label:'任務',icon:'🎯',color:'#34a853'},
+      {y:300,label:'設施',icon:'🏢',color:'#f9ab00'},
     ];
     objs.forEach((o,i)=>{
       const g=G({id:`s8-obj${i}`});
@@ -808,7 +814,7 @@ const slides = [
     // Auto-gen badge
     const badge=G({id:'s8-badge'});
     badge.appendChild(R(450,380,200,40,{fill:'#e8f0fe',stroke:'#1a73e8',rx:20}));
-    const bt=T(550,400,'⚡ Auto-generated',{fill:'#1a73e8',size:12,weight:600}); bt.style.opacity='1'; badge.appendChild(bt);
+    const bt=T(550,400,'⚡ 自動生成',{fill:'#1a73e8',size:12,weight:600}); bt.style.opacity='1'; badge.appendChild(bt);
     svg.appendChild(badge);
   },
   async animate() {
@@ -828,11 +834,11 @@ const slides = [
   }
 },
 
-/* ── SECTION 3: RAPID DEPLOYMENT ── */
+/* ── 第三部分：快速部署 ── */
 {
-  section: 'Rapid Deployment',
-  title: 'Apollo — The Deployment Brain',
-  text: `<span class="hl-yellow">Apollo</span> is Palantir's deployment and operations platform. It manages software delivery across <span class="hl">any environment</span> — public cloud, on-premise, classified air-gapped networks.<br><br>One platform controls thousands of services across hundreds of environments. Updates ship in <span class="hl-green">minutes, not months</span>.`,
+  section: '快速部署',
+  title: 'Apollo — 部署大腦',
+  text: `<span class="hl-yellow">Apollo</span> 是 Palantir 的部署和運維平台。它管理<span class="hl">任何環境</span>的軟體交付——公有雲、本地部署、機密隔離網路。<br><br>一個平台控制數百個環境中的數千個服務。更新在<span class="hl-green">幾分鐘內交付，而非數月</span>。`,
   buildSVG(svg) {
     addDefs(svg);
     // Central Apollo hub
@@ -843,11 +849,11 @@ const slides = [
     svg.appendChild(hub);
     // Environments
     const envs=[
-      {cx:150,cy:100,label:'AWS Cloud',icon:'☁️',color:'#1a73e8'},
+      {cx:150,cy:100,label:'AWS 雲端',icon:'☁️',color:'#1a73e8'},
       {cx:650,cy:100,label:'Azure',icon:'☁️',color:'#1a73e8'},
-      {cx:100,cy:400,label:'On-Premise',icon:'🏢',color:'#34a853'},
-      {cx:400,cy:450,label:'Edge / IoT',icon:'📡',color:'#f9ab00'},
-      {cx:700,cy:400,label:'Air-Gapped',icon:'🔒',color:'#ea4335'},
+      {cx:100,cy:400,label:'本地部署',icon:'🏢',color:'#34a853'},
+      {cx:400,cy:450,label:'邊緣 / IoT',icon:'📡',color:'#f9ab00'},
+      {cx:700,cy:400,label:'隔離網路',icon:'🔒',color:'#ea4335'},
     ];
     envs.forEach((e,i)=>{
       // Spoke line
@@ -872,18 +878,18 @@ const slides = [
 },
 
 {
-  section: 'Rapid Deployment',
-  title: 'CI/CD Pipeline',
-  text: `Every code change flows through an <span class="hl">automated pipeline</span>: commit → build → test → security scan → staging → production.<br><br>Each stage is a <span class="hl-green">gate</span> — if tests fail, the pipeline stops. No human needs to babysit the process. Engineers push code and <span class="hl-green">Apollo handles the rest</span>.`,
+  section: '快速部署',
+  title: 'CI/CD 管道',
+  text: `每次程式碼變更都經過<span class="hl">自動化管道</span>：提交 → 構建 → 測試 → 安全掃描 → 預發佈 → 生產。<br><br>每個階段都是一道<span class="hl-green">關卡</span>——測試失敗，管道停止。無需人工看守。工程師推送程式碼，<span class="hl-green">Apollo 處理其餘一切</span>。`,
   buildSVG(svg) {
     addDefs(svg);
     const stages=[
-      {x:30,label:'Commit',icon:'📝',color:'#5f6368'},
-      {x:160,label:'Build',icon:'🔨',color:'#1a73e8'},
-      {x:290,label:'Test',icon:'🧪',color:'#1a73e8'},
-      {x:420,label:'Scan',icon:'🔍',color:'#f9ab00'},
-      {x:550,label:'Stage',icon:'🎭',color:'#1a73e8'},
-      {x:680,label:'Prod',icon:'🚀',color:'#34a853'},
+      {x:30,label:'提交',icon:'📝',color:'#5f6368'},
+      {x:160,label:'構建',icon:'🔨',color:'#1a73e8'},
+      {x:290,label:'測試',icon:'🧪',color:'#1a73e8'},
+      {x:420,label:'掃描',icon:'🔍',color:'#f9ab00'},
+      {x:550,label:'預發佈',icon:'🎭',color:'#1a73e8'},
+      {x:680,label:'生產',icon:'🚀',color:'#34a853'},
     ];
     // Progress bar background
     const bgBar=R(55,240,670,8,{fill:'#e8eaed',stroke:'none',rx:4}); bgBar.style.opacity='1'; svg.appendChild(bgBar);
@@ -912,7 +918,7 @@ const slides = [
     // Time label
     const time=G({id:'s10-time'});
     time.appendChild(R(280,340,240,40,{fill:'#e6f4ea',stroke:'#34a853',rx:20}));
-    const tt=T(400,360,'~8 minutes end-to-end ⚡',{fill:'#137333',size:12,weight:600}); tt.style.opacity='1'; time.appendChild(tt);
+    const tt=T(400,360,'端到端約 8 分鐘 ⚡',{fill:'#137333',size:12,weight:600}); tt.style.opacity='1'; time.appendChild(tt);
     svg.appendChild(time);
   },
   async animate() {
@@ -936,13 +942,13 @@ const slides = [
 },
 
 {
-  section: 'Rapid Deployment',
-  title: 'Canary & Rolling Deploys',
-  text: `New versions don't go to all servers at once. Apollo uses <span class="hl-yellow">canary deploys</span> — push to 2-3 servers first, monitor metrics, then <span class="hl-green">gradually roll out</span>.<br><br>If the canary shows errors or latency spikes, Apollo <span class="hl-red">automatically rolls back</span>. Zero-downtime, zero-risk deployments.`,
+  section: '快速部署',
+  title: '金絲雀與滾動部署',
+  text: `新版本不會一次推送到所有伺服器。Apollo 使用<span class="hl-yellow">金絲雀部署</span>——先推到 2-3 台伺服器，監控指標，然後<span class="hl-green">逐步推出</span>。<br><br>如果金絲雀顯示錯誤或延遲飆升，Apollo <span class="hl-red">自動回滾</span>。零停機、零風險部署。`,
   buildSVG(svg) {
     addDefs(svg);
     // Title
-    const title=T(400,30,'Server Fleet (16 instances)',{fill:'#5f6368',size:12,weight:500}); title.style.opacity='1'; title.id='s11-title'; svg.appendChild(title);
+    const title=T(400,30,'伺服器叢集（16 個實例）',{fill:'#5f6368',size:12,weight:500}); title.style.opacity='1'; title.id='s11-title'; svg.appendChild(title);
     // 4x4 grid of servers
     for(let row=0;row<4;row++){
       for(let col=0;col<4;col++){
@@ -957,11 +963,11 @@ const slides = [
     }
     // Legend
     const leg1=R(200,470,14,14,{fill:'#fef7e0',stroke:'#f9ab00',rx:3}); leg1.style.opacity='1'; svg.appendChild(leg1);
-    const lt1=T(225,477,'Canary',{fill:'#5f6368',size:11,anchor:'start'}); lt1.style.opacity='1'; svg.appendChild(lt1);
+    const lt1=T(225,477,'金絲雀',{fill:'#5f6368',size:11,anchor:'start'}); lt1.style.opacity='1'; svg.appendChild(lt1);
     const leg2=R(310,470,14,14,{fill:'#e6f4ea',stroke:'#34a853',rx:3}); leg2.style.opacity='1'; svg.appendChild(leg2);
-    const lt2=T(335,477,'Rolled out',{fill:'#5f6368',size:11,anchor:'start'}); lt2.style.opacity='1'; svg.appendChild(lt2);
+    const lt2=T(335,477,'已推出',{fill:'#5f6368',size:11,anchor:'start'}); lt2.style.opacity='1'; svg.appendChild(lt2);
     const leg3=R(430,470,14,14,{fill:'#f8f9fa',stroke:'#dadce0',rx:3}); leg3.style.opacity='1'; svg.appendChild(leg3);
-    const lt3=T(455,477,'Pending',{fill:'#5f6368',size:11,anchor:'start'}); lt3.style.opacity='1'; svg.appendChild(lt3);
+    const lt3=T(455,477,'待推出',{fill:'#5f6368',size:11,anchor:'start'}); lt3.style.opacity='1'; svg.appendChild(lt3);
   },
   async animate() {
     const all=[...Array(16)].map((_,i)=>$(`s11-srv${i}`));
@@ -1005,22 +1011,22 @@ const slides = [
 },
 
 {
-  section: 'Rapid Deployment',
-  title: 'Multi-Environment Promotion',
-  text: `Changes flow through <span class="hl">three stages</span>: Development → Staging → Production. Each stage has <span class="hl-green">automated gates</span> that verify quality before promotion.<br><br>Apollo tracks every artifact version across every environment. One click to promote, one click to <span class="hl-red">rollback</span>. Full auditability.`,
+  section: '快速部署',
+  title: '多環境晉升',
+  text: `變更經過<span class="hl">三個階段</span>：開發 → 預發佈 → 生產。每個階段都有<span class="hl-green">自動化關卡</span>，在晉升前驗證質量。<br><br>Apollo 追蹤每個環境中的每個製品版本。一鍵晉升，一鍵<span class="hl-red">回滾</span>。完整可稽核。`,
   buildSVG(svg) {
     addDefs(svg);
     const lanes=[
-      {y:80,label:'Development',color:'#1a73e8',bg:'#e8f0fe'},
-      {y:220,label:'Staging',color:'#f9ab00',bg:'#fef7e0'},
-      {y:360,label:'Production',color:'#34a853',bg:'#e6f4ea'},
+      {y:80,label:'開發環境',color:'#1a73e8',bg:'#e8f0fe'},
+      {y:220,label:'預發佈環境',color:'#f9ab00',bg:'#fef7e0'},
+      {y:360,label:'生產環境',color:'#34a853',bg:'#e6f4ea'},
     ];
     lanes.forEach((l,i)=>{
       const g=G({id:`s12-lane${i}`});
       g.appendChild(R(100,l.y,600,100,{fill:l.bg,stroke:l.color,rx:12}));
       const lb=T(170,l.y+50,l.label,{fill:l.color,size:15,weight:600}); lb.style.opacity='1'; g.appendChild(lb);
       // Status indicators
-      const items=['Build','Tests','Security'];
+      const items=['構建','測試','安全'];
       items.forEach((item,j)=>{
         const ix=380+j*110;
         const r=R(ix,l.y+25,90,50,{fill:'#fff',stroke:l.color,rx:6}); r.style.opacity='1'; g.appendChild(r);
@@ -1036,7 +1042,7 @@ const slides = [
       // Gate label
       const gl=G({id:`s12-gateLabel${i}`});
       gl.appendChild(R(355,lanes[i].y+105,90,30,{fill:'#fff',stroke:'#dadce0',rx:15}));
-      const gt=T(400,lanes[i].y+120,'🔒 Gate',{fill:'#5f6368',size:11,weight:500}); gt.style.opacity='1'; gl.appendChild(gt);
+      const gt=T(400,lanes[i].y+120,'🔒 關卡',{fill:'#5f6368',size:11,weight:500}); gt.style.opacity='1'; gl.appendChild(gt);
       svg.appendChild(gl);
     }
     // Package icon
@@ -1064,16 +1070,16 @@ const slides = [
 },
 
 {
-  section: 'Rapid Deployment',
-  title: 'The Complete Picture',
-  text: `From <span class="hl">raw data</span> to <span class="hl-green">deployed application</span> — Palantir's stack eliminates the friction at every layer.<br><br><span class="hl">Ontology</span> unifies data. <span class="hl">Foundry</span> builds pipelines. <span class="hl">Workshop</span> creates apps. <span class="hl-yellow">Apollo</span> deploys everywhere. This is how PLTR engineers ship in <span class="hl-green">days, not quarters</span>.`,
+  section: '快速部署',
+  title: '完整全景',
+  text: `從<span class="hl">原始數據</span>到<span class="hl-green">已部署的應用</span>——Palantir 的技術棧消除了每一層的摩擦。<br><br><span class="hl">本體</span>統一數據。<span class="hl">Foundry</span> 構建管道。<span class="hl">Workshop</span> 建立應用。<span class="hl-yellow">Apollo</span> 部署到各處。這就是 PLTR 工程師如何在<span class="hl-green">幾天而非幾季</span>內交付。`,
   buildSVG(svg) {
     addDefs(svg);
     const layers=[
-      {y:360,h:80,label:'Integration Layer',sub:'Adapters · Connectors · ETL',color:'#ea4335',bg:'#fce8e6'},
-      {y:260,h:80,label:'Ontology',sub:'Unified Data Model · Knowledge Graph',color:'#1a73e8',bg:'#e8f0fe'},
-      {y:160,h:80,label:'Foundry + Workshop + AIP',sub:'Pipelines · Apps · AI Actions',color:'#34a853',bg:'#e6f4ea'},
-      {y:60,h:80,label:'Apollo Deployment',sub:'CI/CD · Canary · Multi-Env · Rollback',color:'#f9ab00',bg:'#fef7e0'},
+      {y:360,h:80,label:'整合層',sub:'適配器 · 連接器 · ETL',color:'#ea4335',bg:'#fce8e6'},
+      {y:260,h:80,label:'本體',sub:'統一數據模型 · 知識圖譜',color:'#1a73e8',bg:'#e8f0fe'},
+      {y:160,h:80,label:'Foundry + Workshop + AIP',sub:'管道 · 應用 · AI 操作',color:'#34a853',bg:'#e6f4ea'},
+      {y:60,h:80,label:'Apollo 部署',sub:'CI/CD · 金絲雀 · 多環境 · 回滾',color:'#f9ab00',bg:'#fef7e0'},
     ];
     layers.forEach((l,i)=>{
       const g=G({id:`s13-layer${i}`});
@@ -1090,7 +1096,7 @@ const slides = [
     // Time badge
     const badge=G({id:'s13-badge'});
     badge.appendChild(R(250,460,300,35,{fill:'#e6f4ea',stroke:'#34a853',rx:17}));
-    const bt=T(400,477,'Data → Deployed App in Days 🚀',{fill:'#137333',size:13,weight:600}); bt.style.opacity='1'; badge.appendChild(bt);
+    const bt=T(400,477,'數據 → 幾天內交付應用 🚀',{fill:'#137333',size:13,weight:600}); bt.style.opacity='1'; badge.appendChild(bt);
     svg.appendChild(badge);
   },
   async animate() {
@@ -1125,7 +1131,7 @@ const nextBtn = $('next-btn');
 // Build dots
 slides.forEach((s,i) => {
   const dot = document.createElement('button');
-  dot.className = 'dot' + (s.section==='What is Palantir'?' s1':s.section==='Building Fast'?' s2':' s3');
+  dot.className = 'dot' + (s.section==='什麼是 Palantir'?' s1':s.section==='快速構建'?' s2':' s3');
   dot.onclick = () => goTo(i);
   dotsEl.appendChild(dot);
 });
