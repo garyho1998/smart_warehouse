@@ -168,8 +168,70 @@ tr:hover{background:var(--bg)}
     </ul>
   </div>
 
+  <div class="layer" style="border-left-color:var(--red)">
+    <h3>Layer 5: 貨物屬性 → Robot Routing <span class="tag" style="background:var(--red-bg);color:var(--red)">高 ⚠️</span></h3>
+    <p><strong>同一個倉嘅貨物差異巨大：50g 手機殼到 500kg 棧板。唔同貨需要唔同 robot + 唔同 workflow。</strong></p>
+    <table>
+      <thead><tr><th>貨物</th><th>重量</th><th>Robot</th><th>Workflow</th></tr></thead>
+      <tbody>
+        <tr><td>小件輕貨</td><td>&lt;5kg</td><td>AMR goods-to-person</td><td>AMR 搬架→人揀→AMR 搬回</td></tr>
+        <tr><td>中件標準</td><td>5-30kg</td><td>AMR transport</td><td>AMR 直接搬箱</td></tr>
+        <tr><td>大件重貨</td><td>&gt;30kg</td><td>AGV 叉車</td><td>叉車搬 pallet</td></tr>
+        <tr><td>易碎品</td><td>any</td><td>人工揀 + robot 搬</td><td>Robot 搬到人→人揀→robot 送走</td></tr>
+        <tr><td>冷鏈</td><td>any</td><td>冷庫專用 robot</td><td>限時，唔能久離冷區</td></tr>
+        <tr><td>異形件</td><td>any</td><td>可能人工</td><td>管狀、袋裝，robot 夾唔住</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px"><strong>Detection 問題：</strong>系統點知件貨幾重幾大？WMS 主數據經常唔準、入庫過磅需要硬件（秤 + 3D scanner）、Camera AI 需要 training data。新 SKU 可能完全冇數據。</p>
+  </div>
+
+  <div class="layer" style="border-left-color:var(--red)">
+    <h3>Layer 6: Order Splitting + 匯合 <span class="tag" style="background:var(--red-bg);color:var(--red)">高 ⚠️</span></h3>
+    <p><strong>一張單 3 件唔同類型貨 → 拆 3 個 sub-task → 3 種 robot/人處理 → 匯合打包。</strong></p>
+    <ul>
+      <li>拆單邏輯：根據貨物屬性自動拆成唔同 robot 嘅 sub-task</li>
+      <li>匯合同步：3 個 sub-task 完成時間唔同，等齊先打包？先到先包？</li>
+      <li>部分失敗：1 個 sub-task 失敗，其他 2 個點處理？</li>
+    </ul>
+  </div>
+
+  <div class="layer" style="border-left-color:var(--yellow)">
+    <h3>Layer 7: 客戶可配置 Workflow <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">中-高</span></h3>
+    <p><strong>如果 workflow hardcoded，每個客戶都要改 code。必須做成 configurable。但 rule editor 太複雜倉管唔會用。</strong></p>
+    <ul>
+      <li><strong>規則衝突</strong>：兩條規則 match 同一件貨，用邊條？</li>
+      <li><strong>規則遺漏</strong>：新情況冇 match 到任何規則</li>
+      <li><strong>規則膨脹</strong>：越加越多，冇人記得點解加嘅</li>
+      <li><strong>學習成本</strong>：倉管唔係程式員，IF/THEN 已經難</li>
+    </ul>
+    <p style="margin-top:10px"><strong>AI-Driven 方案：</strong></p>
+    <table>
+      <tbody>
+        <tr><td><strong>Level 1 智能默認</strong></td><td style="color:var(--yellow)">中</td><td>根據 SKU 屬性自動建議 workflow，覆蓋 80%</td></tr>
+        <tr><td><strong>Level 2 自然語言</strong></td><td style="color:var(--red)">高</td><td>「大件用叉車，小件用 AMR」→ AI 生成規則</td></tr>
+        <tr><td><strong>Level 3 學習模式</strong></td><td style="color:var(--red)">非常高</td><td>觀察人工操作 → 自動學習 routing（需大量數據）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="layer" style="border-left-color:var(--yellow)">
+    <h3>Layer 8: 倉庫 Edge Cases <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">中</span></h3>
+    <table>
+      <tbody>
+        <tr><td><strong>退貨</strong></td><td>逆向 workflow + 質檢 = 完全唔同嘅流程</td></tr>
+        <tr><td><strong>批次 FIFO/FEFO</strong></td><td>同 SKU 唔同批次，揀貨要考慮效期</td></tr>
+        <tr><td><strong>Cross-docking</strong></td><td>貨到即轉，唔入庫</td></tr>
+        <tr><td><strong>Wave picking</strong></td><td>批次揀多張單，合併→揀→再分揀，比單張單複雜 10x</td></tr>
+        <tr><td><strong>旺季 10x load</strong></td><td>雙 11 / Black Friday 突然 10 倍量</td></tr>
+        <tr><td><strong>人機交接</strong></td><td>Robot 搬到人→人做→robot 接走，狀態管理</td></tr>
+        <tr><td><strong>QC 抽檢</strong></td><td>Workflow 中間插入檢查步驟</td></tr>
+        <tr><td><strong>盤點</strong></td><td>營運期間 cycle count，唔能影響正常揀貨</td></tr>
+      </tbody>
+    </table>
+  </div>
+
   <div class="layer" style="border-left-color:var(--purple)">
-    <h3>Layer 5: 之前完全冇提嘅嘢 <span class="tag" style="background:var(--purple-bg);color:var(--purple)">中-高</span></h3>
+    <h3>Layer 9: 基礎設施 <span class="tag" style="background:var(--purple-bg);color:var(--purple)">中</span></h3>
     <table>
       <tbody>
         <tr><td><strong>Robot Simulator</strong></td><td style="color:var(--red)">高</td><td>冇物理機器人點測？寫 simulator 本身就係一個項目</td></tr>
@@ -266,137 +328,6 @@ tr:hover{background:var(--bg)}
 </section>
 
 <!-- Risks -->
-<!-- Warehouse Reality -->
-<section class="card">
-  <h2>倉庫現實 — 你以為簡單但其實唔簡單嘅嘢</h2>
-  <p class="sub">倉庫唔係「A 搬到 B」。同一個倉入面嘅貨物差異巨大，每種貨需要唔同嘅 robot + 唔同嘅 workflow。</p>
-
-  <h3 style="font-size:15px;margin:16px 0 10px">貨物屬性 → Robot/Workflow 路由</h3>
-  <table>
-    <thead><tr><th>貨物類型</th><th>重量</th><th>需要嘅 Robot</th><th>Workflow</th></tr></thead>
-    <tbody>
-      <tr><td>小件輕貨</td><td>&lt;5kg</td><td>AMR (goods-to-person)</td><td>AMR 搬貨架到人 → 人揀 → AMR 搬回</td></tr>
-      <tr><td>中件標準</td><td>5-30kg</td><td>AMR (transport)</td><td>AMR 直接搬箱</td></tr>
-      <tr><td>大件重貨</td><td>&gt;30kg</td><td>AGV 叉車</td><td>叉車搬整個 pallet</td></tr>
-      <tr><td>易碎品</td><td>any</td><td>人工揀 + robot 搬運</td><td>Robot 搬到人 → 人小心揀 → robot 送走</td></tr>
-      <tr><td>冷鏈</td><td>any</td><td>冷庫專用 robot</td><td>限時操作，唔能長時間離開冷區</td></tr>
-      <tr><td>危險品</td><td>any</td><td>特殊處理</td><td>隔離存放、特殊 packaging</td></tr>
-      <tr><td>異形件</td><td>any</td><td>可能人工</td><td>管狀、袋裝、超大 — robot 未必夾得住</td></tr>
-    </tbody>
-  </table>
-
-  <h3 style="font-size:15px;margin:20px 0 10px">Detection 問題：系統點知件貨幾重幾大？</h3>
-  <table>
-    <thead><tr><th>方法</th><th>準確度</th><th>成本</th><th>問題</th></tr></thead>
-    <tbody>
-      <tr><td>WMS 主數據</td><td style="color:var(--yellow)">中</td><td>低</td><td>經常唔準、新 SKU 冇數據</td></tr>
-      <tr><td>入庫過磅 + 量尺寸</td><td style="color:var(--green)">高</td><td>中</td><td>需要硬件（秤 + 3D scanner）</td></tr>
-      <tr><td>Camera + AI 視覺</td><td style="color:var(--yellow)">中-高</td><td>高</td><td>需要 training data、光線影響</td></tr>
-      <tr><td>Barcode → 查 DB</td><td style="color:var(--yellow)">中</td><td>低</td><td>依賴數據質量</td></tr>
-      <tr><td>人手輸入</td><td style="color:var(--red)">低</td><td>低</td><td>容易錯、慢</td></tr>
-    </tbody>
-  </table>
-
-  <div class="box" style="background:var(--red-bg);border:1.5px solid var(--red)">
-    <h3 style="font-size:14px;color:var(--red);margin-bottom:6px">Mixed-Order Splitting 問題</h3>
-    <p style="font-size:13px;color:var(--text2);line-height:1.7">客戶下單買 3 件：1 件輕貨（AMR）、1 件重貨（叉車）、1 件易碎（人工）<br>
-    → 拆成 3 個 sub-task → 3 種 robot/人分別處理 → 最後匯合到打包區<br>
-    → <strong>匯合同步問題</strong>：3 個 sub-task 完成時間唔同，等齊先打包？定先到先包？</p>
-  </div>
-
-  <h3 style="font-size:15px;margin:20px 0 10px">更多 Edge Cases</h3>
-  <table>
-    <thead><tr><th>Edge Case</th><th>描述</th><th>影響</th></tr></thead>
-    <tbody>
-      <tr><td><strong>Mixed pallet</strong></td><td>一個 pallet 嘅貨去唔同區域</td><td>需要拆 pallet 邏輯</td></tr>
-      <tr><td><strong>退貨</strong></td><td>逆向 workflow，需質檢</td><td>完全唔同嘅流程</td></tr>
-      <tr><td><strong>批次 tracking</strong></td><td>同 SKU 唔同批次，FIFO</td><td>揀貨要考慮批次</td></tr>
-      <tr><td><strong>效期管理</strong></td><td>食品/藥品 FEFO</td><td>揀貨要查效期，唔係揀最近嘅</td></tr>
-      <tr><td><strong>Cross-docking</strong></td><td>貨到即轉，唔入庫</td><td>完全唔同嘅 workflow</td></tr>
-      <tr><td><strong>Wave picking</strong></td><td>批次揀多張單</td><td>合併→揀→再分揀，比單張單複雜 10x</td></tr>
-      <tr><td><strong>旺季</strong></td><td>雙11 / Black Friday</td><td>10x 正常量，系統要 handle</td></tr>
-      <tr><td><strong>人機交接</strong></td><td>Robot 搬到人 → 人做 → robot 接走</td><td>交接點狀態管理</td></tr>
-      <tr><td><strong>QC 抽檢</strong></td><td>隨機質檢、hold zone</td><td>Workflow 中間插入檢查步驟</td></tr>
-      <tr><td><strong>盤點</strong></td><td>營運期間 cycle count</td><td>唔能影響正常揀貨</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- Client Configuration -->
-<section class="card">
-  <h2>客戶配置 — 太複雜冇人用</h2>
-  <p class="sub">如果客戶要寫 IF/THEN 規則嚟配置 workflow，大部分倉管唔會用。需要 AI 輔助。</p>
-
-  <div class="layer" style="border-left-color:var(--red)">
-    <h3>Rule-based 配置嘅問題</h3>
-    <p>傳統做法：畀客戶一個 rule editor</p>
-    <div style="background:var(--bg);padding:12px 16px;border-radius:8px;margin:10px 0;font-family:monospace;font-size:12px;line-height:1.8;color:var(--text2)">
-      IF weight &gt; 30kg AND fragile = false → use_forklift<br>
-      IF weight &gt; 30kg AND fragile = true → human_pick + forklift_transport<br>
-      IF temp_zone = cold AND weight &lt; 5kg → cold_amr<br>
-      IF temp_zone = cold AND weight &gt; 30kg → cold_forklift<br>
-      ...
-    </div>
-    <ul>
-      <li><strong>規則衝突</strong>：兩條規則 match 同一件貨，用邊條？</li>
-      <li><strong>規則遺漏</strong>：新情況冇 match 到任何規則，default 係乜？</li>
-      <li><strong>規則膨脹</strong>：越加越多，冇人記得點解加嘅</li>
-      <li><strong>學習成本</strong>：倉管唔係程式員，IF/THEN 已經難</li>
-    </ul>
-  </div>
-
-  <h3 style="font-size:15px;margin:20px 0 10px">AI-Driven 方案（3 個層次）</h3>
-
-  <div class="layer" style="border-left-color:var(--green)">
-    <h3>Level 1: 智能默認 <span class="tag" style="background:var(--green-bg);color:var(--green)">中等難度 · 80% case 覆蓋</span></h3>
-    <p>系統根據 SKU 屬性（重量、尺寸、類別）<strong>自動建議</strong> workflow。客戶只需確認或修改例外。</p>
-    <p style="margin-top:6px;font-size:12px;color:var(--text2)">例：系統偵測到 SKU 重量 45kg → 自動選擇叉車 workflow → 倉管只需 confirm</p>
-  </div>
-
-  <div class="layer" style="border-left-color:var(--blue)">
-    <h3>Level 2: 自然語言配置 <span class="tag" style="background:var(--blue-bg);color:var(--blue)">高難度 · 降低門檻</span></h3>
-    <p>倉管用中文講：<strong>「大件用叉車，小件用 AMR，易碎品人工揀」</strong> → AI 自動生成對應規則。</p>
-    <p style="margin-top:6px;font-size:12px;color:var(--text2)">技術：LLM 理解自然語言 → 轉換為結構化規則 → 人確認 → 生效</p>
-  </div>
-
-  <div class="layer" style="border-left-color:var(--purple)">
-    <h3>Level 3: 學習模式 <span class="tag" style="background:var(--purple-bg);color:var(--purple)">非常高難度 · 最終目標</span></h3>
-    <p>系統觀察人工操作 → <strong>自動學習</strong> routing 規則。「呢個 SKU 過去 100 次都係人工揀」→ 自動設為人工揀。</p>
-    <p style="margin-top:6px;font-size:12px;color:var(--text2)">需要大量歷史操作數據，唔係 Day 1 能做嘅。</p>
-  </div>
-
-  <div class="box" style="background:var(--yellow-bg);border:1.5px solid var(--yellow)">
-    <h3 style="font-size:14px;color:#b45309;margin-bottom:6px">Micro-MVP 策略</h3>
-    <p style="font-size:13px;color:var(--text2);line-height:1.7">
-      <strong>Phase 2</strong>: Level 0 — Hardcoded，只服務 partner 一間工廠<br>
-      <strong>Phase 3</strong>: Level 1 — 智能默認，覆蓋 80% case<br>
-      <strong>Phase 4+</strong>: Level 2 — 自然語言配置<br>
-      Level 3 留到有足夠客戶數據先考慮
-    </p>
-  </div>
-</section>
-
-<!-- Updated Difficulty -->
-<section class="card">
-  <h2>更新後嘅完整難度評估</h2>
-  <p class="sub">加入物理屬性 routing、edge cases、客戶配置之後。</p>
-  <table>
-    <thead><tr><th>組件</th><th>初始評估</th><th>第一次修正</th><th>最終評估</th></tr></thead>
-    <tbody>
-      <tr><td>WMS Adapter</td><td>低</td><td>中-高</td><td style="color:var(--yellow);font-weight:600">中-高</td></tr>
-      <tr><td>Ontology 模型</td><td>低</td><td>中</td><td style="color:var(--yellow);font-weight:600">中-高（加入物理屬性）</td></tr>
-      <tr><td>Workflow Engine</td><td>低</td><td>非常高</td><td style="color:var(--red);font-weight:600">非常高</td></tr>
-      <tr><td>Robot API</td><td>低</td><td>非常高</td><td style="color:var(--red);font-weight:600">非常高</td></tr>
-      <tr><td>Item Routing</td><td>冇提</td><td>冇提</td><td style="color:var(--red);font-weight:600">高（weight/size/fragility → robot 選擇）</td></tr>
-      <tr><td>Order Splitting</td><td>冇提</td><td>冇提</td><td style="color:var(--red);font-weight:600">高（mixed order → multi-task → 匯合）</td></tr>
-      <tr><td>客戶配置 UI</td><td>冇提</td><td>冇提</td><td style="color:var(--yellow);font-weight:600">中-高（rule editor 或 AI-driven）</td></tr>
-      <tr><td>Edge Cases</td><td>冇提</td><td>冇提</td><td style="color:var(--yellow);font-weight:600">中（退貨、批次、效期、wave picking）</td></tr>
-      <tr><td>Robot Simulator</td><td>冇提</td><td>高</td><td style="color:var(--yellow);font-weight:600">高</td></tr>
-      <tr><td>部署/運維</td><td>冇提</td><td>中</td><td style="color:var(--yellow);font-weight:600">中</td></tr>
-      <tr><td>實時監控</td><td>冇提</td><td>冇提</td><td style="color:var(--yellow);font-weight:600">中</td></tr>
-    </tbody>
-  </table>
-</section>
 
 <section class="card">
   <h2>最大風險</h2>
