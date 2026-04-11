@@ -253,41 +253,42 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
 
   <!-- PAIN POINT -->
   <section class="summary-section">
-    <h2><span class="icon" style="background:var(--red)">!</span> 痛點：3 個倉，3 套系統，0 個機器人</h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">客戶有多倉，每個倉用唔同 WMS。想引入機器人自動化，但冇人可以統一管理。</p>
+    <h2><span class="icon" style="background:var(--red)">!</span> 痛點：想用機器人，但導入太慢太複雜</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">客戶知道機器人可以提升效率，但從評估到落地動輒 6–12 個月。整合工程量大、風險高、缺乏技術團隊，結果一直拖住唔做。</p>
     <div class="code-compare">
       <div class="code-block">
-        <div class="title">倉庫 A — 富勒 WMS</div>
-        <span class="dim">// REST API</span><br>
+        <div class="title">客戶現有 WMS（例：富勒）</div>
+        <span class="dim">// WMS 出庫指令</span><br>
         {<br>
+        &nbsp;&nbsp;<span class="key">"order_id"</span>: <span class="val">"SO-20240301"</span>,<br>
         &nbsp;&nbsp;<span class="key">"bin_code"</span>: <span class="val">"A-01-03"</span>,<br>
-        &nbsp;&nbsp;<span class="key">"zone_name"</span>: <span class="val">"揀貨區"</span><br>
+        &nbsp;&nbsp;<span class="key">"sku"</span>: <span class="val">"WIDGET-X"</span><br>
         }
       </div>
       <div class="code-block">
-        <div class="title">倉庫 B — 旺店通 WMS</div>
-        <span class="dim">// REST API</span><br>
+        <div class="title">機器人系統（例：極智嘉 AMR）</div>
+        <span class="dim">// Robot 預期輸入</span><br>
         {<br>
-        &nbsp;&nbsp;<span class="key">"slot_id"</span>: <span class="val">"SH_R2_S3"</span>,<br>
-        &nbsp;&nbsp;<span class="key">"area"</span>: <span class="val">"storage"</span>,<br>
-        &nbsp;&nbsp;<span class="key">"floor"</span>: <span class="val">2</span><br>
+        &nbsp;&nbsp;<span class="key">"task_type"</span>: <span class="val">"PICK_AND_DELIVER"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"from"</span>: <span class="val">"MAP_NODE_127"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"payload_kg"</span>: <span class="val">2.5</span><br>
         }
       </div>
       <div class="code-block">
-        <div class="title">倉庫 C — Excel 手動管理</div>
-        <span class="dim">// CSV 文件</span><br>
-        位置編號, 區域<br>
-        <span class="val">GZ-001</span>, <span class="val">收貨區</span>
+        <div class="title">中間翻譯層 — 要自己寫？</div>
+        <span class="dim">// 貨架 &rarr; 地圖節點 &rarr; 調度邏輯</span><br>
+        bin_code &rarr; map_node?<br>
+        <span class="val" style="color:var(--red)">冇標準、冇文檔、冇人做</span>
       </div>
     </div>
     <div class="compare-grid">
       <div class="compare-card">
-        <h3 style="color:var(--red)">冇統一平台</h3>
-        <p style="font-size:13px;color:var(--text2)">每加一個系統 = N&times;M 個翻譯。每引入一個機器人品牌 = 再乘一次。根本 scale 唔到。</p>
+        <h3 style="color:var(--red)">自己整合（6–12 個月）</h3>
+        <p style="font-size:13px;color:var(--text2)">請團隊、讀 API 文檔、寫翻譯層、測試聯調 — 仲要承擔失敗風險。大部分客戶直接放棄。</p>
       </div>
       <div class="compare-card">
-        <h3 style="color:var(--green)">有統一平台</h3>
-        <p style="font-size:13px;color:var(--text2)">每個 WMS 寫一個 Adapter，每個機器人品牌寫一個 Adapter。N+M 個 adapter，線性擴展。</p>
+        <h3 style="color:var(--green)">用我哋平台（4–8 週）</h3>
+        <p style="font-size:13px;color:var(--text2)">接入現有 WMS → Ontology 自動翻譯 → 即刻驅動機器人。唔使換系統、唔使請人。</p>
       </div>
     </div>
   </section>
@@ -295,7 +296,7 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
   <!-- POSITION -->
   <section class="summary-section">
     <h2><span class="icon" style="background:var(--blue)">&#9672;</span> 定位：第五類 — Integration + Automation Layer</h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">市場四大類玩家冇一個做「統一接入多 WMS + 引入機器人自動化全流程」。</p>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">市場四大類玩家冇一個解決「客戶想用機器人但導入太慢」嘅問題。</p>
     <div class="card-grid">
       <div class="card" style="border-color:var(--green)">
         <h3><span style="color:var(--green)">&bull;</span> Full Stack</h3>
