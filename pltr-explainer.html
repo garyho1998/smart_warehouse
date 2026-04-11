@@ -84,11 +84,23 @@ body{font-family:'Google Sans',system-ui,-apple-system,sans-serif;background:var
 /* SVG defaults */
 svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
 
+/* Mobile Nav */
+.top-nav-m{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.top-nav-m::-webkit-scrollbar{display:none}
+.top-nav-m a{font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px;white-space:nowrap;flex-shrink:0}
+.top-nav-m a.active{background:var(--blue-bg);color:var(--blue);font-weight:500}
+
 @media(max-width:768px){
+  .top-bar{padding:0 12px;gap:8px}
+  .top-bar h1{font-size:14px}
+  .top-nav-m a{font-size:11px;padding:5px 10px}
   .slide{flex-direction:column;min-height:auto}
-  .diagram-panel{flex:none;height:280px;border-right:none;border-bottom:1px solid var(--border)}
-  .text-panel{padding:20px}
-  .text-panel h2{font-size:18px}
+  .diagram-panel{flex:none;height:240px;border-right:none;border-bottom:1px solid var(--border)}
+  .text-panel{padding:16px}
+  .text-panel h2{font-size:17px}
+  .text-panel .desc{font-size:13px}
+  .bottom-nav{height:48px;gap:8px;padding:0 12px}
+  .btn{height:32px;padding:0 14px;font-size:12px}
 }
 </style>
 </head>
@@ -96,11 +108,11 @@ svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
 
 <header class="top-bar">
   <h1><span class="logo">W</span> 倉儲自動化平台</h1>
-  <nav style="display:flex;gap:4px;margin-left:auto">
-    <a href="industry-landscape.html" style="font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px">行業全景</a>
-    <a href="product-overview.html" style="font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px">產品定位</a>
-    <a href="system-backbone.html" style="font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px">系統架構</a>
-    <a href="pltr-explainer.html" style="font-size:13px;color:var(--blue);text-decoration:none;padding:6px 14px;border-radius:18px;background:var(--blue-bg);font-weight:500">PLTR 解析</a>
+  <nav class="top-nav-m">
+    <a href="industry-landscape.html">行業全景</a>
+    <a href="product-overview.html">產品定位</a>
+    <a href="system-backbone.html">系統架構</a>
+    <a href="pltr-explainer.html" class="active">PLTR 解析</a>
   </nav>
 </header>
 
