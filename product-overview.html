@@ -223,6 +223,7 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
   <nav class="top-nav">
     <a href="industry-landscape.html">行業全景</a>
     <a href="product-overview.html" class="active">產品定位</a>
+    <a href="competitive-landscape.html">競爭分析</a>
     <a href="system-backbone.html">系統架構</a>
     <a href="pltr-explainer.html">PLTR 解析</a>
     <a href="pltr-moat.html">護城河分析</a>
@@ -242,8 +243,8 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
         <div class="label">2023 中國 AGV/AMR 市場</div>
       </div>
       <div class="hero-stat">
-        <div class="num">0</div>
-        <div class="label">直接競爭者（Integration Layer）</div>
+        <div class="num">138%</div>
+        <div class="label"><a href="competitive-landscape.html" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--border)">Orchestration 品類年增長率</a></div>
       </div>
       <div class="hero-stat">
         <div class="num">~20 週</div>
@@ -326,67 +327,13 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
 
   <!-- COMPETITIVE LANDSCAPE -->
   <section class="summary-section">
-    <h2><span class="icon" style="background:var(--red)">!</span> 競爭格局：Multiagent Orchestration Platforms</h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:8px">Gartner 已經為呢個品類命名：<strong>Multiagent Orchestration Platforms</strong>。預測到 2026 年，超過 50% 部署倉儲機器人嘅公司會用呢類平台。市場年增長率 138%。</p>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">我哋唔係第一個做 robot-agnostic integration layer。以下係已有嘅玩家：</p>
-
-    <div class="table-wrap">
-      <table class="profit-table">
-        <thead><tr><th>公司</th><th>產品</th><th>做緊乜</th><th>客戶</th><th>同我哋嘅差異</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><strong>SVT Robotics</strong></td>
-            <td>SOFTBOT</td>
-            <td>WMS-robot 標準 integration layer，聲稱比傳統對接快 12x</td>
-            <td>DHL Supply Chain</td>
-            <td>Plug-and-play connector 模式，冇 ontology 語義層</td>
-          </tr>
-          <tr>
-            <td><strong>GreyOrange</strong></td>
-            <td>GreyMatter</td>
-            <td>Open API 接任何品牌機器人，fulfillment orchestration</td>
-            <td>IKEA, Walmart 等</td>
-            <td>自己有機器人硬件，orchestration 係附加值</td>
-          </tr>
-          <tr>
-            <td><strong>JASCI</strong></td>
-            <td>Robotics Hub</td>
-            <td>SaaS 統一 WMS + WES + 機器人編排</td>
-            <td>北美中型倉</td>
-            <td>想取代 WMS，我哋唔取代</td>
-          </tr>
-          <tr>
-            <td><strong>Roboteon</strong></td>
-            <td>—</td>
-            <td>快速 robot-WMS 整合 + orchestration engine</td>
-            <td>北美市場</td>
-            <td>純 orchestration，冇 ontology 建模</td>
-          </tr>
-          <tr>
-            <td><strong>Blue Yonder</strong></td>
-            <td>Robotics Hub</td>
-            <td>一個平台接所有機器人，連接 BY 自家 WMS</td>
-            <td>大企業</td>
-            <td>綁定 Blue Yonder WMS 生態</td>
-          </tr>
-          <tr>
-            <td><strong>Deus Robotics</strong></td>
-            <td>Deus RMS</td>
-            <td>消除 integration silos，集中控制，vendor-agnostic</td>
-            <td>歐洲市場</td>
-            <td>偏硬件側，自研機器人 + 軟件</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="font-size:11px;color:var(--text2);margin-top:4px">來源：<a href="https://www.gartner.com/reviews/market/multiagent-orchestration-platforms" style="color:var(--blue);text-decoration:none">Gartner Multiagent Orchestration Platforms</a>、<a href="https://group.dhl.com/en/media-relations/press-releases/2026/dhl-supply-chain-accelerates-automation-deployments-with-stv-robotics-softbot-platform.html" style="color:var(--blue);text-decoration:none">DHL + SVT Robotics 公告</a></p>
-
-    <div class="highlight-box" style="margin-top:20px;border-left:4px solid var(--blue);padding-left:20px;background:var(--blue-bg)">
+    <h2><span class="icon" style="background:var(--red)">!</span> 競爭格局：高速增長嘅新品類</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:12px">Gartner 定義咗 <strong>Multiagent Orchestration Platforms</strong> 品類 — robot-agnostic、WMS-agnostic 嘅倉儲中間層。市場年增長率 <strong>138%</strong>，預測 2032 年達 <strong>$5.23B</strong>。</p>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">已有 7+ 間公司入場（SVT Robotics、GreyOrange、JASCI、Roboteon 等），主要喺北美/歐洲。中國市場仍係空白。</p>
+    <div class="highlight-box" style="border-left:4px solid var(--blue);padding-left:20px;background:var(--blue-bg)">
       <h3 style="color:var(--blue)">我哋嘅差異化</h3>
-      <p style="margin-bottom:8px">現有玩家主要做 <strong>connector / middleware</strong>（接線層）。我哋做 <strong>ontology 語義層</strong>（理解層）：</p>
-      <p>• <strong>Connector 模式</strong>（SVT / Roboteon）：WMS 發指令 → 翻譯 → 機器人執行。只係「搬運工」<br>
-      • <strong>Ontology 模式</strong>（我哋）：建統一數據模型 → 理解業務邏輯 → 自主決策 + 執行。係「倉庫大腦」</p>
-      <p style="margin-top:8px;font-size:13px;color:var(--text2)">風險：Ontology 模式需要更多前期投入，但一旦建成，複用效應令後續部署越嚟越快。 <a href="pltr-moat.html" style="color:var(--blue);text-decoration:none;font-weight:500">睇護城河分析 &rarr;</a></p>
+      <p>現有玩家做 <strong>connector / middleware</strong>（接線層），我哋做 <strong>ontology 語義層</strong>（理解層）+ 專注<strong>中國市場</strong>。</p>
+      <p style="margin-top:10px"><a href="competitive-landscape.html" style="color:var(--blue);text-decoration:none;font-weight:500;font-size:15px">查看完整競爭分析（7 間公司深度對比）&rarr;</a></p>
     </div>
   </section>
 
