@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palantir 護城河分析 — 實現層面</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a73e8;--blue-bg:#e8f0fe;
+  --green:#34a853;--green-bg:#e6f4ea;
+  --red:#ea4335;--red-bg:#fce8e6;
+  --yellow:#f9ab00;--yellow-bg:#fef7e0;
+  --purple:#7b1fa2;--purple-bg:#f3e5f5;
+  --surface:#fff;--bg:#f8f9fa;
+  --text:#202124;--text2:#5f6368;--border:#dadce0;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px rgba(60,64,67,.15);
+  --shadow2:0 1px 3px rgba(60,64,67,.3),0 4px 8px rgba(60,64,67,.15);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Google Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.top-bar{height:56px;display:flex;align-items:center;padding:0 24px;background:var(--surface);box-shadow:var(--shadow);position:sticky;top:0;z-index:50}
+.top-bar h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:10px}
+.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+
+.page{max-width:960px;margin:0 auto;padding:24px}
+.card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:28px;margin-bottom:24px}
+.card h2{font-size:20px;font-weight:500;margin-bottom:6px}
+.card .subtitle{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.hl{color:var(--blue);font-weight:500}
+.hl-green{color:var(--green);font-weight:500}
+.hl-red{color:var(--red);font-weight:500}
+.hl-yellow{color:var(--yellow);font-weight:500}
+
+/* Hero */
+.hero{text-align:center;padding:48px 28px}
+.hero h2{font-size:28px;font-weight:500;margin-bottom:12px}
+.hero .tagline{font-size:16px;color:var(--text2);line-height:1.6;max-width:600px;margin:0 auto}
+
+/* SVG */
+.svg-wrap{width:100%;overflow-x:auto;margin:16px 0}
+.svg-wrap svg{width:100%;min-width:600px;display:block}
+svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
+
+/* Mechanism Cards */
+.mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.mech-card{border-radius:10px;padding:18px;border:1.5px solid var(--border);transition:box-shadow 200ms var(--ease)}
+.mech-card:hover{box-shadow:var(--shadow2)}
+.mech-card h3{font-size:14px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.mech-card h3 .num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.mech-card p{font-size:13px;color:var(--text2);line-height:1.6}
+.mech-card .vs{margin-top:8px;font-size:12px;padding:6px 10px;border-radius:6px;background:var(--bg)}
+.mech-card .vs .old{color:var(--red);text-decoration:line-through}
+.mech-card .vs .new{color:var(--green);font-weight:500}
+.mech-card:nth-child(5){grid-column:1/-1}
+
+/* Barrier Cards */
+.barrier-list{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+.barrier{border-radius:10px;padding:20px;border-left:4px solid var(--blue);background:var(--surface);box-shadow:var(--shadow)}
+.barrier-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.barrier h3{font-size:15px;font-weight:600}
+.barrier-meta{display:flex;gap:10px;flex-wrap:wrap}
+.barrier-tag{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500}
+.barrier p{font-size:13px;color:var(--text2);line-height:1.7}
+.barrier .oss{margin-top:10px;font-size:12px;padding:8px 12px;border-radius:6px;background:var(--bg);color:var(--text2);line-height:1.5}
+.barrier .oss strong{color:var(--text);font-weight:600}
+
+/* Implications */
+.impl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.impl-card{border-radius:10px;padding:18px;text-align:center}
+.impl-card h3{font-size:14px;font-weight:600;margin-bottom:8px}
+.impl-card p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Total bar */
+.total-bar{margin-top:20px;padding:16px 20px;border-radius:10px;background:var(--red-bg);border:1.5px solid var(--red);text-align:center}
+.total-bar .big{font-size:22px;font-weight:600;color:var(--red)}
+.total-bar p{font-size:13px;color:var(--text2);margin-top:4px}
+
+.footer{text-align:center;padding:24px;font-size:12px;color:var(--text2)}
+
+@media(max-width:768px){
+  .page{padding:12px}
+  .mech-grid{grid-template-columns:1fr}
+  .mech-card:nth-child(5){grid-column:auto}
+  .impl-grid{grid-template-columns:1fr}
+  .hero h2{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <h1><span class="logo">P</span> Palantir 護城河分析 — 實現層面</h1>
+</header>
+
+<main class="page">
+
+<!-- Hero -->
+<section class="card hero" id="hero">
+  <h2>唔係快，係<span class="hl">越嚟越快</span></h2>
+  <p class="tagline">Palantir 嘅真正優勢唔係 "部署快" — 每間 SI 都話自己快。<br>真正嘅優勢係<span class="hl-green">每次部署都比上次更快</span>，形成指數級加速。<br>而呢個加速效應，從實現層面幾乎無法複製。</p>
+</section>
+
+<!-- Section 1: Compounding Speed -->
+<section class="card" id="sec-compound">
+  <h2>Ontology 複利效應</h2>
+  <p class="subtitle">傳統 SI 每個客戶都係從零開始。Palantir 每個新客戶都令下一個更快 — 因為 Ontology 累積可複用。</p>
+
+  <div class="svg-wrap"><svg id="curve-svg" viewBox="0 0 800 350"></svg></div>
+
+  <div class="mech-grid">
+    <div class="mech-card" style="border-color:var(--blue)">
+      <h3><span class="num" style="background:var(--blue)">1</span> Ontology 跨客戶複用</h3>
+      <p>第 1 個物流客戶建 ontology 要 3 個月，第 10 個只需 2 週。因為 80% object types（Shipment, Warehouse, SKU）已存在。每個新客戶豐富模型，令下一個更快。</p>
+      <div class="vs"><span class="old">每次從零建模</span> → <span class="new">累積複用，指數加速</span></div>
+    </div>
+    <div class="mech-card" style="border-color:var(--green)">
+      <h3><span class="num" style="background:var(--green)">2</span> Pipeline 模板化</h3>
+      <p>Foundry pipeline 係 ontology-aware。"解析 SAP 出庫單" pipeline 直接畀下個 SAP 客戶用，唔使重寫 ETL。</p>
+      <div class="vs"><span class="old">每個客戶寫定制 ETL</span> → <span class="new">ontology-aware pipeline 直接複用</span></div>
+    </div>
+    <div class="mech-card" style="border-color:var(--yellow)">
+      <h3><span class="num" style="background:var(--yellow)">3</span> Action 可組合</h3>
+      <p>"優化庫存分配" action 基於 ontology 運作，唔理底層係 SAP 定 Oracle 定 CSV。跨客戶即插即用。</p>
+      <div class="vs"><span class="old">每個客戶寫定制邏輯</span> → <span class="new">基於 ontology，底層無關</span></div>
+    </div>
+    <div class="mech-card" style="border-color:var(--purple)">
+      <h3><span class="num" style="background:var(--purple)">4</span> SDK 自動生成</h3>
+      <p>Ontology 一改，TypeScript / Python SDK 自動 regenerate，前端自動適配。零手動 API 對接。</p>
+      <div class="vs"><span class="old">改 DB → 改 API → 改前端 → 改文檔</span> → <span class="new">改 Ontology → 全棧自動更新</span></div>
+    </div>
+    <div class="mech-card" style="border-color:var(--red)">
+      <h3><span class="num" style="background:var(--red)">5</span> Workshop 零代碼建應用</h3>
+      <p>Ontology 定義好 object + relation + action 之後，Workshop 拖拉幾小時出應用。唔使寫 API，唔使寫前端，唔使寫權限 — 全部由 ontology 驅動。</p>
+      <div class="vs"><span class="old">寫 API → 寫前端 → 寫權限 (幾週)</span> → <span class="new">拖拉組合 (幾小時)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 2: Implementation Barriers -->
+<section class="card" id="sec-barriers">
+  <h2>實現層面 5 大壁壘</h2>
+  <p class="subtitle">唔係寫唔出類似功能 — 係每一層都係多年工程量，而且要<span class="hl">全部一齊 work</span> 先有複利效應。</p>
+
+  <div class="svg-wrap"><svg id="layers-svg" viewBox="0 0 800 320"></svg></div>
+
+  <div class="barrier-list">
+    <div class="barrier" style="border-left-color:var(--blue)">
+      <div class="barrier-header">
+        <h3>1. Ontology Runtime ≠ DB Schema</h3>
+        <div class="barrier-meta">
+          <span class="barrier-tag" style="background:var(--red-bg);color:var(--red)">3-5 年 / 50+ 工程師</span>
+        </div>
+      </div>
+      <p>唔係一個 schema definition。係一個包含<span class="hl">語義關係</span>、<span class="hl">權限模型</span>、<span class="hl">事件系統</span>、<span class="hl">action 框架</span>嘅完整 runtime engine。從零建 = 建一個帶 graph semantics + RBAC + event bus 嘅引擎。</p>
+      <div class="oss"><strong>OSS 可以替代？</strong> Neo4j 做 graph、Casbin 做 RBAC、Kafka 做 events — 但將三者整合成 ontology-aware runtime，令佢哋互相感知同協作，係核心難度。冇任何 OSS 項目做到呢件事。</div>
+    </div>
+
+    <div class="barrier" style="border-left-color:var(--green)">
+      <div class="barrier-header">
+        <h3>2. 增量計算引擎</h3>
+        <div class="barrier-meta">
+          <span class="barrier-tag" style="background:var(--yellow-bg);color:var(--yellow)">2-3 年 / 20+ 工程師</span>
+        </div>
+      </div>
+      <p>Foundry pipeline track dependency graph，只重算改變嘅部分。唔係 Airflow + cache。係類似 build system (<span class="hl">Bazel</span>) 嘅 incremental computation，但用喺 data pipeline — 知道邊啲 ontology object 變咗，只重算下游影響。</p>
+      <div class="oss"><strong>OSS 可以替代？</strong> Dagster / Prefect 有 basic lineage，但冇 ontology-aware incremental recomputation。佢哋只知道 "Task B depends on Task A"，唔知道 "Warehouse #42 嘅 SKU 變咗，只需重算呢個倉嘅報表"。</div>
+    </div>
+
+    <div class="barrier" style="border-left-color:var(--yellow)">
+      <div class="barrier-header">
+        <h3>3. 跨棧 Type Generation</h3>
+        <div class="barrier-meta">
+          <span class="barrier-tag" style="background:var(--green-bg);color:var(--green)">1-2 年 / 10+ 工程師</span>
+        </div>
+      </div>
+      <p>Ontology 定義一改，自動生成：<span class="hl">TypeScript SDK</span>、<span class="hl">Python SDK</span>、<span class="hl">REST API</span>、<span class="hl">GraphQL</span>、<span class="hl">權限規則</span>。需要 compiler-level 嘅 code generation pipeline，理解前端 + 後端 + 權限整個 stack。</p>
+      <div class="oss"><strong>OSS 可以替代？</strong> OpenAPI codegen / GraphQL codegen 只做 API 層，唔理解 ontology semantics。佢哋生成嘅係 "HTTP client"，唔係 "type-safe ontology accessor with built-in permissions"。</div>
+    </div>
+
+    <div class="barrier" style="border-left-color:var(--purple)">
+      <div class="barrier-header">
+        <h3>4. 異構部署 (Apollo)</h3>
+        <div class="barrier-meta">
+          <span class="barrier-tag" style="background:var(--red-bg);color:var(--red)">3-5 年 / 30+ 工程師</span>
+        </div>
+      </div>
+      <p>同時支援 AWS + Azure + 本地機房 + <span class="hl-red">軍事氣隙網絡（零互聯網）</span>。唔係 "multi-cloud"。軍事氣隙 = 完全離線、無 container registry、無 DNS、無外部依賴。架構同 cloud-native 根本唔同。</p>
+      <div class="oss"><strong>OSS 可以替代？</strong> ArgoCD / Flux 做 cloud GitOps，但完全唔 handle air-gapped。佢哋假設永遠有網絡。Apollo 嘅離線部署需要自研 artifact distribution、local registry、離線 update mechanism。</div>
+    </div>
+
+    <div class="barrier" style="border-left-color:var(--red)">
+      <div class="barrier-header">
+        <h3>5. Graph-based RBAC</h3>
+        <div class="barrier-meta">
+          <span class="barrier-tag" style="background:var(--yellow-bg);color:var(--yellow)">1-2 年 / 10+ 工程師</span>
+        </div>
+      </div>
+      <p>唔係 "邊個可以讀邊張 table"。係 <span class="hl">"邊個可以對邊個 object 執行邊個 action，基於邊啲 relationship"</span>。</p>
+      <p style="margin-top:8px">例：「物流經理可以查看佢管理嘅倉庫中嘅所有訂單，但唔可以修改其他部門嘅」— 呢個 query 需要 traverse ontology graph，唔係一個 WHERE clause。</p>
+      <div class="oss"><strong>OSS 可以替代？</strong> OPA / Casbin 做 policy engine，但唔理解 ontology relationship graph。佢哋嘅 input 係 flat attributes (role=admin, resource=orders)，唔係 graph traversal (user→manages→warehouse→contains→orders)。</div>
+    </div>
+  </div>
+
+  <div class="total-bar">
+    <div class="big">~10-15 年工程量 / 100+ 專業工程師</div>
+    <p>而且 5 層要<span class="hl-red">全部一齊 work</span> 先有複利效應 — 只建其中 2-3 層，效果接近零。呢個就係護城河。</p>
+  </div>
+</section>
+
+<!-- Section 3: Implications -->
+<section class="card" id="sec-impl">
+  <h2>對我哋嘅啟示</h2>
+  <p class="subtitle">唔好試圖複製 Palantir。學習佢嘅概念，用喺我哋嘅定位。</p>
+  <div class="impl-grid">
+    <div class="impl-card" style="background:var(--green-bg);border-radius:10px">
+      <h3 style="color:var(--green)">✓ 學習</h3>
+      <p>Ontology 抽象層概念 — 唔使建完整 runtime，用 <strong>adapter pattern</strong> 做輕量版，統一多倉多系統數據。</p>
+    </div>
+    <div class="impl-card" style="background:var(--red-bg);border-radius:10px">
+      <h3 style="color:var(--red)">✗ 唔好抄</h3>
+      <p>Air-gapped deployment、Graph RBAC、增量計算引擎 — 我哋唔需要，投入產出比極低。</p>
+    </div>
+    <div class="impl-card" style="background:var(--blue-bg);border-radius:10px">
+      <h3 style="color:var(--blue)">◎ 定位</h3>
+      <p>做倉儲行業嘅 <strong>"mini-ontology"</strong> — 垂直深耕一個行業，唔做通用平台。用行業知識取代工程量。</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  工程量估算基於公開技術文檔、Palantir 工程博客及同類項目經驗推算 <span style="font-style:italic;color:var(--text2)">(estimation)</span>
+</footer>
+
+</main>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function svgEl(tag,attrs={}){const el=document.createElementNS(NS,tag);for(let[k,v]of Object.entries(attrs))el.setAttribute(k,v);return el}
+
+/* ── Exponential Curve SVG ── */
+function buildCurve(){
+  const svg=document.getElementById('curve-svg');
+  const W=800,H=350,PL=80,PR=40,PT=30,PB=70;
+  const cw=W-PL-PR,ch=H-PT-PB;
+
+  // Axes
+  const xAxis=svgEl('line',{x1:PL,y1:H-PB,x2:W-PR,y2:H-PB,stroke:'#dadce0','stroke-width':1.5});
+  const yAxis=svgEl('line',{x1:PL,y1:PT,x2:PL,y2:H-PB,stroke:'#dadce0','stroke-width':1.5});
+  svg.appendChild(xAxis);svg.appendChild(yAxis);
+
+  // Axis labels
+  const xl=svgEl('text',{x:PL+cw/2,y:H-15,'text-anchor':'middle',fill:'#5f6368','font-size':12,'font-weight':500});xl.textContent='客戶數量';svg.appendChild(xl);
+  const yl=svgEl('text',{x:20,y:PT+ch/2,'text-anchor':'middle',fill:'#5f6368','font-size':12,'font-weight':500,transform:`rotate(-90,20,${PT+ch/2})`});yl.textContent='部署時間';svg.appendChild(yl);
+
+  // Client count ticks
+  const ticks=['第1個','第5個','第10個','第50個'];
+  ticks.forEach((t,i)=>{
+    const x=PL+(i/(ticks.length-1))*cw;
+    const tick=svgEl('text',{x,y:H-PB+20,'text-anchor':'middle',fill:'#5f6368','font-size':10});tick.textContent=t;svg.appendChild(tick);
+  });
+
+  // Time ticks
+  const times=['幾日','幾週','1-3 月','6-18 月'];
+  times.forEach((t,i)=>{
+    const y=H-PB-((i/(times.length-1))*ch);
+    const tick=svgEl('text',{x:PL-10,y:y+4,'text-anchor':'end',fill:'#5f6368','font-size':10});tick.textContent=t;svg.appendChild(tick);
+    if(i>0){const gl=svgEl('line',{x1:PL,y1:y,x2:W-PR,y2:y,stroke:'#dadce018','stroke-width':1});svg.appendChild(gl);}
+  });
+
+  // Traditional SI: flat line at ~15 months
+  const siY=PT+ch*0.15;
+  const siLine=svgEl('line',{x1:PL,y1:siY,x2:W-PR,y2:siY,stroke:'#ea4335','stroke-width':2,'stroke-dasharray':'8 4'});
+  svg.appendChild(siLine);
+  const siLabel=svgEl('text',{x:W-PR-5,y:siY-8,'text-anchor':'end',fill:'#ea4335','font-size':11,'font-weight':500});siLabel.textContent='傳統 SI（每個客戶同樣耐）';svg.appendChild(siLabel);
+
+  // Palantir: exponential decay curve
+  const pts=[];
+  for(let i=0;i<=50;i++){
+    const x=PL+(i/50)*cw;
+    // Exponential decay: starts at ~12 months, drops to ~1 week
+    const t=Math.max(0.02, 0.9*Math.exp(-0.08*i)+0.02);
+    const y=H-PB-t*ch;
+    pts.push(`${x},${y}`);
+  }
+  const curve=svgEl('polyline',{points:pts.join(' '),fill:'none',stroke:'#34a853','stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round'});
+  svg.appendChild(curve);
+
+  // Fill under curve
+  const fillPts=[`${PL},${H-PB}`,...pts,`${W-PR},${H-PB}`].join(' ');
+  const fill=svgEl('polygon',{points:fillPts,fill:'rgba(52,168,83,0.08)'});
+  svg.appendChild(fill);
+
+  const plLabel=svgEl('text',{x:PL+cw*0.6,y:H-PB-ch*0.15,'text-anchor':'start',fill:'#34a853','font-size':11,'font-weight':500});plLabel.textContent='Palantir（Ontology 複利）';svg.appendChild(plLabel);
+
+  // Annotation arrows
+  const annotations=[
+    {x:0.06,note:'建 ontology\n從零開始',align:'start'},
+    {x:0.20,note:'Pipeline\n開始複用',align:'start'},
+    {x:0.55,note:'80% 模型\n已存在',align:'end'},
+  ];
+  annotations.forEach(a=>{
+    const ax=PL+a.x*cw;
+    const t=Math.max(0.02,0.9*Math.exp(-0.08*(a.x*50))+0.02);
+    const ay=H-PB-t*ch;
+    const dot=svgEl('circle',{cx:ax,cy:ay,r:4,fill:'#34a853'});svg.appendChild(dot);
+    const lines=a.note.split('\n');
+    lines.forEach((ln,j)=>{
+      const label=svgEl('text',{x:ax+(a.align==='end'?-10:10),y:ay-18+j*13,'text-anchor':a.align,fill:'#202124','font-size':10,'font-weight':500});
+      label.textContent=ln;svg.appendChild(label);
+    });
+  });
+
+  // Gap annotation
+  const gapX=PL+cw*0.75;
+  const gapY1=siY, gapY2=H-PB-0.05*ch;
+  const gapLine=svgEl('line',{x1:gapX,y1:gapY1+5,x2:gapX,y2:gapY2-5,stroke:'#f9ab00','stroke-width':2,'marker-start':'url(#arr)','marker-end':'url(#arr)'});
+  // Arrow marker
+  const defs=svgEl('defs');
+  const marker=svgEl('marker',{id:'arr',viewBox:'0 0 10 10',refX:'5',refY:'5',markerWidth:'6',markerHeight:'6',orient:'auto-start-reverse'});
+  const mp=svgEl('path',{d:'M0 0L10 5L0 10z',fill:'#f9ab00'});
+  marker.appendChild(mp);defs.appendChild(marker);svg.appendChild(defs);
+  svg.appendChild(gapLine);
+  const gapLabel=svgEl('text',{x:gapX+10,y:(gapY1+gapY2)/2+4,'text-anchor':'start',fill:'#f9ab00','font-size':12,'font-weight':600});
+  gapLabel.textContent='差距越嚟越大';svg.appendChild(gapLabel);
+}
+
+/* ── Implementation Layers SVG ── */
+function buildLayers(){
+  const svg=document.getElementById('layers-svg');
+  const layers=[
+    {label:'Ontology Runtime',time:'3-5 年',color:'#1a73e8',w:700},
+    {label:'增量計算引擎',time:'2-3 年',color:'#34a853',w:580},
+    {label:'跨棧 Type Generation',time:'1-2 年',color:'#f9ab00',w:460},
+    {label:'Apollo 異構部署',time:'3-5 年',color:'#7b1fa2',w:340},
+    {label:'Graph RBAC',time:'1-2 年',color:'#ea4335',w:220},
+  ];
+  const cx=400,startY=280,gap=50;
+
+  layers.forEach((l,i)=>{
+    const y=startY-i*gap;
+    const x=cx-l.w/2;
+    const r=svgEl('rect',{x,y,width:l.w,height:40,rx:6,fill:l.color+'12',stroke:l.color,'stroke-width':1.5});
+    svg.appendChild(r);
+    const lb=svgEl('text',{x:cx,y:y+18,'text-anchor':'middle',fill:l.color,'font-size':13,'font-weight':600});
+    lb.textContent=l.label;svg.appendChild(lb);
+    const tm=svgEl('text',{x:cx,y:y+33,'text-anchor':'middle',fill:'#5f6368','font-size':10});
+    tm.textContent=`從零建：${l.time}`;svg.appendChild(tm);
+  });
+
+  // Side annotation
+  const ann=svgEl('text',{x:770,y:160,'text-anchor':'start',fill:'#5f6368','font-size':11,transform:'rotate(90,770,160)'});
+  ann.textContent='全部要一齊 work →';svg.appendChild(ann);
+
+  // Bracket
+  const bracket=svgEl('path',{d:`M750,${startY+40} C760,${startY+40} 760,${startY-4*gap} 750,${startY-4*gap}`,fill:'none',stroke:'#ea4335','stroke-width':1.5});
+  svg.appendChild(bracket);
+}
+
+/* ── Scroll Animation ── */
+function initScrollAnim(){
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.style.transition='opacity 500ms cubic-bezier(0.4,0,0.2,1),transform 500ms cubic-bezier(0.4,0,0.2,1)';
+        entry.target.style.opacity='1';
+        entry.target.style.transform='translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  },{threshold:0.1});
+
+  document.querySelectorAll('.card').forEach(s=>{
+    s.style.opacity='0';
+    s.style.transform='translateY(20px)';
+    observer.observe(s);
+  });
+}
+
+buildCurve();
+buildLayers();
+initScrollAnim();
+</script>
+</body>
+</html>
