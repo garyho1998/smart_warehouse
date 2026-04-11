@@ -324,6 +324,72 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
     </div>
   </section>
 
+  <!-- COMPETITIVE LANDSCAPE -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--red)">!</span> 競爭格局：Multiagent Orchestration Platforms</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:8px">Gartner 已經為呢個品類命名：<strong>Multiagent Orchestration Platforms</strong>。預測到 2026 年，超過 50% 部署倉儲機器人嘅公司會用呢類平台。市場年增長率 138%。</p>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">我哋唔係第一個做 robot-agnostic integration layer。以下係已有嘅玩家：</p>
+
+    <div class="table-wrap">
+      <table class="profit-table">
+        <thead><tr><th>公司</th><th>產品</th><th>做緊乜</th><th>客戶</th><th>同我哋嘅差異</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>SVT Robotics</strong></td>
+            <td>SOFTBOT</td>
+            <td>WMS-robot 標準 integration layer，聲稱比傳統對接快 12x</td>
+            <td>DHL Supply Chain</td>
+            <td>Plug-and-play connector 模式，冇 ontology 語義層</td>
+          </tr>
+          <tr>
+            <td><strong>GreyOrange</strong></td>
+            <td>GreyMatter</td>
+            <td>Open API 接任何品牌機器人，fulfillment orchestration</td>
+            <td>IKEA, Walmart 等</td>
+            <td>自己有機器人硬件，orchestration 係附加值</td>
+          </tr>
+          <tr>
+            <td><strong>JASCI</strong></td>
+            <td>Robotics Hub</td>
+            <td>SaaS 統一 WMS + WES + 機器人編排</td>
+            <td>北美中型倉</td>
+            <td>想取代 WMS，我哋唔取代</td>
+          </tr>
+          <tr>
+            <td><strong>Roboteon</strong></td>
+            <td>—</td>
+            <td>快速 robot-WMS 整合 + orchestration engine</td>
+            <td>北美市場</td>
+            <td>純 orchestration，冇 ontology 建模</td>
+          </tr>
+          <tr>
+            <td><strong>Blue Yonder</strong></td>
+            <td>Robotics Hub</td>
+            <td>一個平台接所有機器人，連接 BY 自家 WMS</td>
+            <td>大企業</td>
+            <td>綁定 Blue Yonder WMS 生態</td>
+          </tr>
+          <tr>
+            <td><strong>Deus Robotics</strong></td>
+            <td>Deus RMS</td>
+            <td>消除 integration silos，集中控制，vendor-agnostic</td>
+            <td>歐洲市場</td>
+            <td>偏硬件側，自研機器人 + 軟件</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--text2);margin-top:4px">來源：<a href="https://www.gartner.com/reviews/market/multiagent-orchestration-platforms" style="color:var(--blue);text-decoration:none">Gartner Multiagent Orchestration Platforms</a>、<a href="https://group.dhl.com/en/media-relations/press-releases/2026/dhl-supply-chain-accelerates-automation-deployments-with-stv-robotics-softbot-platform.html" style="color:var(--blue);text-decoration:none">DHL + SVT Robotics 公告</a></p>
+
+    <div class="highlight-box" style="margin-top:20px;border-left:4px solid var(--blue);padding-left:20px;background:var(--blue-bg)">
+      <h3 style="color:var(--blue)">我哋嘅差異化</h3>
+      <p style="margin-bottom:8px">現有玩家主要做 <strong>connector / middleware</strong>（接線層）。我哋做 <strong>ontology 語義層</strong>（理解層）：</p>
+      <p>• <strong>Connector 模式</strong>（SVT / Roboteon）：WMS 發指令 → 翻譯 → 機器人執行。只係「搬運工」<br>
+      • <strong>Ontology 模式</strong>（我哋）：建統一數據模型 → 理解業務邏輯 → 自主決策 + 執行。係「倉庫大腦」</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--text2)">風險：Ontology 模式需要更多前期投入，但一旦建成，複用效應令後續部署越嚟越快。 <a href="pltr-moat.html" style="color:var(--blue);text-decoration:none;font-weight:500">睇護城河分析 &rarr;</a></p>
+    </div>
+  </section>
+
   <!-- WHY THIS POSITION -->
   <section class="summary-section">
     <h2><span class="icon" style="background:var(--green)">$</span> 點解揀呢個定位</h2>
