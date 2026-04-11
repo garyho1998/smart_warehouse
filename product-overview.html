@@ -649,19 +649,9 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
 </main>
 
 <script>
-// Animate gantt bars on scroll
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.querySelectorAll('.gantt-bar').forEach((bar, i) => {
-        setTimeout(() => bar.classList.add('show'), i * 150);
-      });
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.3 });
+// Show gantt bars immediately
 const gantt = document.getElementById('gantt');
-if (gantt) observer.observe(gantt);
+if (gantt) gantt.querySelectorAll('.gantt-bar').forEach(bar => bar.classList.add('show'));
 
 // Roadmap bullet colors
 document.querySelectorAll('.roadmap-phase li').forEach(li => {
