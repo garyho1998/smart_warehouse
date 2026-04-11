@@ -82,7 +82,7 @@ tr:hover{background:var(--bg)}
     <a href="system-backbone.html">系統架構</a>
     <a href="feasibility.html" class="active">可行性</a>
     <a href="pltr-explainer.html">PLTR 解析</a>
-    <a href="pltr-moat.html">護城河分析</a>
+    <a href="pltr-moat.html">PLTR 護城河</a>
   </nav>
 </header>
 
@@ -90,7 +90,7 @@ tr:hover{background:var(--bg)}
 
 <section class="card hero">
   <h2>可行性分析</h2>
-  <p class="sub" style="max-width:650px;margin:0 auto">Solo dev（全職工作 + vibe coding）+ 中國工廠 partner（唔識 code）<br>呢個組合做唔做得到？誠實答案。</p>
+  <p class="sub" style="max-width:650px;margin:0 auto">Solo dev（全職工作 + vibe coding）+ 中國工廠 partner（唔寫 code）<br>呢個組合做唔做得到？誠實答案。</p>
 </section>
 
 <!-- Resources -->
@@ -126,25 +126,17 @@ tr:hover{background:var(--bg)}
       <li>認證機制每個 WMS 唔同（OAuth / API key / 微信掃碼）</li>
       <li>API down / timeout / rate limit / 格式變更</li>
     </ul>
-    <div class="diff">
-      <div style="background:var(--red-bg);color:var(--red)">之前評估：低</div>
-      <div style="background:var(--yellow-bg);color:var(--yellow)">實際：中-高</div>
-    </div>
   </div>
 
   <div class="layer" style="border-left-color:var(--blue)">
     <h3>Layer 2: Ontology 數據模型 <span class="tag" style="background:var(--blue-bg);color:var(--blue)">中</span></h3>
     <p><strong>唔止係 JPA entities。</strong></p>
     <ul>
-      <li>需要深入倉儲行業知識 — 你冇，partner 有但佢唔識 code</li>
+      <li>需要深入倉儲行業知識 — 你冇，partner 有但佢唔寫 code</li>
       <li>溝通鴻溝：partner 講「上架」，你理解嘅可能唔同</li>
       <li>Edge cases 極多：唔同倉唔同規則、批次管理、效期管理</li>
       <li>Schema evolution：model 不斷變，migration 要管理</li>
     </ul>
-    <div class="diff">
-      <div style="background:var(--red-bg);color:var(--red)">之前評估：低</div>
-      <div style="background:var(--blue-bg);color:var(--blue)">實際：中</div>
-    </div>
   </div>
 
   <div class="layer" style="border-left-color:var(--red)">
@@ -159,10 +151,6 @@ tr:hover{background:var(--bg)}
       <li><strong>一致性</strong>：任務做到一半失敗，庫存數據點 rollback？</li>
     </ul>
     <p style="margin-top:8px">Spring State Machine 搞唔掂。實質係建 mini Kubernetes scheduler。</p>
-    <div class="diff">
-      <div style="background:var(--red-bg);color:var(--red)">之前評估：低（「狀態機」）</div>
-      <div style="background:var(--red-bg);color:var(--red)">實際：非常高</div>
-    </div>
   </div>
 
   <div class="layer" style="border-left-color:var(--red)">
@@ -178,10 +166,6 @@ tr:hover{background:var(--bg)}
       <li><strong>安全</strong>：send 錯指令 = 機器人撞人/撞貨</li>
       <li>文檔可能只有中文、要簽 NDA、要用 Windows SDK</li>
     </ul>
-    <div class="diff">
-      <div style="background:var(--red-bg);color:var(--red)">之前評估：低（「HTTP call」）</div>
-      <div style="background:var(--red-bg);color:var(--red)">實際：非常高</div>
-    </div>
   </div>
 
   <div class="layer" style="border-left-color:var(--purple)">
@@ -254,25 +238,30 @@ tr:hover{background:var(--bg)}
   <h2>建議路徑</h2>
 
   <div class="phase" style="border-color:var(--red)">
-    <h3><span class="tag" style="background:var(--red-bg);color:var(--red)">Phase 0</span> Kill or Continue（而家）</h3>
-    <p>確認 partner 工廠用咩品牌機器人。攞機器人 API 文檔。確認現有 WMS / 管理方式。</p>
+    <h3><span class="tag" style="background:var(--red-bg);color:var(--red)">Phase 0</span> Kill or Continue（Week 1-2）</h3>
+    <p>確認 partner 工廠用咩品牌機器人。攞機器人 API 文檔。確認現有 WMS / 管理方式。了解貨物類型（重量、尺寸、易碎、冷鏈）。</p>
     <div class="kill">如果冇 API 或 partner 唔願意投入時間 → 停止，唔好浪費時間。</div>
   </div>
 
   <div class="phase" style="border-color:var(--green)">
-    <h3><span class="tag" style="background:var(--green-bg);color:var(--green)">Phase 1</span> 只做數據層（Month 1-3）</h3>
-    <p>寫 adapter 讀 partner WMS 數據 → 建 ontology 模型 → read-only dashboard。<strong>唔碰機器人。</strong></p>
+    <h3><span class="tag" style="background:var(--green-bg);color:var(--green)">Phase 1</span> 數據層 + Dashboard（Month 1-4）</h3>
+    <p>寫 adapter 讀 partner WMS 數據 → 建 ontology 模型（包括 SKU 物理屬性）→ read-only dashboard。<strong>唔碰機器人。</strong></p>
   </div>
 
   <div class="phase" style="border-color:var(--yellow)">
-    <h3><span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">Phase 2</span> 1 台機器人 + 1 個任務（Month 4-6）</h3>
-    <p>只控制 1 台機器人做 1 種任務（A 點搬到 B 點）。Sequential execution。Partner 現場測試。</p>
-    <div class="kill" style="background:var(--yellow-bg);color:#b45309">呢個係技術驗證點 — 如果做唔到，後面全部唔使諗。</div>
+    <h3><span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">Phase 2</span> 1 台機器人 + 1 種貨 + 1 個任務（Month 5-9）</h3>
+    <p>只控制 1 台機器人、只處理 1 種貨物類型、做 1 種任務（例如：標準箱 A→B 搬運）。Sequential execution，hardcoded workflow。Partner 現場測試。</p>
+    <div class="kill" style="background:var(--yellow-bg);color:#b45309">技術驗證點 — 如果做唔到，後面全部唔使諗。</div>
   </div>
 
   <div class="phase" style="border-color:var(--blue)">
-    <h3><span class="tag" style="background:var(--blue-bg);color:var(--blue)">Phase 3</span> 如果 Phase 2 work（Month 7+）</h3>
-    <p>加第 2 個任務類型。考慮搵第二個開發者。先穩定再 scale。</p>
+    <h3><span class="tag" style="background:var(--blue-bg);color:var(--blue)">Phase 3</span> 多貨物類型 + 配置化（Month 10-14）</h3>
+    <p>加入 item routing（唔同重量/尺寸 → 唔同 workflow）。將 hardcoded workflow 抽象為 Level 1 智能默認配置。考慮搵第二個開發者。</p>
+  </div>
+
+  <div class="phase" style="border-color:var(--purple)">
+    <h3><span class="tag" style="background:var(--purple-bg);color:var(--purple)">Phase 4</span> Multi-robot + AI 配置（Month 15+）</h3>
+    <p>Multi-robot orchestration、交通管理、自然語言配置 (Level 2)。呢個階段需要團隊，solo dev 唔夠。</p>
   </div>
 </section>
 
@@ -422,7 +411,7 @@ tr:hover{background:var(--bg)}
   </div>
   <div class="layer" style="border-left-color:var(--yellow)">
     <h3>3. 行業知識溝通 <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">隱性成本</span></h3>
-    <p>你唔識倉儲，佢唔識 code。「上架」呢個詞你哋可能有唔同理解。溝通成本會比預期高好多。</p>
+    <p>你唔識倉儲，佢唔寫 code。「上架」呢個詞你哋可能有唔同理解。溝通成本會比預期高好多。</p>
   </div>
 </section>
 
