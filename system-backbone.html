@@ -125,12 +125,34 @@ body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft 
 
 @media(max-width:768px){
   .page-container{padding:12px}
-  .top-nav{display:none}
-  .entity-diagram{flex-direction:column;align-items:center}
-  .arch-full .layer{flex-direction:column;align-items:flex-start}
-  .arch-full .layer-tag{width:auto;text-align:left}
-  .state-machine{flex-direction:column;gap:4px}
-  .state-arrow{transform:rotate(90deg)}
+  .top-bar{padding:0 12px;gap:12px}
+  .top-bar h1{font-size:14px}
+  .top-nav{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;gap:2px;scrollbar-width:none}
+  .top-nav::-webkit-scrollbar{display:none}
+  .top-nav a{font-size:11px;padding:5px 10px;flex-shrink:0}
+  .section{padding:20px 16px}
+  .section h2{font-size:16px}
+  .entity-diagram{gap:12px}
+  .entity-card{width:100%;min-width:0}
+  .arch-full{padding:16px 12px}
+  .arch-full .layer{flex-direction:column;align-items:flex-start;gap:8px}
+  .arch-full .layer-tag{width:auto;text-align:left;font-size:10px}
+  .arch-full .lbox{padding:6px 12px;font-size:11px}
+  .arch-full .arrow-row{margin-left:0;font-size:14px}
+  .state-machine{flex-wrap:wrap;gap:6px;justify-content:flex-start}
+  .state-node{font-size:11px;padding:6px 12px}
+  .state-arrow{font-size:12px;padding:0 2px}
+  .code-block{font-size:11px;padding:12px 14px}
+  .card-grid{grid-template-columns:1fr}
+  .compare-table{font-size:12px}
+  .compare-table th,.compare-table td{padding:8px 6px}
+  .wf-step{gap:12px}
+  .wf-num{width:30px;height:30px;font-size:14px}
+  .wf-content h4{font-size:13px}
+  .wf-content p{font-size:12px}
+  .wf-content .flow{font-size:10px;word-break:break-all}
+  .highlight-box{padding:16px}
+  .highlight-box p{font-size:12px}
 }
 </style>
 </head>
