@@ -1,59 +1,59 @@
-# Ontology SDK — Notes for Java Developers
+# Ontology SDK — Java 開發者筆記
 
-## What is an Ontology Object?
+## 咩係 Ontology Object？
 
-A strongly-typed domain entity backed by a data source, with extra metadata that makes it queryable, linkable, and actionable across the entire platform.
+一個強類型嘅域實體，背後連接數據源，帶有額外元數據令佢可以被查詢、連結、操作。
 
-### Java Analogy
+### Java 類比
 
-An **Object Type** is like a Java class / JPA `@Entity`. Each **Object** (instance) is like one row mapped to that class.
+**Object Type** 就好似 Java class / JPA `@Entity`。每個 **Object**（實例）就好似一行 DB row 映射到呢個 class。
 
 ```java
-// Roughly what an "Object Type" represents
+// 大致等同一個「Object Type」
 public class Employee {
-    private String employeeId;   // primary key
-    private String name;         // property
-    private String role;         // property
-    private String facilityId;   // link (foreign key -> Facility object type)
+    private String employeeId;   // 主鍵
+    private String name;         // 屬性
+    private String role;         // 屬性
+    private String facilityId;   // 連結（外鍵 → Facility object type）
 }
 ```
 
-### Key Concepts Mapped to Java
+### 核心概念對照 Java
 
-| Ontology Concept | Java Equivalent | What the Ontology Adds |
+| Ontology 概念 | Java 等價 | Ontology 額外提供 |
 |---|---|---|
-| **Object Type** | JPA `@Entity` class | Schema registered centrally, not just in code |
-| **Object** (instance) | One entity / one DB row | Addressable by primary key across the whole platform |
-| **Property** | A field (`String name`) | Typed, named, indexed, searchable |
-| **Link** | `@ManyToOne` / `@OneToMany` | First-class navigable relationship (graph traversal) |
-| **Action** | A service method | Registered operation with validation + permission checks |
+| **Object Type** | JPA `@Entity` | Schema 喺平台中央註冊，唔止喺 code 入面 |
+| **Object**（實例） | 一個 entity / 一行 DB row | 可以用主鍵跨全平台尋址 |
+| **Property** | 一個 field（`String name`） | 有類型、命名、索引、可搜索 |
+| **Link** | `@ManyToOne` / `@OneToMany` | First-class 可導航關係（圖譜遍歷） |
+| **Action** | 一個 service method | 註冊嘅操作，帶驗證 + 權限控制 |
 
-### Underlying Data Structure
+### 底層數據結構
 
-The Ontology is **not** a single data structure. It's a **semantic layer** on top of existing storage:
+Ontology **唔係**一個單一數據結構。佢係一個**語義層**，坐喺現有存儲之上：
 
 ```
                     +-------------------------+
                     |     Ontology Layer       |
                     |  (schema + type system)  |
                     +-----------+-------------+
-                                | maps to
+                                | 映射到
             +-------------------+--------------------+
             v                   v                    v
      PostgreSQL table   Parquet in S3      Kafka stream
      (employees)        (equipment_log)    (live_telemetry)
 ```
 
-- **Schema** defines object types, properties, links, and actions (like a JPA metamodel but platform-wide)
-- **Backing store** is whatever the data lives in (relational table, file storage, streaming topic)
-- **Sync pipeline** transforms raw data into clean ontology objects (ETL into entity tables)
+- **Schema** 定義 object types、properties、links 同 actions（好似 JPA metamodel 但全平台通用）
+- **Backing store** 係數據實際存放嘅地方（關係型 table、文件存儲、streaming topic）
+- **Sync pipeline** 將原始數據轉換成乾淨嘅 ontology objects（ETL 入 entity tables）
 
-### The SDK — What It Generates
+### SDK — 佢生成咩
 
-Auto-generated, type-safe client code from the ontology schema. Like if JPA entities + repository interfaces were auto-generated from a central schema registry:
+從 ontology schema 自動生成嘅、類型安全嘅客戶端代碼。好似 JPA entities + repository interfaces 從中央 schema registry 自動生成：
 
 ```java
-// Auto-generated — never written by hand
+// 自動生成 — 永遠唔使手寫
 public interface EmployeeRepository {
     Employee get(String primaryKey);
     List<Employee> search(Filter filter);
@@ -62,36 +62,36 @@ public interface EmployeeRepository {
 }
 ```
 
-Change the schema -> SDK regenerates -> compiler catches every breaking callsite.
+改 schema → SDK 重新生成 → 編譯器捕捉所有 breaking callsite。
 
 ---
 
-## Can You Use the Ontology SDK Commercially?
+## 可以商業使用嗎？
 
-The Ontology SDK is **not an open-source library**. It is **generated inside Palantir Foundry** — a licensed enterprise platform.
+Ontology SDK **唔係**開源庫。佢係**喺 Palantir Foundry 入面生成嘅** — 一個企業授權平台。
 
-| Path | Cost | What You Get |
+| 路徑 | 成本 | 你得到咩 |
 |---|---|---|
-| **Palantir Foundry contract** | Enterprise pricing ($M+/year) | Full platform + auto-generated Ontology SDK |
-| **Foundry for Builders** | Lower tier for smaller orgs | Same platform, different pricing |
-| **Build your own** | Engineering time | Same concepts, your implementation |
+| **Palantir Foundry 合約** | 企業定價（¥數百萬+/年） | 完整平台 + 自動生成嘅 Ontology SDK |
+| **Foundry for Builders** | 較低級別 | 同一平台，唔同定價 |
+| **自己建** | 工程時間 | 同樣概念，你自己實現 |
 
-### What IS Open Source from Palantir
+### Palantir 開源咗咩
 
-- **osdk-ts** — TypeScript client for Foundry. Open source, but requires a Foundry backend to function.
-- **Conjure** — RPC / code-generation framework. The plumbing underneath, not the Ontology layer.
+- **osdk-ts** — Foundry 嘅 TypeScript 客戶端。開源，但需要 Foundry 後端先有用。
+- **Conjure** — RPC / 代碼生成框架。底層水喉，唔係 Ontology 層。
 
-The **concepts** (canonical model, semantic layer, knowledge graph) are not patented — only Palantir's specific implementation is proprietary.
+**概念**（canonical model、semantic layer、knowledge graph）冇專利 — 只有 Palantir 嘅具體實現係專有嘅。
 
 ---
 
-## Free Open-Source Alternatives
+## 免費開源替代方案
 
-No single project replicates the full Ontology SDK, but several cover key pieces.
+冇單一項目可以複製完整嘅 Ontology SDK，但有幾個覆蓋關鍵部分。
 
-### Closest Full Alternatives
+### 最接近嘅完整替代
 
-**TypeDB (formerly Grakn)** — Knowledge graph database with a built-in type system. Closest to the Ontology concept.
+**TypeDB（前身 Grakn）** — 帶有內建類型系統嘅知識圖譜數據庫。最接近 Ontology 概念。
 
 ```typeql
 define
@@ -105,62 +105,53 @@ define
     relates assignee, relates site;
 ```
 
-- Typed entities + relationships = Object Types + Links
-- Own query language (TypeQL) for graph traversal
-- Java client available
-- Missing: no auto-generated SDK, no action framework
+### 用開源部件自建
 
-**LinkedIn DataHub / OpenMetadata** — Metadata platforms with entity models and relationships. More focused on data cataloging than application development.
-
-### Build Your Own from Open-Source Parts
-
-| Ontology Feature | Open-Source Solution | Notes |
+| Ontology 功能 | 開源方案 | 備註 |
 |---|---|---|
-| Object Types + Properties | JPA `@Entity` | Standard canonical model |
-| Links / Graph traversal | Spring Data JPA, or Apache TinkerPop / JanusGraph | JPA for simple relations, graph DB for deep traversal |
-| Auto-generated SDK / API | JHipster or Spring Data REST + OpenAPI Generator | Schema -> API -> client SDK |
-| Central schema registry | Apache Avro / JSON Schema | Define types centrally, generate code |
-| Actions (mutations) | Spring service layer + Temporal | Durable, retryable actions |
-| Search / indexing | Elasticsearch / OpenSearch | Full-text search across all object types |
-| Permissions | Spring Security + OPA (Open Policy Agent) | Row-level / object-level access control |
+| Object Types + Properties | JPA `@Entity` | 標準 canonical model |
+| Links / 圖譜遍歷 | Spring Data JPA，或 Apache TinkerPop / JanusGraph | JPA 做簡單關係，graph DB 做深度遍歷 |
+| 自動生成 SDK / API | JHipster 或 Spring Data REST + OpenAPI Generator | Schema → API → 客戶端 SDK |
+| 中央 schema registry | Apache Avro / JSON Schema | 中央定義類型，生成代碼 |
+| Actions（mutations） | Spring service layer + Temporal | 持久化、可重試嘅 actions |
+| 搜索 / 索引 | Elasticsearch / OpenSearch | 跨所有 object types 全文搜索 |
+| 權限 | Spring Security + OPA (Open Policy Agent) | 行級 / 對象級訪問控制 |
 
-### Most Pragmatic Path (Java 21 / Spring Boot 3 / PostgreSQL)
+### 最務實嘅路徑（Java 21 / Spring Boot 3 / PostgreSQL）
 
 ```
 JPA Entities (object types)
-  + Spring Data REST (auto-generated CRUD APIs)
-  + OpenAPI Generator (auto-generated client SDK)
-  + Spring HATEOAS (navigable links between objects)
+  + Spring Data REST (自動生成 CRUD APIs)
+  + OpenAPI Generator (自動生成客戶端 SDK)
+  + Spring HATEOAS (對象間可導航連結)
 ```
 
-This gives you:
-1. Define a `Pallet` entity -> REST API auto-exposed -> client SDK auto-generated
-2. Change a field -> regenerate -> compiler catches breaks
-3. Links between `Pallet` -> `Location` -> `Warehouse` navigable via HATEOAS
-
-~80% of the Ontology SDK value, zero licensing cost.
-
-### Comparison
-
-| | Palantir Ontology | DIY (Spring) | TypeDB |
-|---|---|---|---|
-| Cost | $$$$$ | Free | Free |
-| Schema -> SDK codegen | Built-in | OpenAPI Generator | Manual |
-| Graph traversal | Built-in | HATEOAS / JanusGraph | Built-in |
-| Actions framework | Built-in | Temporal / service layer | Manual |
-| Search | Built-in | Elasticsearch | TypeQL |
-| Permissions | Built-in | Spring Security + OPA | Manual |
-| Setup effort | Vendor does it | You build it | Moderate |
+~80% 嘅 Ontology SDK 價值，零授權成本。
 
 ---
 
-## Relevance to Warehouse Platform
+## 四層價值模型
 
-The project's canonical model (`Warehouse`, `Location`, `SKU`, `Pallet`, `Order`, `Task`) in `platform-core/` is essentially the ontology. Key ideas borrowed from Palantir:
+Adapter Pattern 只係入場券。Palantir 真正值錢嘅係 Ontology 上面嗰層。
 
-1. **Central schema** — one canonical model, not per-system models
-2. **Adapters** — integration layer maps external systems into that model
-3. **Links** — `Pallet` -> `Location` -> `Warehouse` are navigable relationships
-4. **Actions** — workflows (inbound, pick, transfer) are registered operations on those objects
+| 層 | 做咩 | 值幾多錢 | 我哋而家有冇 |
+|---|---|---|---|
+| **Layer 1：數據整合** | Adapter + ETL | 唔值錢（人人識做） | 有（設計咗） |
+| **Layer 2：Knowledge Graph** | 關係圖譜 + 跨域發現 | 值錢 | 部分（JPA relations） |
+| **Layer 3：Actions + 權限** | 雙向操作 + 審計 + 審批流 | 好值錢 | 未做 |
+| **Layer 4：AI on Ontology** | LLM 直接操作真實數據 | **最值錢** | 未做 |
 
-The warehouse platform achieves the same conceptual architecture with Spring Boot + JPA.
+詳見 [docs/architecture/ontology-adapter-pattern.md](docs/architecture/ontology-adapter-pattern.md)
+
+---
+
+## 同 Warehouse Platform 嘅關係
+
+項目嘅 canonical model（`Warehouse`、`Location`、`SKU`、`Pallet`、`Order`、`Task`）喺 `platform-core/` 入面本質上就係我哋嘅 ontology。從 Palantir 借鑒嘅核心思想：
+
+1. **中央 schema** — 一個 canonical model，唔係每個系統各自嘅 model
+2. **Adapters** — integration layer 將外部系統映射到呢個 model
+3. **Links** — `Pallet` → `Location` → `Warehouse` 係可導航嘅關係
+4. **Actions** — workflows（inbound、pick、transfer）係註冊喺呢啲 objects 上嘅操作
+
+Warehouse platform 用 Spring Boot + JPA 實現同一個概念架構。
