@@ -23,8 +23,13 @@ html{scroll-behavior:smooth}
 body{font-family:'Google Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
 .top-bar{height:56px;display:flex;align-items:center;padding:0 24px;background:var(--surface);box-shadow:var(--shadow);position:sticky;top:0;z-index:50}
-.top-bar h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:10px}
-.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.top-bar h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.top-nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.top-nav a{font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px;transition:all 150ms var(--ease);white-space:nowrap;flex-shrink:0}
+.top-nav a:hover{background:var(--bg);color:var(--text)}
+.top-nav a.active{background:var(--blue-bg);color:var(--blue);font-weight:500}
 
 .page{max-width:960px;margin:0 auto;padding:24px}
 .card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:28px;margin-bottom:24px}
@@ -93,7 +98,14 @@ svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
 <body>
 
 <header class="top-bar">
-  <h1><span class="logo">P</span> Palantir 護城河分析 — 實現層面</h1>
+  <h1><span class="logo">W</span> 倉儲自動化平台</h1>
+  <nav class="top-nav">
+    <a href="industry-landscape.html">行業全景</a>
+    <a href="product-overview.html">產品定位</a>
+    <a href="system-backbone.html">系統架構</a>
+    <a href="pltr-explainer.html">PLTR 解析</a>
+    <a href="pltr-moat.html" class="active">護城河分析</a>
+  </nav>
 </header>
 
 <main class="page">
