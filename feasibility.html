@@ -117,8 +117,8 @@ tr:hover{background:var(--bg)}
   <p class="sub">之前講「軟件唔複雜」係錯嘅。以下係逐層拆解。</p>
 
   <div class="layer" style="border-left-color:var(--yellow)">
-    <h3>Layer 1: WMS Adapter <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">中-高</span></h3>
-    <p><strong>唔係寫個 REST client 咁簡單。</strong></p>
+    <h3>Layer 1: WMS Adapter + Mapping <span class="tag" style="background:var(--yellow-bg);color:var(--yellow)">中-高</span></h3>
+    <p><strong>唔係寫個 REST client 咁簡單。本質係 ETL mapping — 同 Informatica 一樣嘅苦工。</strong></p>
     <ul>
       <li>Partner 工廠可能根本冇 WMS — 可能係 Excel / 微信群 / 手寫單</li>
       <li>中國 WMS API 文檔質量參差，可能要直連數據庫</li>
@@ -126,6 +126,20 @@ tr:hover{background:var(--bg)}
       <li>認證機制每個 WMS 唔同（OAuth / API key / 微信掃碼）</li>
       <li>API down / timeout / rate limit / 格式變更</li>
     </ul>
+    <p style="margin-top:10px;font-size:13px;font-weight:600">Mapping 工作量（每個 WMS source）：</p>
+    <table>
+      <thead><tr><th>工作項</th><th>時間 (estimation)</th><th>備註</th></tr></thead>
+      <tbody>
+        <tr><td>理解 source schema + 攞文檔</td><td>1-2 週</td><td>如果文檔差或要簽 NDA，可能更耐</td></tr>
+        <tr><td>Column mapping（source → ontology）</td><td>1-2 週</td><td>~50-100 個 fields，逐個確認語義</td></tr>
+        <tr><td>轉換邏輯（enum mapping、default、format）</td><td>1 週</td><td>zone_name "揀貨區" → PICK 呢類</td></tr>
+        <tr><td>Write-back adapter（ontology → source WMS）</td><td>1-2 週</td><td>比 read 難，要處理 transaction</td></tr>
+        <tr><td>Error handling + retry + monitoring</td><td>1 週</td><td>API down 點算？data mismatch 點算？</td></tr>
+        <tr><td>同 partner 反覆確認 + 修正</td><td>1-2 週</td><td>「呢個 field 代表乜？」嘅來回</td></tr>
+        <tr><td style="font-weight:600">合計（每個 WMS source）</td><td style="font-weight:600;color:var(--red)">6-10 週</td><td>Micro-MVP 只接 1 個 source</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;font-size:12px;color:var(--text2)">呢個同 Informatica mapping 嘅苦工一樣 — 冇任何工具可以跳過「bin_code 應該 map 去 location_code」呢種 domain knowledge。PLTR 用 Pipeline Builder（visual drag-drop）做同一件事，速度差唔多，但 output 係 Ontology Object（帶 links + actions），唔係另一張 table。</p>
   </div>
 
   <div class="layer" style="border-left-color:var(--blue)">
@@ -305,7 +319,7 @@ tr:hover{background:var(--bg)}
 
   <div class="phase" style="border-color:var(--green)">
     <h3><span class="tag" style="background:var(--green-bg);color:var(--green)">Phase 1</span> 數據層 + Dashboard（Month 1-4）</h3>
-    <p>寫 adapter 讀 partner WMS 數據 → 建 ontology 模型（包括 SKU 物理屬性）→ read-only dashboard。<strong>唔碰機器人。</strong></p>
+    <p>核心工作係 <strong>WMS mapping</strong>（~6-10 週）：理解 source schema → column mapping → 轉換邏輯 → write-back → error handling。同 Informatica mapping 一樣嘅苦工。之後建 ontology 模型 + read-only dashboard。<strong>唔碰機器人。</strong></p>
   </div>
 
   <div class="phase" style="border-color:var(--yellow)">
