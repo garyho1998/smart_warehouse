@@ -45,7 +45,7 @@ jq_py() {
 
 # --- Step 1: Get remote HEAD ---
 echo "1/5 Getting remote HEAD..."
-HEAD_SHA=$(api_get "/git/ref/heads/$BRANCH" | jq_py "['object']['sha']")
+HEAD_SHA=$(api_get "/git/refs/heads/$BRANCH" | jq_py "['object']['sha']")
 BASE_TREE=$(api_get "/git/commits/$HEAD_SHA" | jq_py "['tree']['sha']")
 echo "     HEAD: ${HEAD_SHA:0:7}  Tree: ${BASE_TREE:0:7}"
 
@@ -97,7 +97,7 @@ echo "     Commit: ${COMMIT_SHA:0:7}"
 echo "5/5 Updating $BRANCH..."
 echo "{\"sha\":\"$COMMIT_SHA\"}" \
   | curl -sf -X PATCH -H "Authorization: token $TOKEN" \
-    -H "Content-Type: application/json" "$API/git/ref/heads/$BRANCH" -d @- > /dev/null
+    -H "Content-Type: application/json" "$API/git/refs/heads/$BRANCH" -d @- > /dev/null
 
 echo ""
 echo "Done! Pushed ${#FILES[@]} files in 1 commit."
