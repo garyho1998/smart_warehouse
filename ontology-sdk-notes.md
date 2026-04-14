@@ -145,6 +145,73 @@ Adapter Pattern 只係入場券。Palantir 真正值錢嘅係 Ontology 上面嗰
 
 ---
 
+## PLTR 點管理 Ontology 變更（from official docs）
+
+### 三個 Building Block
+
+Palantir ontology 只有 3 種定義，全部喺 Ontology Manager UI 入面配置（唔使寫 code）：
+
+| 概念 | 做乜 | Java 類比 |
+|------|------|-----------|
+| **Object Type** | 現實世界嘅實體 schema | `@Entity` class |
+| **Link Type** | 兩個 Object Type 之間嘅關係 | `@ManyToOne` 但自動雙向、帶語義名 |
+| **Action Type** | 對 objects 嘅操作（帶驗證+權限+side effect） | `@Service` method + `@PreAuthorize` |
+
+> Source: [Palantir: Core Concepts](https://www.palantir.com/docs/foundry/ontology/core-concepts)
+
+### Git-style Branching 管理變更
+
+Ontology 變更用 branch 測試，唔會直接改 Main：
+
+```
+Main（生產）
+  ├── Branch "add-batch" → 加 Batch object type → 測試 → merge
+  └── Branch "fix-amount" → 改 property type → 測試 → merge
+```
+
+> Source: [Palantir: Test changes in the ontology](https://www.palantir.com/docs/foundry/ontologies/test-changes-in-ontology)
+
+### Shared vs Private Ontology
+
+| 模式 | 做法 | 用途 |
+|------|------|------|
+| **Private** | 一個 ontology 屬於一個 organization | 獨立客戶 |
+| **Shared** | 一個 ontology 跨多個 organization，schema 共用、data 隔離 | 供應鏈生態系統 |
+
+Shared ontology 有版本控制，一個參與者嘅改進可以 benefit 所有人。
+
+> Source: [Palantir: Shared Ontologies](https://www.palantir.com/docs/foundry/ontologies/shared-ontologies)
+
+### Breaking Change 處理
+
+Foundry 定義嘅 breaking changes：
+- 改現有 property 嘅 data type（例如 Integer → Decimal）
+- 改 object type 嘅 backing datasource
+- 改 primary key
+
+> "The Ontology Manager will block the user from saving changes until they define a migration."
+> Source: [Palantir: Schema migrations](https://www.palantir.com/docs/foundry/object-edits/schema-migrations)
+
+### Additive 安全，Structural 有 Conflict
+
+| 變更 | Conflict? | 處理 |
+|------|-----------|------|
+| 加新 Object Type | ✓ 安全 | 直接加 |
+| 加新 Link Type | ✓ 安全 | 直接加 |
+| 加新 Property | ✓ 安全 | 其他客戶 = null |
+| 改 Property type | ⚠️ Breaking | Migration required，Foundry block |
+| 唔同客戶要唔同 enum values | ⚠️ Conflict | 合併 enum 或改 String（冇完美解） |
+| 結構性分歧（有/冇 OrderLine） | ❌ Hard | FDE 人工判斷 |
+
+### FDE 複用機制
+
+> "When entity resolution appeared at one government agency, then at a pharmaceutical company... it got abstracted into a reusable primitive and pulled upstream into the platform."
+> Source: [Everest Group](https://www.everestgrp.com/palantir-inside-the-category-of-one-forward-deployed-software-engineers-blog/)
+
+FDE 用 reusable primitives 而唔係每個客戶從零寫。Pattern 反覆出現 → 抽象成 platform primitive → 所有 FDE 共用。
+
+---
+
 ## 同 Warehouse Platform 嘅關係
 
 項目嘅 canonical model（`Warehouse`、`Location`、`SKU`、`Pallet`、`Order`、`Task`）喺 `platform-core/` 入面本質上就係我哋嘅 ontology。從 Palantir 借鑒嘅核心思想：
