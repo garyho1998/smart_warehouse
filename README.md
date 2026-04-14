@@ -70,9 +70,11 @@ Key capabilities:
 ```
 warehouse-platform/
 ├── docs/                # Research, architecture, feasibility, deployment notes
+│   ├── architecture/    # Ontology, integration, and platform design notes
+│   └── assets/          # Documentation assets such as screenshots
 ├── pages/               # GitHub Pages HTML files (published under /pages/*)
-├── gh-push-tree.sh      # GitHub API deploy helper
-├── ontology-sdk-notes.md
+├── scripts/             # Repo helper scripts
+│   └── gh-push-tree.sh  # GitHub API deploy helper
 ├── CLAUDE.md
 └── README.md
 ```

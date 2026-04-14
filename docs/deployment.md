@@ -21,17 +21,17 @@
 
 ```bash
 # 推送一個或多個檔案
-bash gh-push-tree.sh -m "commit message" <file_path> [more_files...]
+bash scripts/gh-push-tree.sh -m "commit message" <file_path> [more_files...]
 
 # 例子
-bash gh-push-tree.sh -m "Update industry landscape" pages/industry-landscape.html
-bash gh-push-tree.sh -m "Update product + explainer" pages/product-overview.html pages/pltr-explainer.html
+bash scripts/gh-push-tree.sh -m "Update industry landscape" pages/industry-landscape.html
+bash scripts/gh-push-tree.sh -m "Update product + explainer" pages/product-overview.html pages/pltr-explainer.html
 
 # 刪除舊檔 / redirect 檔案
-bash gh-push-tree.sh --delete industry-landscape.html --delete product-overview.html -m "Remove root redirects"
+bash scripts/gh-push-tree.sh --delete industry-landscape.html --delete product-overview.html -m "Remove root redirects"
 ```
 
-`gh-push-tree.sh` 做嘅事：
+`scripts/gh-push-tree.sh` 做嘅事：
 - 讀 remote `main` HEAD
 - 為新檔 / 更新檔建立 blobs
 - 用 Git Trees API 一次過提交多個新增、更新、刪除、搬位操作
@@ -92,10 +92,10 @@ Claude Code 啟動時會 load shell profile，但如果 token 係後來加入 `~
 
 `! source ~/.zshrc` **唔 work** — `!` 命令跑喺 subshell，env var 唔會傳返去。
 
-**解決方法：**喺 `gh-push-tree.sh` 命令前面 inline source：
+**解決方法：**喺 `scripts/gh-push-tree.sh` 命令前面 inline source：
 
 ```bash
-source ~/.zshrc && bash gh-push-tree.sh -m "Update industry landscape" pages/industry-landscape.html
+source ~/.zshrc && bash scripts/gh-push-tree.sh -m "Update industry landscape" pages/industry-landscape.html
 ```
 
 或者直接開新 Claude Code session（會自動 load `~/.zshrc`）。
@@ -111,4 +111,4 @@ source ~/.zshrc && bash gh-push-tree.sh -m "Update industry landscape" pages/ind
    ```bash
    export GH_TOKEN=ghp_新token
    ```
-5. 開新 Claude Code session（或 `source ~/.zshrc && bash gh-push-tree.sh ...`）
+5. 開新 Claude Code session（或 `source ~/.zshrc && bash scripts/gh-push-tree.sh ...`）

@@ -3,10 +3,10 @@
 # Preserves directory structure. Builds on remote HEAD (not local).
 #
 # Usage:
-#   ./gh-push-tree.sh -m "commit message" file1 file2 dir/file3 ...
-#   ./gh-push-tree.sh --move old/path:new/path [-m "msg"]
-#   ./gh-push-tree.sh --move old:new --move old2:new2 file3 -m "msg"
-#   ./gh-push-tree.sh --delete path/to/file [-m "msg"]
+#   ./scripts/gh-push-tree.sh -m "commit message" file1 file2 dir/file3 ...
+#   ./scripts/gh-push-tree.sh --move old/path:new/path [-m "msg"]
+#   ./scripts/gh-push-tree.sh --move old:new --move old2:new2 file3 -m "msg"
+#   ./scripts/gh-push-tree.sh --delete path/to/file [-m "msg"]
 
 set -e
 
@@ -31,9 +31,9 @@ done
 
 if [ ${#FILES[@]} -eq 0 ] && [ ${#MOVES[@]} -eq 0 ] && [ ${#DELETES[@]} -eq 0 ]; then
   echo "Usage:"
-  echo "  ./gh-push-tree.sh -m \"message\" file1 [file2 ...]"
-  echo "  ./gh-push-tree.sh --move old/path:new/path [-m \"msg\"]"
-  echo "  ./gh-push-tree.sh --delete path/to/file [-m \"msg\"]"
+  echo "  ./scripts/gh-push-tree.sh -m \"message\" file1 [file2 ...]"
+  echo "  ./scripts/gh-push-tree.sh --move old/path:new/path [-m \"msg\"]"
+  echo "  ./scripts/gh-push-tree.sh --delete path/to/file [-m \"msg\"]"
   echo "  Combine: --move, --delete, and files in one commit"
   exit 1
 fi

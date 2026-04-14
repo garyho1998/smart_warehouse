@@ -13,7 +13,7 @@
 
 | 文件 | 內容 |
 |---|---|
-| `ontology-sdk-notes.md` | Ontology SDK 概念、Java 類比、開源替代、四層價值 |
+| `docs/architecture/ontology-sdk-notes.md` | Ontology SDK 概念、Java 類比、開源替代、四層價值 |
 | `docs/market-research/wms-pricing-global.md` | 全球 WMS + 機器人定價（RMB） |
 | `docs/market-research/china-competitors.md` | 中國競品四大分類 + 強弱分析 |
 | `docs/market-research/competitor-financials.md` | 競品真實財報數據（極智嘉、海康、聚水潭）+ 來源連結 |
@@ -22,7 +22,7 @@
 
 ## GitHub 推送
 
-公司網絡封鎖 git push，用 GitHub REST API 上傳。本地有 `gh-push-tree.sh` helper script，用 `$GH_TOKEN` 環境變數。HTML 頁面正式放喺 `pages/`，對外 URL 亦會係 `/pages/*.html`。
+公司網絡封鎖 git push，用 GitHub REST API 上傳。本地有 `scripts/gh-push-tree.sh` helper script，用 `$GH_TOKEN` 環境變數。HTML 頁面正式放喺 `pages/`，對外 URL 亦會係 `/pages/*.html`。
 
 ## Memory Palace
 

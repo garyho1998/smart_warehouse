@@ -141,7 +141,7 @@ Adapter Pattern 只係入場券。Palantir 真正值錢嘅係 Ontology 上面嗰
 | **Layer 3：Actions + 權限** | 雙向操作 + 審計 + 審批流 | 好值錢 | 未做 |
 | **Layer 4：AI on Ontology** | LLM 直接操作真實數據 | **最值錢** | 未做 |
 
-詳見 [docs/architecture/ontology-adapter-pattern.md](docs/architecture/ontology-adapter-pattern.md)
+詳見 [ontology-adapter-pattern.md](ontology-adapter-pattern.md)
 
 ---
 
