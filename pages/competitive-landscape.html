@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>競爭格局 — Multiagent Orchestration Platforms</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a73e8;--blue-bg:#e8f0fe;
+  --green:#34a853;--green-bg:#e6f4ea;
+  --red:#ea4335;--red-bg:#fce8e6;
+  --yellow:#f9ab00;--yellow-bg:#fef7e0;
+  --purple:#7b1fa2;--purple-bg:#f3e5f5;
+  --surface:#fff;--bg:#f8f9fa;
+  --text:#202124;--text2:#5f6368;--border:#dadce0;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px rgba(60,64,67,.15);
+  --shadow2:0 1px 3px rgba(60,64,67,.3),0 4px 8px rgba(60,64,67,.15);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Google Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.top-bar{height:56px;display:flex;align-items:center;padding:0 24px;gap:24px;background:var(--surface);box-shadow:var(--shadow);position:sticky;top:0;z-index:50}
+.top-bar h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.top-nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.top-nav a{font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px;transition:all 150ms var(--ease);white-space:nowrap;flex-shrink:0}
+.top-nav a:hover{background:var(--bg);color:var(--text)}
+.top-nav a.active{background:var(--blue-bg);color:var(--blue);font-weight:500}
+
+.page{max-width:1100px;margin:0 auto;padding:24px}
+.card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:28px;margin-bottom:24px}
+.card h2{font-size:20px;font-weight:500;margin-bottom:6px}
+.card .sub{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.hl{color:var(--blue);font-weight:500}
+
+/* Hero */
+.hero{text-align:center;padding:40px 28px;border-top:4px solid var(--red)}
+.hero h2{font-size:26px;font-weight:500;margin-bottom:10px}
+.hero .stats{display:flex;justify-content:center;gap:32px;margin-top:20px;flex-wrap:wrap}
+.hero .stat{text-align:center}
+.hero .stat .num{font-size:28px;font-weight:600}
+.hero .stat .label{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* Competitor Cards */
+.comp{border-radius:12px;border:1.5px solid var(--border);padding:24px;margin-bottom:16px;transition:box-shadow 200ms var(--ease)}
+.comp:hover{box-shadow:var(--shadow2)}
+.comp-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.comp h3{font-size:17px;font-weight:600}
+.comp h3 small{font-size:13px;font-weight:400;color:var(--text2);margin-left:6px}
+.comp-tags{display:flex;gap:6px;flex-wrap:wrap}
+.comp-tag{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500}
+.comp p{font-size:13px;color:var(--text2);line-height:1.7}
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.comp-metric{background:var(--bg);border-radius:8px;padding:10px 14px}
+.comp-metric .cm-label{font-size:11px;color:var(--text2)}
+.comp-metric .cm-val{font-size:15px;font-weight:500;margin-top:1px}
+.comp-section{margin-top:12px}
+.comp-section h4{font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.comp .threat{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5}
+.threat-high{background:var(--red-bg);border-left:3px solid var(--red)}
+.threat-med{background:var(--yellow-bg);border-left:3px solid var(--yellow)}
+.threat-low{background:var(--green-bg);border-left:3px solid var(--green)}
+
+/* Comparison Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);font-weight:600;color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;background:var(--surface);position:sticky;top:0}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover{background:var(--bg)}
+
+/* Insight boxes */
+.diff-box{padding:20px;border-radius:10px;margin-top:20px}
+.diff-box h3{font-size:15px;font-weight:600;margin-bottom:10px}
+.diff-box p{font-size:13px;color:var(--text2);line-height:1.7}
+.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.diff-card{padding:16px;border-radius:8px}
+.diff-card h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.diff-card p{font-size:13px;line-height:1.6}
+
+.src{font-size:11px;color:var(--text2);margin-top:4px}
+.src a{color:var(--blue);text-decoration:none}
+.footer{text-align:center;padding:24px;font-size:12px;color:var(--text2)}
+
+@media(max-width:768px){
+  .page{padding:12px}
+  .comp-grid{grid-template-columns:1fr}
+  .diff-grid{grid-template-columns:1fr}
+  .hero .stats{gap:16px}
+  .hero .stat .num{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <h1><span class="logo">W</span> 倉儲自動化平台</h1>
+  <nav class="top-nav">
+    <a href="industry-landscape.html">行業全景</a>
+    <a href="product-overview.html">產品定位</a>
+    <a href="competitive-landscape.html" class="active">競爭分析</a>
+    <a href="system-backbone.html">系統架構</a>
+    <a href="feasibility.html">可行性</a>
+    <a href="pltr-explainer.html">PLTR 解析</a>
+    <a href="pltr-moat.html">PLTR 護城河</a>
+  </nav>
+</header>
+
+<main class="page">
+
+<!-- Hero -->
+<section class="card hero">
+  <h2>競爭格局：<span style="color:var(--red)">Multiagent Orchestration Platforms</span></h2>
+  <p class="sub" style="max-width:700px;margin:0 auto">Gartner 已定義品類。我哋唔係第一個做 robot-agnostic integration layer — 但我哋可以做得唔同。</p>
+  <div class="stats">
+    <div class="stat"><div class="num" style="color:var(--red)">7+</div><div class="label">已有競爭者</div></div>
+    <div class="stat"><div class="num" style="color:var(--yellow)">138%</div><div class="label">市場年增長率</div></div>
+    <div class="stat"><div class="num" style="color:var(--green)">$5.23B</div><div class="label">2032 預測市場規模</div></div>
+    <div class="stat"><div class="num" style="color:var(--blue)">50%+</div><div class="label">2026 年企業採用率 (Gartner)</div></div>
+  </div>
+  <p class="src" style="margin-top:12px">來源：<a href="https://www.gartner.com/reviews/market/multiagent-orchestration-platforms">Gartner Multiagent Orchestration Platforms</a></p>
+</section>
+
+<!-- Competitors -->
+<section class="card">
+  <h2>主要競爭者深度分析</h2>
+  <p class="sub">按威脅程度排序。所有數據來自公開來源。</p>
+
+  <!-- SVT Robotics -->
+  <div class="comp" style="border-color:var(--red)">
+    <div class="comp-header">
+      <h3>SVT Robotics <small>SOFTBOT Platform</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--red-bg);color:var(--red)">威脅：高</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">美國 · 2018</span>
+      </div>
+    </div>
+    <p>Low-code 平台，專做 WMS 同機器人之間嘅標準 integration layer。定位同我哋最接近 — <strong>唔做機器人，唔做 WMS，做中間層</strong>。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">融資</div><div class="cm-val">$36.5M</div></div>
+      <div class="comp-metric"><div class="cm-label">收入 (est.)</div><div class="cm-val">$25-50M</div></div>
+      <div class="comp-metric"><div class="cm-label">核心投資者</div><div class="cm-val">Tiger Global, Koch, Prologis</div></div>
+      <div class="comp-metric"><div class="cm-label">客戶</div><div class="cm-val">DHL Supply Chain</div></div>
+    </div>
+    <div class="comp-section">
+      <h4>佢哋點做</h4>
+      <p>Plug-and-play connector 模式：預建嘅 "SOFTBOT" 連接器可以喺幾日內將 WMS 同機器人對接。聲稱比傳統 custom coding 快 <strong>12 倍</strong>。</p>
+    </div>
+    <div class="threat threat-high">
+      <strong>點解威脅高：</strong>定位幾乎一樣 — WMS-agnostic、robot-agnostic 嘅中間層。已有 DHL 呢個超大客戶驗證。Tiger Global + Koch 背書代表 VC 認可呢個品類。<br>
+      <strong>同我哋嘅差異：</strong>佢哋做 connector（接線），我哋做 ontology（理解）。SVT 翻譯指令，我哋建統一模型。長遠 ontology 模式有複用優勢，但短期 connector 模式更快上手。
+    </div>
+    <p class="src">來源：<a href="https://www.svtrobotics.com/">svtrobotics.com</a>、<a href="https://group.dhl.com/en/media-relations/press-releases/2026/dhl-supply-chain-accelerates-automation-deployments-with-stv-robotics-softbot-platform.html">DHL 公告 (2026.3)</a>、<a href="https://www.therobotreport.com/svt-robotics-raises-25m-in-series-a-funding/">Robot Report</a></p>
+  </div>
+
+  <!-- GreyOrange -->
+  <div class="comp" style="border-color:var(--red)">
+    <div class="comp-header">
+      <h3>GreyOrange <small>GreyMatter Platform</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--red-bg);color:var(--red)">威脅：高</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">美國/印度 · 2011</span>
+      </div>
+    </div>
+    <p>AI-driven fulfillment orchestration 平台，由機器人公司轉型為平台公司。自己有機器人 (Ranger)，但 GreyMatter 越嚟越 vendor-agnostic。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">融資</div><div class="cm-val">$545M (Series D)</div></div>
+      <div class="comp-metric"><div class="cm-label">部署規模</div><div class="cm-val">100+ 站點 / 10,000+ 機器人</div></div>
+      <div class="comp-metric"><div class="cm-label">合作</div><div class="cm-val">Google Cloud (DeepNav)</div></div>
+      <div class="comp-metric"><div class="cm-label">客戶</div><div class="cm-val">IKEA, Kenco, Fabletics</div></div>
+    </div>
+    <div class="comp-section">
+      <h4>佢哋點做</h4>
+      <p>GreyMatter 每分鐘生成 <strong>100 萬次實時優化</strong>。Open API 可以接任何認證供應商嘅機器人。2026 年推出 GreyMatter DeepNav（同 Google Cloud 合作嘅 AI 導航）。</p>
+    </div>
+    <div class="threat threat-high">
+      <strong>點解威脅高：</strong>$545M 融資係呢個品類最高。從機器人公司轉型做平台 = 有硬件 know-how + 軟件能力。Google Cloud 合作令 AI 能力加速。<br>
+      <strong>同我哋嘅差異：</strong>GreyOrange 由大做到開放，我哋由開放做起。佢哋嘅 open API 仍然以自家 Ranger 機器人為核心，第三方機器人支援深度有限。
+    </div>
+    <p class="src">來源：<a href="https://www.greyorange.com/greymatter/">greyorange.com</a>、<a href="https://www.mmh.com/article/greyorange-google-cloud-warehouse-robot-ai">MMH - Google Cloud 合作</a></p>
+  </div>
+
+  <!-- Locus Robotics -->
+  <div class="comp" style="border-color:var(--yellow)">
+    <div class="comp-header">
+      <h3>Locus Robotics <small>LocusONE Platform</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--yellow-bg);color:var(--yellow)">威脅：中</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">美國 · 2014</span>
+      </div>
+    </div>
+    <p>全球最大 AMR 部署商之一（15,000+ 台），LocusONE 係佢哋嘅 orchestration + Agentic AI 平台。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">部署規模</div><div class="cm-val">15,000+ AMR 全球</div></div>
+      <div class="comp-metric"><div class="cm-label">新產品</div><div class="cm-val">Locus Array (R2G, 2026)</div></div>
+      <div class="comp-metric"><div class="cm-label">AI 能力</div><div class="cm-val">Agentic AI + Physical AI</div></div>
+      <div class="comp-metric"><div class="cm-label">市場</div><div class="cm-val">3PL, 電商, 零售</div></div>
+    </div>
+    <div class="threat threat-med">
+      <strong>點解威脅中等：</strong>規模大、AI 能力強，但 LocusONE 主要服務自家 Locus 機器人。唔係真正 vendor-agnostic。<br>
+      <strong>同我哋嘅差異：</strong>佢哋係 "機器人公司做平台"，我哋係 "平台公司接機器人"。客戶用 Locus = 買晒佢哋嘅機器人。
+    </div>
+    <p class="src">來源：<a href="https://locusrobotics.com/">locusrobotics.com</a>、<a href="https://locusrobotics.com/blog/dawn-r2g-first-locus-array-shipped">Locus Array 公告</a></p>
+  </div>
+
+  <!-- JASCI -->
+  <div class="comp" style="border-color:var(--yellow)">
+    <div class="comp-header">
+      <h3>JASCI <small>Cloud WMS + Robotics Hub</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--yellow-bg);color:var(--yellow)">威脅：中</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">美國 · 2015</span>
+      </div>
+    </div>
+    <p>Cloud-native SaaS，統一 WMS + WES + 機器人編排。想做 all-in-one，連 WMS 都取代。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">定位</div><div class="cm-val">WMS + WES + Robotics 一體化</div></div>
+      <div class="comp-metric"><div class="cm-label">效果 (聲稱)</div><div class="cm-val">20-40% 生產力提升</div></div>
+      <div class="comp-metric"><div class="cm-label">融資</div><div class="cm-val">早期（MicroVentures 等）</div></div>
+      <div class="comp-metric"><div class="cm-label">市場</div><div class="cm-val">北美中型倉庫</div></div>
+    </div>
+    <div class="threat threat-med">
+      <strong>點解威脅中等：</strong>All-in-one 方向同我哋唔同 — 佢哋要客戶換 WMS，我哋唔使。但如果客戶本身冇 WMS，JASCI 比我哋更有吸引力。<br>
+      <strong>同我哋嘅差異：</strong>JASCI 取代 WMS，我哋疊加喺現有 WMS 上面。唔同切入點。
+    </div>
+    <p class="src">來源：<a href="https://www.jascicloud.com/">jascicloud.com</a>、<a href="https://www.jascicloud.com/robotics-hub">JASCI Robotics Hub</a></p>
+  </div>
+
+  <!-- Roboteon -->
+  <div class="comp" style="border-color:var(--yellow)">
+    <div class="comp-header">
+      <h3>Roboteon <small>Robotics Fulfillment Platform</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--yellow-bg);color:var(--yellow)">威脅：中</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">美國</span>
+      </div>
+    </div>
+    <p>Multi-vendor robot orchestration + WMS 整合。已通過 <strong>Microsoft Dynamics 365 認證</strong>同 <strong>SAP EWM 認證</strong>。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">認證</div><div class="cm-val">Microsoft + SAP 認證</div></div>
+      <div class="comp-metric"><div class="cm-label">模式</div><div class="cm-val">Cloud SaaS</div></div>
+      <div class="comp-metric"><div class="cm-label">特點</div><div class="cm-val">Multi-vendor 互操作</div></div>
+      <div class="comp-metric"><div class="cm-label">融資</div><div class="cm-val">未公開</div></div>
+    </div>
+    <div class="threat threat-med">
+      <strong>點解威脅中等：</strong>SAP + Microsoft 認證代表同大廠 WMS 有深度整合。但公司規模唔大，融資未公開。<br>
+      <strong>同我哋嘅差異：</strong>Roboteon 做 orchestration（編排），我哋做 ontology + orchestration（理解 + 編排）。佢哋冇語義建模層。
+    </div>
+    <p class="src">來源：<a href="https://www.roboteon.com/">roboteon.com</a>、<a href="https://www.dcvelocity.com/industry-press-room/roboteon-announces-powerful-certified-warehouse-automation-solution-for-microsoft-dynamics-365">DC Velocity</a></p>
+  </div>
+
+  <!-- Blue Yonder -->
+  <div class="comp" style="border-color:var(--green)">
+    <div class="comp-header">
+      <h3>Blue Yonder <small>Warehouse Robotics Hub</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--green-bg);color:var(--green)">威脅：低</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">美國 · $1.36B 收入</span>
+      </div>
+    </div>
+    <p>WMS 巨頭嘅機器人整合模組。一個平台接所有機器人供應商，但綁定 Blue Yonder WMS 生態。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">母公司收入</div><div class="cm-val">$1.36B (FY2024)</div></div>
+      <div class="comp-metric"><div class="cm-label">WMS 增長</div><div class="cm-val">+32% YoY</div></div>
+    </div>
+    <div class="threat threat-low">
+      <strong>點解威脅低：</strong>Robotics Hub 係 Blue Yonder WMS 嘅附加功能，唔係獨立產品。客戶必須先用 BY WMS。我哋嘅客戶通常唔係 BY 客戶。<br>
+      <strong>但要留意：</strong>如果 BY 將 Robotics Hub 拆出來做獨立產品，威脅會升級。
+    </div>
+    <p class="src">來源：<a href="https://blueyonder.com/solutions/warehouse-management/robotics-hub">Blue Yonder Robotics Hub</a></p>
+  </div>
+
+  <!-- Deus Robotics -->
+  <div class="comp" style="border-color:var(--green)">
+    <div class="comp-header">
+      <h3>Deus Robotics <small>Deus RMS</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--green-bg);color:var(--green)">威脅：低</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">烏克蘭 · 2020</span>
+      </div>
+    </div>
+    <p>烏克蘭 startup，Robotics Management System 統一多品牌機器人。有自研機器人 + 軟件平台。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">融資</div><div class="cm-val">$3M Seed</div></div>
+      <div class="comp-metric"><div class="cm-label">收入</div><div class="cm-val">$4.2M (2025.9)</div></div>
+      <div class="comp-metric"><div class="cm-label">估值</div><div class="cm-val">$20M</div></div>
+      <div class="comp-metric"><div class="cm-label">客戶</div><div class="cm-val">DPD（英國快遞龍頭）</div></div>
+    </div>
+    <div class="threat threat-low">
+      <strong>點解威脅低：</strong>規模小（$4.2M 收入），主攻歐洲市場，自己做硬件 = 同我哋定位唔同。<br>
+      <strong>值得學習：</strong>喺 DPD 選型中擊敗 100+ 競爭者，值得研究佢哋嘅 pitch 策略。
+    </div>
+    <p class="src">來源：<a href="https://tech.eu/2025/01/08/deus-robotics-raises-3m-seed-for-warehouse-automation-solutions/">Tech.eu</a>、<a href="https://getlatka.com/companies/deusrobotics.com">Latka</a></p>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section class="card">
+  <h2>功能對比</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>維度</th><th>SVT Robotics</th><th>GreyOrange</th><th>JASCI</th><th>Roboteon</th><th>我哋</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><strong>核心模式</strong></td><td>Connector</td><td>Orchestration + 自家機器人</td><td>All-in-one WMS</td><td>Orchestration</td><td style="color:var(--blue);font-weight:500">Ontology + Orchestration</td></tr>
+        <tr><td><strong>要換 WMS?</strong></td><td>唔使</td><td>唔使</td><td style="color:var(--red)">要</td><td>唔使</td><td style="color:var(--green)">唔使</td></tr>
+        <tr><td><strong>Robot-agnostic?</strong></td><td style="color:var(--green)">Yes</td><td>部分（偏自家）</td><td style="color:var(--green)">Yes</td><td style="color:var(--green)">Yes</td><td style="color:var(--green)">Yes</td></tr>
+        <tr><td><strong>語義建模</strong></td><td style="color:var(--red)">冇</td><td>有限</td><td>有限</td><td style="color:var(--red)">冇</td><td style="color:var(--green);font-weight:500">Ontology</td></tr>
+        <tr><td><strong>跨客戶複用</strong></td><td>Connector 複用</td><td>Workflow 複用</td><td>模板複用</td><td>有限</td><td style="color:var(--green);font-weight:500">Ontology 累積複用</td></tr>
+        <tr><td><strong>AI 能力</strong></td><td>基本</td><td style="color:var(--green)">強（Google Cloud）</td><td>中等</td><td>中等</td><td>Phase 3 規劃</td></tr>
+        <tr><td><strong>中國市場</strong></td><td style="color:var(--red)">冇</td><td>有限（印度為主）</td><td style="color:var(--red)">冇</td><td style="color:var(--red)">冇</td><td style="color:var(--green);font-weight:500">核心市場</td></tr>
+        <tr><td><strong>大客戶驗證</strong></td><td style="color:var(--green)">DHL</td><td style="color:var(--green)">IKEA</td><td>中型倉</td><td>SME</td><td style="color:var(--red)">未有</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Our Differentiation -->
+<section class="card">
+  <h2>我哋嘅差異化</h2>
+  <p class="sub">唔好試圖乜都做得好。揀幾個佢哋做唔到嘅點，做到極致。</p>
+
+  <div class="diff-grid">
+    <div class="diff-card" style="background:var(--blue-bg)">
+      <h4 style="color:var(--blue)">Ontology 語義層 vs Connector 接線層</h4>
+      <p>SVT/Roboteon 做「翻譯」— WMS 話 "move pallet A to zone B"，佢哋翻譯畀機器人聽。<br><br>
+      我哋做「理解」— Ontology 知道 pallet A 係乜、zone B 有咩限制、邊個機器人最適合、有冇衝突。長遠可以自主決策。</p>
+    </div>
+    <div class="diff-card" style="background:var(--green-bg)">
+      <h4 style="color:var(--green)">中國市場 = 佢哋嘅盲區</h4>
+      <p>7 個競爭者全部喺北美/歐洲。中國倉儲市場（¥212 億 AGV/AMR）冇任何 vendor-agnostic orchestration 平台。<br><br>
+      中國客戶用嘅 WMS（富勒、旺店通）、機器人（海康、快倉）同歐美完全唔同，需要本地 adapter。</p>
+    </div>
+    <div class="diff-card" style="background:var(--yellow-bg)">
+      <h4 style="color:var(--yellow)">唔使換 WMS = 最低門檻</h4>
+      <p>JASCI 要客戶換 WMS，GreyOrange 偏向自家機器人。我哋嘅 adapter pattern 接入現有系統，客戶零遷移成本。呢個係中國中型倉庫最 care 嘅嘢。</p>
+    </div>
+    <div class="diff-card" style="background:var(--red-bg)">
+      <h4 style="color:var(--red)">誠實面對嘅差距</h4>
+      <p>• <strong>冇大客戶驗證</strong> — SVT 有 DHL，GreyOrange 有 IKEA<br>
+      • <strong>AI 能力落後</strong> — GreyOrange 同 Google Cloud 合作<br>
+      • <strong>融資規模差距大</strong> — GreyOrange $545M vs 我哋零<br>
+      • <strong>Ontology 模式需要更多前期投入</strong> — connector 模式更快 MVP</p>
+    </div>
+  </div>
+
+  <div class="diff-box" style="background:var(--bg);border-left:4px solid var(--blue);padding-left:20px;margin-top:20px">
+    <h3 style="color:var(--blue)">底線</h3>
+    <p>呢個市場已經有人做，而且做得唔錯。我哋嘅機會唔係「冇人做」— 係「冇人喺中國做」+「冇人用 ontology 做」。呢兩個差異化夠唔夠大，需要用 MVP 驗證。<br><br>
+    <a href="pltr-moat.html" style="color:var(--blue);font-weight:500;text-decoration:none">Ontology 模式嘅長期PLTR 護城河 →</a></p>
+  </div>
+</section>
+
+<!-- Chinese "Palantir" Companies -->
+<section class="card">
+  <h2>中國版 Palantir — 數據平台公司</h2>
+  <p class="sub">4 間被稱為「中國版 Palantir」嘅公司，全部做數據分析 / 決策支持。<strong>但冇一間連接到倉儲機器人控制層。</strong></p>
+
+  <div class="comp" style="border-color:var(--yellow)">
+    <div class="comp-header">
+      <h3>迅策科技 <small>VOne Platform · 港股 03317</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--green-bg);color:var(--green)">威脅：低</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">香港 · 2014</span>
+      </div>
+    </div>
+    <p>被稱為「Data Agent 第一股」。VOne 平台毫秒級數據處理，對接 1000+ 外部數據源，100% 數據一致性。被中信證券首次覆蓋，目標價 160 港元。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">預測收入</div><div class="cm-val">¥12.8億 (2025E)</div></div>
+      <div class="comp-metric"><div class="cm-label">增長率</div><div class="cm-val">103% YoY</div></div>
+      <div class="comp-metric"><div class="cm-label">盈利預測</div><div class="cm-val">2026 年盈利 ¥2.72億</div></div>
+      <div class="comp-metric"><div class="cm-label">主攻行業</div><div class="cm-val">資管、電信、城市管理</div></div>
+    </div>
+    <div class="threat threat-low">
+      <strong>同倉儲機器人嘅關係：</strong>零。專注金融 / 電信高利潤行業，冇倉儲或機器人相關產品。進入倉儲機器人品類可能性極低。
+    </div>
+    <p class="src">來源：<a href="https://news.qq.com/rain/a/20260205A06REP00">騰訊新聞</a>、<a href="https://www.stcn.com/article/detail/3674260.html">證券時報 — 中信證券覆蓋</a></p>
+  </div>
+
+  <div class="comp" style="border-color:var(--yellow)">
+    <div class="comp-header">
+      <h3>拓尔思 TRS <small>A 股 300229</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--green-bg);color:var(--green)">威脅：低</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">北京 · 1993</span>
+      </div>
+    </div>
+    <p>A 股首家上市大數據公司。3000+ 億條數據資產，五大數據平台（數家、網察、數星、天目、Global Insight）。整合 DeepSeek 做行業大模型。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">數據規模</div><div class="cm-val">3000+ 億條</div></div>
+      <div class="comp-metric"><div class="cm-label">主攻行業</div><div class="cm-val">政務、公安、金融、媒體</div></div>
+    </div>
+    <div class="threat threat-low">
+      <strong>同倉儲機器人嘅關係：</strong>零。核心係開源情報 + 輿情監控 + 金融科技。技術棧係 NLP / 文本分析，唔係 real-time orchestration。
+    </div>
+    <p class="src">來源：<a href="https://www.trs.com.cn/">trs.com.cn</a>、<a href="https://9fzt.com/9fztgw_1_top/56ef336abd630ae6e9e174a3291fb654.html">拓尔思 AI 賦能開源情報</a></p>
+  </div>
+
+  <div class="comp" style="border-color:var(--yellow)">
+    <div class="comp-header">
+      <h3>滴普科技 <small>FastData + FastAGI · 港股</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--green-bg);color:var(--green)">威脅：低</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">深圳 · 2018</span>
+      </div>
+    </div>
+    <p>「數據工程 + 模型工程 + 應用工程」全棧技術閉環。FastAGI 收入 H1 2025 達 ¥7307 萬（+191%）。首日開盤飆漲 111%。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">FastAGI 收入</div><div class="cm-val">¥7307 萬 (H1 2025)</div></div>
+      <div class="comp-metric"><div class="cm-label">增長率</div><div class="cm-val">+191% YoY</div></div>
+      <div class="comp-metric"><div class="cm-label">客戶數</div><div class="cm-val">283 家 (2025.6)</div></div>
+      <div class="comp-metric"><div class="cm-label">主攻行業</div><div class="cm-val">消費零售、製造、醫療</div></div>
+    </div>
+    <div class="threat threat-low">
+      <strong>同倉儲機器人嘅關係：</strong>有限。雖然服務製造業客戶，但定位係 AI 數字員工 / 數據治理，唔係機器人控制層。最接近嘅可能性：如果佢哋為製造業客戶做 AI Agent 延伸到倉儲自動化。
+    </div>
+    <p class="src">來源：<a href="https://www.stcn.com/article/detail/3427491.html">證券時報 — 滴普上市</a></p>
+  </div>
+
+  <div class="comp" style="border-color:var(--yellow)">
+    <div class="comp-header">
+      <h3>百望股份 <small>Baiwang</small></h3>
+      <div class="comp-tags">
+        <span class="comp-tag" style="background:var(--green-bg);color:var(--green)">威脅：低</span>
+        <span class="comp-tag" style="background:var(--bg);color:var(--text2)">北京</span>
+      </div>
+    </div>
+    <p>發票數據平台，200 億張真實交易發票，連接 2600+ 大型企業集團和 2800 萬+ 中小企業。</p>
+    <div class="comp-grid">
+      <div class="comp-metric"><div class="cm-label">發票數據</div><div class="cm-val">200 億張</div></div>
+      <div class="comp-metric"><div class="cm-label">企業客戶</div><div class="cm-val">2600+ 大企業 + 2800 萬 SME</div></div>
+    </div>
+    <div class="threat threat-low">
+      <strong>同倉儲機器人嘅關係：</strong>零。純財稅數據平台。
+    </div>
+    <p class="src">來源：<a href="https://news.pedaily.cn/20250730/111590.shtml">投資界 — 百望股份</a></p>
+  </div>
+
+  <!-- Key Insight -->
+  <div class="diff-box" style="background:var(--bg);border-left:4px solid var(--red);padding-left:20px;margin-top:20px">
+    <h3 style="color:var(--red)">關鍵發現：中國冇人做「數據平台 → 機器人執行」</h3>
+    <p>呢 4 間「中國版 Palantir」全部停喺 <strong>數據分析 / Dashboard / AI 建議</strong>，冇一間去到機器人執行層。</p>
+    <div class="diff-grid" style="margin-top:12px">
+      <div class="diff-card" style="background:var(--red-bg)">
+        <h4 style="color:var(--red)">佢哋做嘅</h4>
+        <p>數據源 → 平台整合 → Dashboard / 報表 / AI 建議<br><strong>止步於「睇」</strong></p>
+      </div>
+      <div class="diff-card" style="background:var(--green-bg)">
+        <h4 style="color:var(--green)">我哋要做嘅</h4>
+        <p>數據源 → Ontology 整合 → 業務邏輯 → 機器人執行<br><strong>去到「做」</strong></p>
+      </div>
+    </div>
+    <p style="margin-top:12px;font-size:13px;color:var(--text2)"><strong>但要留意：</strong>曠視（河圖平台）已有倉儲 AI + 多機調度，如果加 ontology 語義層會接近我哋。極智嘉有硬件基礎 + 客戶數據，有可能從機器人側延伸上嚟。真正嘅威脅唔係數據公司向下做，係機器人公司向上做。</p>
+  </div>
+</section>
+
+<footer class="footer">
+  所有數據來自公開來源（公司官網、融資公告、Gartner 報告、招股書）。最後更新：2026-04。
+</footer>
+
+</main>
+</body>
+</html>

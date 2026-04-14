@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>產品定位 — 倉儲自動化平台</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a73e8;--blue-bg:#e8f0fe;
+  --green:#34a853;--green-bg:#e6f4ea;
+  --red:#ea4335;--red-bg:#fce8e6;
+  --yellow:#f9ab00;--yellow-bg:#fef7e0;
+  --purple:#7b1fa2;--purple-bg:#f3e5f5;
+  --surface:#fff;--bg:#f8f9fa;
+  --text:#202124;--text2:#5f6368;--border:#dadce0;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px rgba(60,64,67,.15);
+  --shadow2:0 1px 3px rgba(60,64,67,.3),0 4px 8px rgba(60,64,67,.15);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Google Sans',system-ui,-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Top Bar */
+.top-bar{
+  height:56px;display:flex;align-items:center;padding:0 24px;gap:24px;
+  background:var(--surface);box-shadow:var(--shadow);position:sticky;top:0;z-index:50;
+}
+.top-bar h1{font-size:18px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:10px;white-space:nowrap}
+.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.top-nav{display:flex;gap:4px;margin-left:auto}
+.top-nav a{
+  font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px;
+  transition:all 150ms var(--ease);white-space:nowrap;
+}
+.top-nav a:hover{background:var(--bg);color:var(--text)}
+.top-nav a.active{background:var(--blue-bg);color:var(--blue);font-weight:500}
+
+/* Page Container */
+.page-container{max-width:1200px;margin:0 auto;padding:24px}
+
+/* Hero */
+.hero-section{
+  background:var(--surface);border-radius:12px;box-shadow:var(--shadow2);
+  padding:48px 40px;margin-bottom:32px;text-align:center;
+  border-top:4px solid var(--blue);
+}
+.hero-section h2{font-size:28px;font-weight:500;margin-bottom:8px}
+.hero-section h2 span{color:var(--blue)}
+.hero-section .hero-sub{font-size:15px;color:var(--text2);margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.7}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:700px;margin:0 auto}
+.hero-stat{background:var(--bg);border-radius:10px;padding:20px 16px}
+.hero-stat .num{font-size:28px;font-weight:600;color:var(--blue)}
+.hero-stat .label{font-size:12px;color:var(--text2);margin-top:4px}
+
+/* Summary Section */
+.summary-section{
+  background:var(--surface);border-radius:12px;box-shadow:var(--shadow);
+  padding:28px;margin-bottom:24px;
+}
+.summary-section h2{font-size:18px;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.summary-section h2 .icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0}
+.section-label{
+  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--blue);display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;
+}
+.section-label::before{content:'';width:14px;height:2px;background:var(--blue);border-radius:1px}
+
+/* Tables */
+.profit-table{width:100%;border-collapse:collapse;font-size:13px}
+.profit-table th{
+  text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);
+  font-weight:600;color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;
+}
+.profit-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.profit-table tr:hover{background:var(--bg)}
+.pos{color:var(--green);font-weight:500}
+.neg{color:var(--red);font-weight:500}
+.neu{color:var(--yellow);font-weight:500}
+.table-wrap{overflow-x:auto;margin-top:8px}
+
+/* Insight Cards */
+.insight-list{display:flex;flex-direction:column;gap:12px}
+.insight-item{
+  display:flex;gap:16px;padding:16px;border-radius:8px;background:var(--bg);
+  border-left:4px solid var(--blue);
+}
+.insight-num{
+  width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;
+}
+.insight-body h4{font-size:14px;font-weight:500;margin-bottom:4px}
+.insight-body p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Cards Grid */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:var(--bg);border-radius:10px;padding:20px;border:1.5px solid var(--border);transition:box-shadow 200ms var(--ease)}
+.card:hover{box-shadow:var(--shadow2)}
+.card h3{font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p{font-size:13px;color:var(--text2);line-height:1.6}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;margin-top:10px}
+
+/* Code Blocks */
+.code-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:16px 0}
+.code-block{
+  background:#f1f3f4;border:1px solid var(--border);border-radius:8px;
+  padding:14px 16px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.6;
+}
+.code-block .title{font-family:inherit;font-weight:600;color:var(--blue);margin-bottom:6px;font-size:12px}
+.code-block .key{color:#1a73e8}
+.code-block .val{color:#34a853}
+.code-block .dim{color:#5f6368}
+
+/* Bar Chart */
+.bar-chart{margin:16px 0}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+.bar-label{width:120px;text-align:right;flex-shrink:0;color:var(--text2);font-size:12px}
+.bar-track{flex:1;height:28px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:12px;font-weight:600;color:#fff;transition:width 0.8s var(--ease)}
+
+/* Gantt */
+.gantt{margin:16px 0}
+.gantt-header{display:flex;margin-left:180px;margin-bottom:4px}
+.gantt-week{flex:1;font-size:10px;color:var(--text2);text-align:center;padding:2px;border-left:1px solid var(--border)}
+.gantt-row{display:flex;align-items:center;margin-bottom:4px;font-size:12px}
+.gantt-label{width:180px;text-align:right;padding-right:12px;flex-shrink:0;color:var(--text2);font-size:12px}
+.gantt-track{flex:1;height:28px;position:relative}
+.gantt-bar{
+  position:absolute;height:100%;border-radius:6px;display:flex;align-items:center;
+  padding-left:8px;font-size:11px;font-weight:600;color:#fff;
+  opacity:0;transform:scaleX(0);transform-origin:left;
+  transition:opacity 0.5s var(--ease),transform 0.6s var(--ease);
+}
+.gantt-bar.show{opacity:1;transform:scaleX(1)}
+
+/* Architecture Diagram */
+.arch-diagram{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  margin:16px 0;padding:24px;background:var(--bg);border-radius:12px;border:1px solid var(--border);
+}
+.arch-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.arch-box{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;min-width:110px}
+.arch-arrow{font-size:18px;color:var(--text2);margin:4px 0}
+.arch-layer-label{font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+
+/* Layer Stack */
+.layer-stack{display:flex;flex-direction:column;gap:0;margin:16px 0}
+.layer-item{display:flex;align-items:stretch;border:1px solid var(--border);background:var(--surface)}
+.layer-item:first-child{border-radius:10px 10px 0 0}
+.layer-item:last-child{border-radius:0 0 10px 10px}
+.layer-num{width:50px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0}
+.layer-content{padding:12px 16px;flex:1;border-left:1px solid var(--border)}
+.layer-content h4{font-size:13px;margin-bottom:2px}
+.layer-content p{font-size:12px;color:var(--text2)}
+.layer-badge{font-size:10px;display:inline-block;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:6px}
+
+/* Comparison Grid */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.compare-card{background:var(--bg);border-radius:10px;padding:20px;border:1.5px solid var(--border)}
+.compare-card h3{font-size:15px;font-weight:600;margin-bottom:12px}
+
+/* Roadmap */
+.roadmap{display:flex;gap:16px;margin:16px 0;flex-wrap:wrap}
+.roadmap-phase{flex:1;min-width:260px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:20px}
+.roadmap-phase h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.roadmap-phase .phase-time{font-size:12px;color:var(--text2);margin-bottom:12px}
+.roadmap-phase ul{list-style:none;padding:0}
+.roadmap-phase li{font-size:13px;color:var(--text2);padding:3px 0 3px 18px;position:relative}
+.roadmap-phase li::before{content:'';position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:50%}
+
+/* Highlight Box */
+.highlight-box{
+  background:var(--blue-bg);border:1px solid rgba(26,115,232,0.3);
+  border-radius:10px;padding:20px;margin:16px 0;
+}
+.highlight-box h3{color:var(--blue);font-size:14px;margin-bottom:6px}
+.highlight-box p{font-size:13px;color:var(--text);line-height:1.7}
+
+/* Footer */
+.page-footer{text-align:center;padding:24px;font-size:12px;color:var(--text2)}
+
+/* Responsive */
+@media(max-width:768px){
+  .page-container{padding:12px}
+  .top-bar{padding:0 12px;gap:12px}
+  .top-bar h1{font-size:14px}
+  .top-nav{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;gap:2px;scrollbar-width:none}
+  .top-nav::-webkit-scrollbar{display:none}
+  .top-nav a{font-size:11px;padding:5px 10px;flex-shrink:0}
+  .hero-section{padding:28px 20px}
+  .hero-section h2{font-size:20px}
+  .hero-stats{grid-template-columns:1fr}
+  .hero-stat .num{font-size:22px}
+  .compare-grid{grid-template-columns:1fr}
+  .card-grid{grid-template-columns:1fr}
+  .code-compare{grid-template-columns:1fr}
+  .summary-section{padding:20px 16px}
+  .summary-section h2{font-size:16px}
+  .bar-label{width:70px;font-size:11px}
+  .bar-fill{font-size:10px;padding-left:6px}
+  .gantt-label{width:80px;font-size:10px}
+  .gantt-bar{font-size:9px;padding-left:4px}
+  .gantt-header{margin-left:80px}
+  .gantt-week{font-size:8px}
+  .roadmap{flex-direction:column}
+  .layer-num{width:40px;font-size:16px}
+  .layer-content h4{font-size:12px}
+  .layer-content p{font-size:11px}
+  .table-wrap{margin:0 -16px;padding:0 16px}
+  .arch-diagram{padding:16px 12px}
+  .arch-box{padding:6px 10px;font-size:11px;min-width:80px}
+  .highlight-box{padding:16px}
+  .highlight-box p{font-size:12px}
+  .insight-item{padding:12px;gap:10px}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <h1><span class="logo">W</span> 倉儲自動化平台</h1>
+  <nav class="top-nav">
+    <a href="industry-landscape.html">行業全景</a>
+    <a href="product-overview.html" class="active">產品定位</a>
+    <a href="competitive-landscape.html">競爭分析</a>
+    <a href="system-backbone.html">系統架構</a>
+    <a href="feasibility.html">可行性</a>
+    <a href="pltr-explainer.html">PLTR 解析</a>
+    <a href="pltr-moat.html">PLTR 護城河</a>
+  </nav>
+</header>
+
+<main class="page-container">
+
+  <!-- HERO -->
+  <section class="hero-section">
+    <div class="section-label">Internal Product Brief</div>
+    <h2>用機器人做倉庫嘅嘢<br><span>唔使換現有系統，加一層即用</span></h2>
+    <p class="hero-sub">幫客戶引入 AMR/AGV 機器人，覆蓋收貨→上架→揀貨→出庫全流程。接入任何現有 WMS，對接任何機器人品牌。</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">¥212 億</div>
+        <div class="label">2023 中國 AGV/AMR 市場</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">138%</div>
+        <div class="label"><a href="competitive-landscape.html" style="color:var(--text2);text-decoration:none;border-bottom:1px dashed var(--border)">Orchestration 品類年增長率</a></div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">~20 週</div>
+        <div class="label">MVP 交付（1 客戶 3 倉）</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN POINT -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--red)">!</span> 痛點：想用機器人，但導入太慢太複雜</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">客戶知道機器人可以提升效率，但從評估到落地動輒 6–12 個月。整合工程量大、風險高、缺乏技術團隊，結果一直拖住唔做。</p>
+    <div class="code-compare">
+      <div class="code-block">
+        <div class="title">客戶現有 WMS（例：富勒）</div>
+        <span class="dim">// WMS 出庫指令</span><br>
+        {<br>
+        &nbsp;&nbsp;<span class="key">"order_id"</span>: <span class="val">"SO-20240301"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"bin_code"</span>: <span class="val">"A-01-03"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"sku"</span>: <span class="val">"WIDGET-X"</span><br>
+        }
+      </div>
+      <div class="code-block">
+        <div class="title">機器人系統（例：極智嘉 AMR）</div>
+        <span class="dim">// Robot 預期輸入</span><br>
+        {<br>
+        &nbsp;&nbsp;<span class="key">"task_type"</span>: <span class="val">"PICK_AND_DELIVER"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"from"</span>: <span class="val">"MAP_NODE_127"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"payload_kg"</span>: <span class="val">2.5</span><br>
+        }
+      </div>
+      <div class="code-block">
+        <div class="title">中間翻譯層 — 要自己寫？</div>
+        <span class="dim">// 貨架 &rarr; 地圖節點 &rarr; 調度邏輯</span><br>
+        bin_code &rarr; map_node?<br>
+        <span class="val" style="color:var(--red)">冇標準、冇文檔、冇人做</span>
+      </div>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h3 style="color:var(--red)">自己整合（6–12 個月）</h3>
+        <p style="font-size:13px;color:var(--text2)">請團隊、讀 API 文檔、寫翻譯層、測試聯調 — 仲要承擔失敗風險。大部分客戶直接放棄。</p>
+      </div>
+      <div class="compare-card">
+        <h3 style="color:var(--green)">用我哋平台（4–8 週）</h3>
+        <p style="font-size:13px;color:var(--text2)">接入現有 WMS → Ontology 自動翻譯 → 即刻驅動機器人。唔使換系統、唔使請人。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- POSITION -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--blue)">&#9672;</span> 定位：第五類 — Integration + Automation Layer</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">市場四大類玩家各有強項，但都要求客戶在「速度」和「靈活性」之間做取捨。 <a href="industry-landscape.html" style="color:var(--blue);text-decoration:none;font-weight:500">查看行業象限圖 &rarr;</a></p>
+    <div class="card-grid">
+      <div class="card" style="border-color:var(--green)">
+        <h3><span style="color:var(--green)">&bull;</span> Full Stack</h3>
+        <p>自研 WMS + 自研機器人。海康、快倉、海柔、曠視。<br><strong>問題：</strong>要換晒你嘅 WMS。</p>
+      </div>
+      <div class="card" style="border-color:var(--red)">
+        <h3><span style="color:var(--red)">&bull;</span> Robot + Integration</h3>
+        <p>做機器人，對接第三方 WMS。極智嘉、凱樂士。<br><strong>問題：</strong>只接自己嘅機器人。</p>
+      </div>
+      <div class="card" style="border-color:var(--yellow)">
+        <h3><span style="color:var(--yellow)">&bull;</span> WMS Only</h3>
+        <p>純軟件 WMS。聚水潭、旺店通、富勒。<br><strong>問題：</strong>冇機器人能力。</p>
+      </div>
+      <div class="card" style="border-color:var(--text2)">
+        <h3><span style="color:var(--text2)">&bull;</span> Robot Only</h3>
+        <p>純機器人，靠對接第三方。牧星、靈動。<br><strong>問題：</strong>冇倉庫業務邏輯。</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:20px">
+      <h3>我哋嘅位置</h3>
+      <p><strong>唔做機器人硬件，唔取代 WMS。</strong><br>
+      接入客戶現有 WMS → 建統一 Ontology → 驅動任何品牌嘅機器人 → 全流程自動化。<br>
+      客戶唔使換系統，加一層就可以用機器人做搬運、揀貨、分揀。</p>
+    </div>
+  </section>
+
+  <!-- COMPETITIVE LANDSCAPE -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--red)">!</span> 競爭格局：高速增長嘅新品類</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:12px">Gartner 定義咗 <strong>Multiagent Orchestration Platforms</strong> 品類 — robot-agnostic、WMS-agnostic 嘅倉儲中間層。市場年增長率 <strong>138%</strong>，預測 2032 年達 <strong>$5.23B</strong>。</p>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">已有 7+ 間公司入場（SVT Robotics、GreyOrange、JASCI、Roboteon 等），主要喺北美/歐洲。中國市場仍係空白。</p>
+    <div class="highlight-box" style="border-left:4px solid var(--blue);padding-left:20px;background:var(--blue-bg)">
+      <h3 style="color:var(--blue)">我哋嘅差異化</h3>
+      <p>現有玩家做 <strong>connector / middleware</strong>（接線層），我哋做 <strong>ontology 語義層</strong>（理解層）+ 專注<strong>中國市場</strong>。</p>
+      <p style="margin-top:10px"><a href="competitive-landscape.html" style="color:var(--blue);text-decoration:none;font-weight:500;font-size:15px">查看完整競爭分析（7 間公司深度對比）&rarr;</a></p>
+    </div>
+  </section>
+
+  <!-- WHY THIS POSITION -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--green)">$</span> 點解揀呢個定位</h2>
+
+    <h3 style="font-size:14px;margin-bottom:8px">毛利率對比（來自上市公司招股書）</h3>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">聚水潭 SaaS</div>
+        <div class="bar-track"><div class="bar-fill" style="width:68.5%;background:var(--blue)">68.5%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">我哋（預期）</div>
+        <div class="bar-track"><div class="bar-fill" style="width:60%;background:var(--green)">55–65%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">海康機器人</div>
+        <div class="bar-track"><div class="bar-fill" style="width:40.3%;background:var(--yellow)">40.3%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">極智嘉 AMR</div>
+        <div class="bar-track"><div class="bar-fill" style="width:34.8%;background:var(--red)">34.8%</div></div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text2)">來源：極智嘉港股招股書、海康機器人創業板招股書、聚水潭港股招股書</p>
+
+    <div class="table-wrap" style="margin-top:20px">
+      <table class="profit-table">
+        <thead><tr><th>公司</th><th>業務</th><th>毛利率</th><th>淨利率</th><th>狀態</th></tr></thead>
+        <tbody>
+          <tr><td>極智嘉</td><td>機器人 + WMS</td><td>34.8%</td><td class="neg">-34.5%（調整後 -3.8%）</td><td>接近打平</td></tr>
+          <tr><td>海康機器人</td><td>機器人 + 視覺</td><td>40.3%</td><td class="pos">~13.5%</td><td>盈利</td></tr>
+          <tr><td>聚水潭</td><td>SaaS WMS/ERP</td><td>68.5%</td><td class="neu">~1%</td><td>勉強打平</td></tr>
+          <tr><td style="color:var(--blue);font-weight:600">我哋（目標）</td><td>Integration + Automation</td><td style="color:var(--blue)">55–65%</td><td>—</td><td>純軟件，唔碰硬件</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight-list" style="margin-top:20px">
+      <div class="insight-item">
+        <div class="insight-num">1</div>
+        <div class="insight-body">
+          <h4>Unit economics work</h4>
+          <p>極智嘉毛利 35–39%，虧損係全球化擴張代價（40 國銷售團隊），唔係模式缺陷。2025 H1 調整後 EBITDA 首次轉正。</p>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">2</div>
+        <div class="insight-body">
+          <h4>我哋唔碰硬件</h4>
+          <p>毛利率接近 SaaS（55–65%），唔使養供應鏈。成本結構比機器人公司輕得多。</p>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">3</div>
+        <div class="insight-body">
+          <h4>市場仲喺高速增長</h4>
+          <p>¥212 億（2023）→ ¥400–451 億（2026E），CAGR 25–30%。移動機器人產業聯盟 / 前瞻產業研究院。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--purple)">&#9881;</span> 產品架構</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">外部系統 → Adapter → Ontology（統一模型）→ Workflow Engine → 機器人執行</p>
+
+    <div class="arch-diagram">
+      <div class="arch-layer-label">外部系統</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:var(--red-bg);border:1px solid var(--red);color:var(--red)">富勒 WMS</div>
+        <div class="arch-box" style="background:var(--yellow-bg);border:1px solid var(--yellow);color:#b45309">旺店通 WMS</div>
+        <div class="arch-box" style="background:var(--green-bg);border:1px solid var(--green);color:var(--green)">CSV/Excel</div>
+      </div>
+      <div class="arch-arrow">&darr;</div>
+      <div class="arch-layer-label">Adapter 層（翻譯）</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:var(--blue-bg);border:1px solid var(--blue);color:var(--blue)">WMS Adapters</div>
+      </div>
+      <div class="arch-arrow">&darr;</div>
+      <div class="arch-layer-label">Ontology 骨幹（統一模型 + 業務邏輯）</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:#e8f0fe;border:2px solid var(--blue);color:var(--blue);min-width:360px;font-size:13px">
+          Warehouse &middot; Location &middot; SKU &middot; Inventory &middot; Order &middot; <strong>Task</strong> &middot; Robot
+        </div>
+      </div>
+      <div class="arch-arrow">&darr;</div>
+      <div class="arch-layer-label">Workflow Engine（全流程）</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:var(--green-bg);border:1px solid var(--green);color:var(--green)">收貨</div>
+        <div class="arch-box" style="background:var(--green-bg);border:1px solid var(--green);color:var(--green)">上架</div>
+        <div class="arch-box" style="background:var(--green-bg);border:1px solid var(--green);color:var(--green)">揀貨</div>
+        <div class="arch-box" style="background:var(--green-bg);border:1px solid var(--green);color:var(--green)">出庫</div>
+      </div>
+      <div class="arch-arrow">&darr;</div>
+      <div class="arch-layer-label">機器人執行</div>
+      <div class="arch-row">
+        <div class="arch-box" style="background:var(--purple-bg);border:1px solid var(--purple);color:var(--purple)">海康 AMR</div>
+        <div class="arch-box" style="background:var(--purple-bg);border:1px solid var(--purple);color:var(--purple)">極智嘉 AMR</div>
+        <div class="arch-box" style="background:var(--purple-bg);border:1px solid var(--purple);color:var(--purple)">快倉 AGV</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:var(--text2);margin-top:8px;text-align:center">
+      <a href="system-backbone.html" style="color:var(--blue);text-decoration:none;font-weight:500">&rarr; 詳細系統骨幹架構</a>
+    </p>
+
+    <h3 style="font-size:14px;margin:24px 0 8px">四層價值模型</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Adapter 只係入場券。真正值錢嘅係上面嗰層。</p>
+    <div class="layer-stack">
+      <div class="layer-item">
+        <div class="layer-num" style="color:var(--purple)">4</div>
+        <div class="layer-content">
+          <h4>AI on Ontology <span class="layer-badge" style="background:var(--purple-bg);color:var(--purple)">Phase 3</span></h4>
+          <p>LLM 直接操作結構化真實數據 — 建議 + 觸發 Action</p>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="color:var(--yellow)">3</div>
+        <div class="layer-content">
+          <h4>Actions + 權限 <span class="layer-badge" style="background:var(--yellow-bg);color:#b45309">Phase 2</span></h4>
+          <p>雙向操作（寫回 WMS / 驅動機器人）+ 審批流 + 審計</p>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="color:var(--blue)">2</div>
+        <div class="layer-content">
+          <h4>Knowledge Graph <span class="layer-badge" style="background:var(--blue-bg);color:var(--blue)">MVP</span></h4>
+          <p>可導航關係 — Pallet &rarr; Location &rarr; Task &rarr; Robot，跨域發現</p>
+        </div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="color:var(--green)">1</div>
+        <div class="layer-content">
+          <h4>數據整合 <span class="layer-badge" style="background:var(--green-bg);color:var(--green)">MVP</span></h4>
+          <p>Adapter + ETL — 入場券，人人識做</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALANTIR LESSONS -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:#1a1a2e">P</span> Palantir 嘅教訓</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">定制整合 = 增長瓶頸。Palantir 花 20 年先搵到可擴展模式。我哋可以跳過 FDE 階段。</p>
+
+    <div class="compare-grid">
+      <div class="compare-card" style="border-color:var(--red)">
+        <h3 style="color:var(--red)">舊模式：FDE 駐場</h3>
+        <table class="profit-table" style="margin:0">
+          <tr><td>部署週期</td><td>6–12 個月</td></tr>
+          <tr><td>17 年累計客戶</td><td class="neg">125 個</td></tr>
+          <tr><td>毛利率（2020）</td><td>67.7%</td></tr>
+          <tr><td>實質</td><td>顧問公司</td></tr>
+        </table>
+      </div>
+      <div class="compare-card" style="border-color:var(--green)">
+        <h3 style="color:var(--green)">新模式：AIP Bootcamp</h3>
+        <table class="profit-table" style="margin:0">
+          <tr><td>部署週期</td><td class="pos">1–5 日</td></tr>
+          <tr><td>5 年累計客戶</td><td class="pos">954 個（7.6x）</td></tr>
+          <tr><td>毛利率（2023+）</td><td>~80%</td></tr>
+          <tr><td>實質</td><td>產品公司</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px;margin:20px 0 8px">Palantir 營收增長（USD）</h3>
+    <div class="bar-chart">
+      <div class="bar-row"><div class="bar-label">2020</div><div class="bar-track"><div class="bar-fill" style="width:24%;background:var(--text2)">$1.09B</div></div></div>
+      <div class="bar-row"><div class="bar-label">2021</div><div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--text2)">$1.54B</div></div></div>
+      <div class="bar-row"><div class="bar-label">2022</div><div class="bar-track"><div class="bar-fill" style="width:43%;background:var(--text2)">$1.91B</div></div></div>
+      <div class="bar-row"><div class="bar-label">2023 <span style="font-size:10px;color:var(--blue)">AIP</span></div><div class="bar-track"><div class="bar-fill" style="width:50%;background:linear-gradient(90deg,var(--text2),var(--blue))">$2.23B</div></div></div>
+      <div class="bar-row"><div class="bar-label">2024</div><div class="bar-track"><div class="bar-fill" style="width:64%;background:var(--blue)">$2.87B</div></div></div>
+      <div class="bar-row"><div class="bar-label">2025</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,var(--blue),var(--green))">$4.48B (+56%)</div></div></div>
+    </div>
+    <p style="font-size:11px;color:var(--text2)">來源：Palantir S-1、10-K、IR Earnings Release</p>
+
+    <div class="highlight-box" style="margin-top:16px">
+      <h3>我哋點解可以更快</h3>
+      <p><strong>Palantir = 全行業</strong> → 200+ connector，每個行業都要學 domain knowledge<br>
+      <strong>我哋 = 倉儲垂直</strong> → ~20 個 Adapter 覆蓋 80% 中國主流 WMS + 機器人品牌<br>
+      直接從 Config-driven Adapter 開始，跳過 FDE 駐場階段。</p>
+    </div>
+  </section>
+
+  <!-- MVP TIMELINE -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--blue)">&#9776;</span> MVP 計劃：20 週 — 1 客戶 3 倉庫</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:8px">客戶冇機器人，我哋幫佢引入。覆蓋收貨→上架→揀貨→出庫全流程。</p>
+
+    <h3 style="font-size:14px;margin:16px 0 4px">時間線</h3>
+    <div class="gantt-header">
+      <div class="gantt-week">W2</div><div class="gantt-week">W4</div><div class="gantt-week">W6</div>
+      <div class="gantt-week">W8</div><div class="gantt-week">W10</div><div class="gantt-week">W12</div>
+      <div class="gantt-week">W14</div><div class="gantt-week">W16</div><div class="gantt-week">W18</div>
+      <div class="gantt-week">W20</div>
+    </div>
+    <div class="gantt" id="gantt">
+      <div class="gantt-row">
+        <div class="gantt-label">Ontology 骨幹</div>
+        <div class="gantt-track"><div class="gantt-bar" style="left:0;width:30%;background:var(--blue)">W1–6 (最難)</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="gantt-label">WMS Adapter &times;3</div>
+        <div class="gantt-track"><div class="gantt-bar" style="left:15%;width:15%;background:var(--green)">W4–6</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="gantt-label">機器人整合</div>
+        <div class="gantt-track"><div class="gantt-bar" style="left:20%;width:40%;background:var(--purple)">W5–12 (核心)</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="gantt-label">Dashboard + 監控</div>
+        <div class="gantt-track"><div class="gantt-bar" style="left:45%;width:20%;background:var(--yellow)">W10–14</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="gantt-label">現場測試 + 調試</div>
+        <div class="gantt-track"><div class="gantt-bar" style="left:55%;width:30%;background:var(--red)">W12–18 (風險最高)</div></div>
+      </div>
+      <div class="gantt-row">
+        <div class="gantt-label">調優 + 上線</div>
+        <div class="gantt-track"><div class="gantt-bar" style="left:85%;width:15%;background:var(--text2)">W18–20</div></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px;margin:24px 0 8px">時間分配（舊計劃 vs 新計劃）</h3>
+    <div class="table-wrap">
+      <table class="profit-table">
+        <thead><tr><th>模組</th><th>舊計劃</th><th>新計劃</th><th>原因</th></tr></thead>
+        <tbody>
+          <tr><td>Ontology 骨幹</td><td>2 週</td><td class="neg" style="font-weight:700">6 週</td><td>Workflow Engine + 任務排程 + 異常處理，唔止 JPA Entity</td></tr>
+          <tr><td>WMS Adapter</td><td>6 週</td><td class="pos" style="font-weight:700">3 週</td><td>Adapter 代碼相對簡單 — 欄位映射 + API 調用</td></tr>
+          <tr><td>機器人整合</td><td class="neg">0 週</td><td class="neg" style="font-weight:700">8 週</td><td>核心！廠商 API 對接 + 任務翻譯 + 調度 + 狀態監控</td></tr>
+          <tr><td>Dashboard</td><td>2 週</td><td style="font-weight:700">4 週</td><td>要顯示機器人實時狀態 + 任務流 + 異常告警</td></tr>
+          <tr><td>現場測試</td><td>2 週</td><td class="neg" style="font-weight:700">6 週</td><td>真實倉庫調機器人 — 路徑、安全、edge cases</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-grid" style="margin-top:20px">
+      <div class="card">
+        <h3>Ontology 骨幹</h3>
+        <p>Canonical Model + Workflow Engine（收貨→上架→揀貨→出庫）+ Task 狀態機 + 任務排程</p>
+        <span class="tag" style="background:var(--blue-bg);color:var(--blue)">最難 — 6 週</span>
+      </div>
+      <div class="card">
+        <h3>機器人整合</h3>
+        <p>RobotAdapter 接口 + 廠商 API 對接 + 任務→機器人指令翻譯 + 實時狀態監控</p>
+        <span class="tag" style="background:var(--purple-bg);color:var(--purple)">耗時最長 — 8 週</span>
+      </div>
+      <div class="card">
+        <h3>現場測試</h3>
+        <p>模擬測試 → 實驗室 → 限區域試運行 → 全面部署。機器人喺真實環境需要大量調試。</p>
+        <span class="tag" style="background:var(--red-bg);color:var(--red)">風險最高 — 6 週</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="summary-section">
+    <h2><span class="icon" style="background:var(--blue)">&rarr;</span> 路線圖</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">每個 Phase 增加一層價值。只停喺 Phase 1 係「高級 ETL 工具」，做到 Phase 2+ 先有競爭力。</p>
+    <div class="roadmap">
+      <div class="roadmap-phase" style="border-top:3px solid var(--green)">
+        <h3 style="color:var(--green)">Phase 1：MVP</h3>
+        <div class="phase-time">20 週 / 1 客戶 3 倉</div>
+        <ul>
+          <li style="--c:var(--green)">Ontology 骨幹 + Workflow Engine</li>
+          <li style="--c:var(--green)">3 個 WMS Adapter</li>
+          <li style="--c:var(--green)">機器人整合（1 品牌）</li>
+          <li style="--c:var(--green)">全流程：收貨→上架→揀貨→出庫</li>
+          <li style="--c:var(--green)">統一 Dashboard + 監控</li>
+        </ul>
+      </div>
+      <div class="roadmap-phase" style="border-top:3px solid var(--yellow)">
+        <h3 style="color:#b45309">Phase 2：產品化</h3>
+        <div class="phase-time">3–6 個月</div>
+        <ul>
+          <li style="--c:var(--yellow)">Config-driven Adapter</li>
+          <li style="--c:var(--yellow)">多機器人品牌支援</li>
+          <li style="--c:var(--yellow)">Actions + 權限（Layer 3）</li>
+          <li style="--c:var(--yellow)">雙向操作（寫回 WMS）</li>
+          <li style="--c:var(--yellow)">覆蓋 10+ 主流系統</li>
+        </ul>
+      </div>
+      <div class="roadmap-phase" style="border-top:3px solid var(--purple)">
+        <h3 style="color:var(--purple)">Phase 3：AI</h3>
+        <div class="phase-time">6–12 個月</div>
+        <ul>
+          <li style="--c:var(--purple)">AI on Ontology（Layer 4）</li>
+          <li style="--c:var(--purple)">自然語言查詢倉庫狀態</li>
+          <li style="--c:var(--purple)">AI 建議 + 自動操作</li>
+          <li style="--c:var(--purple)">客戶 Self-service 接入</li>
+          <li style="--c:var(--purple)">Auto Adapter Mapping</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="text-align:center">
+      <h3>核心策略</h3>
+      <p style="font-size:15px"><strong>垂直版 Palantir — 用機器人做倉庫嘅嘢</strong><br>
+      Scope 細 20 倍 — 只做倉儲<br>
+      ~20 個 Adapter 覆蓋 80% 中國倉儲場景<br>
+      唔碰硬件，毛利率接近 SaaS</p>
+    </div>
+  </section>
+
+  <footer class="page-footer">
+    倉儲自動化平台 — Internal Product Brief &middot; 所有數據來自上市公司招股書、年報及行業報告 &middot; 2026 年 4 月
+  </footer>
+</main>
+
+<script>
+// Show gantt bars immediately
+const gantt = document.getElementById('gantt');
+if (gantt) gantt.querySelectorAll('.gantt-bar').forEach(bar => bar.classList.add('show'));
+
+// Roadmap bullet colors
+document.querySelectorAll('.roadmap-phase li').forEach(li => {
+  const c = getComputedStyle(li).getPropertyValue('--c').trim();
+  if (c) li.style.setProperty('--dot-c', c);
+  const before = li.querySelector('::before');
+});
+// Apply bullet colors via style injection
+const style = document.createElement('style');
+style.textContent = '.roadmap-phase li::before{background:var(--c, var(--blue))}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
