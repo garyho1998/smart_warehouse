@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLTR 數據流架構 — Index Layer + 讀寫路徑</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a73e8;--blue-bg:#e8f0fe;
+  --green:#34a853;--green-bg:#e6f4ea;
+  --red:#ea4335;--red-bg:#fce8e6;
+  --yellow:#f9ab00;--yellow-bg:#fef7e0;
+  --purple:#7b1fa2;--purple-bg:#f3e5f5;
+  --surface:#fff;--bg:#f8f9fa;
+  --text:#202124;--text2:#5f6368;--border:#dadce0;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px rgba(60,64,67,.15);
+  --shadow2:0 1px 3px rgba(60,64,67,.3),0 4px 8px rgba(60,64,67,.15);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Google Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.top-bar{height:56px;display:flex;align-items:center;padding:0 24px;background:var(--surface);box-shadow:var(--shadow);position:sticky;top:0;z-index:50}
+.top-bar h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.top-bar .logo{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.top-nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.top-nav a{font-size:13px;color:var(--text2);text-decoration:none;padding:6px 14px;border-radius:18px;transition:all 150ms var(--ease);white-space:nowrap;flex-shrink:0}
+.top-nav a:hover{background:var(--bg);color:var(--text)}
+.top-nav a.active{background:var(--blue-bg);color:var(--blue);font-weight:500}
+
+.page{max-width:960px;margin:0 auto;padding:24px}
+.card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:28px;margin-bottom:24px}
+.card h2{font-size:20px;font-weight:500;margin-bottom:6px}
+.card .subtitle{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.hl{color:var(--blue);font-weight:500}
+.hl-green{color:var(--green);font-weight:500}
+.hl-red{color:var(--red);font-weight:500}
+.hl-yellow{color:var(--yellow);font-weight:500}
+.hl-purple{color:var(--purple);font-weight:500}
+
+.hero{text-align:center;padding:48px 28px}
+.hero h2{font-size:28px;font-weight:500;margin-bottom:12px}
+.hero .tagline{font-size:16px;color:var(--text2);line-height:1.6;max-width:620px;margin:0 auto}
+
+.svg-wrap{width:100%;overflow-x:auto;margin:16px 0}
+.svg-wrap svg{width:100%;min-width:600px;display:block}
+svg text{font-family:'Google Sans',system-ui,-apple-system,sans-serif}
+
+.layer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.layer-card{border-radius:10px;padding:18px;border:1.5px solid var(--border)}
+.layer-card h3{font-size:14px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.layer-card h3 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.layer-card p{font-size:13px;color:var(--text2);line-height:1.6}
+.layer-card .java{margin-top:8px;font-size:12px;padding:6px 10px;border-radius:6px;background:var(--bg);color:var(--text2);line-height:1.5}
+.layer-card .java strong{color:var(--text);font-weight:600}
+
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.svc-card{border-radius:10px;padding:18px;border:1.5px solid var(--border);transition:box-shadow 200ms var(--ease)}
+.svc-card:hover{box-shadow:var(--shadow2)}
+.svc-card h3{font-size:14px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.svc-card h3 .num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.svc-card p{font-size:13px;color:var(--text2);line-height:1.6}
+
+.compare-table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0}
+.compare-table th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);font-weight:600;color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.compare-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.compare-table tr:hover{background:var(--bg)}
+
+.highlight-box{background:var(--blue-bg);border:1px solid rgba(26,115,232,.3);border-radius:10px;padding:20px;margin:16px 0}
+.highlight-box h3{color:var(--blue);font-size:14px;margin-bottom:6px}
+.highlight-box p{font-size:13px;color:var(--text);line-height:1.7}
+
+.highlight-box.green{background:var(--green-bg);border-color:rgba(52,168,83,.3)}
+.highlight-box.green h3{color:var(--green)}
+
+.workflow{margin:16px 0}
+.wf-step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.wf-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;color:#fff}
+.wf-content{flex:1}
+.wf-content h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.wf-content p{font-size:13px;color:var(--text2);line-height:1.6}
+.wf-content .flow{font-size:12px;color:var(--blue);margin-top:4px;font-family:monospace}
+.wf-connector{width:36px;display:flex;justify-content:center;margin-bottom:0}
+.wf-connector .line{width:2px;height:12px;background:var(--border)}
+
+.code-block{background:#f1f3f4;border:1px solid var(--border);border-radius:8px;padding:16px 20px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.7;margin:16px 0;overflow-x:auto;white-space:pre}
+
+.footer{text-align:center;padding:24px;font-size:12px;color:var(--text2)}
+
+@media(max-width:768px){
+  .page{padding:12px}
+  .layer-grid,.svc-grid{grid-template-columns:1fr}
+  .hero h2{font-size:22px}
+  .compare-table{font-size:12px}
+  .compare-table th,.compare-table td{padding:8px 6px}
+  .wf-step{gap:12px}
+  .wf-num{width:30px;height:30px;font-size:14px}
+  .highlight-box{padding:16px}
+  .highlight-box p{font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <h1><span class="logo">W</span> 倉儲自動化平台</h1>
+  <nav class="top-nav">
+    <a href="industry-landscape.html">行業全景</a>
+    <a href="product-overview.html">產品定位</a>
+    <a href="competitive-landscape.html">競爭分析</a>
+    <a href="system-backbone.html">系統架構</a>
+    <a href="feasibility.html">可行性</a>
+    <a href="pltr-explainer.html">PLTR 解析</a>
+    <a href="pltr-moat.html">PLTR 護城河</a>
+    <a href="pltr-data-flow.html" class="active">數據流</a>
+  </nav>
+</header>
+
+<main class="page">
+
+<!-- Section 1: Hero -->
+<section class="card hero">
+  <h2>數據唔係直接讀 DB — <span class="hl">中間有一層</span></h2>
+  <p class="tagline">Palantir Ontology 嘅核心設計：應用層永遠唔直接打 Backing Dataset。所有讀寫經過一個 <span class="hl">search-optimized 嘅 Index Layer</span>（Object Database），令查詢毫秒級回應，user edit 即時可見。<br><br>好似 JPA 嘅 <span class="hl-green">L2 Cache</span> — 應用層經過一層優化過嘅 index 讀寫，唔係每次都打底層 DB。</p>
+</section>
+
+<!-- Section 2: Three-Layer Architecture -->
+<section class="card">
+  <h2>三層分離：Schema / Raw Data / Index</h2>
+  <p class="subtitle">PLTR Ontology 唔係一個 database。佢有 <span class="hl">3 層完全分離</span>嘅組件，各自獨立演進。</p>
+  <div class="svg-wrap"><svg id="svg-layers" viewBox="0 0 800 420"></svg></div>
+  <div class="layer-grid">
+    <div class="layer-card" style="border-color:var(--blue)">
+      <h3><span class="dot" style="background:var(--blue)"></span>OMS（Schema 層）</h3>
+      <p>Schema 定義住呢度 — Object Types、Link Types、Action Types。用戶喺 Ontology Manager UI 配置，<span class="hl">唔使寫 code</span>。</p>
+      <div class="java"><strong>Java 類比：</strong>JPA <code>@Entity</code> metamodel，但全平台共用、UI 配置</div>
+    </div>
+    <div class="layer-card" style="border-color:var(--yellow)">
+      <h3><span class="dot" style="background:var(--yellow)"></span>Backing Dataset（Raw Data）</h3>
+      <p>原始數據嘅真正儲存位置。可以係 Parquet in S3、PostgreSQL table、Kafka stream。Ontology <span class="hl-red">唔擁有數據</span> — 佢只係映射。</p>
+      <div class="java"><strong>Java 類比：</strong>JPA <code>@Table</code> mapping 到現有 DB table</div>
+    </div>
+    <div class="layer-card" style="border-color:var(--green)">
+      <h3><span class="dot" style="background:var(--green)"></span>Object Database（Index）</h3>
+      <p><span class="hl-green">全部 query 打呢度</span>。Inverted index，只 index 標記為 Searchable 嘅 properties。毫秒級回應。</p>
+      <div class="java"><strong>Java 類比：</strong>Elasticsearch index 搭喺 PostgreSQL 上面</div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 3: Write Path A — Funnel Pipeline -->
+<section class="card">
+  <h2>寫入路徑 A：Funnel Pipeline — 數據點樣入 Index</h2>
+  <p class="subtitle">原始數據到可查詢 object 嘅 <span class="hl">4 步 incremental 轉換</span>。唔係每次 full reindex — 只處理上次以嚟嘅 diff。</p>
+  <div class="svg-wrap"><svg id="svg-funnel" viewBox="0 0 800 200"></svg></div>
+  <table class="compare-table">
+    <thead><tr><th>Java 類比</th><th>Funnel 等價</th></tr></thead>
+    <tbody>
+      <tr><td><code>EntityManager.persist()</code> + DB transaction</td><td>Backing Dataset transaction</td></tr>
+      <tr><td>Hibernate L2 cache invalidation</td><td>Changelog Job（detect diff）</td></tr>
+      <tr><td><code>@Indexed</code> annotation on fields</td><td><code>Searchable</code> property hint</td></tr>
+      <tr><td>Elasticsearch index refresh</td><td>Hydration to search nodes</td></tr>
+    </tbody>
+  </table>
+  <div class="highlight-box">
+    <h3>Incremental = git diff</h3>
+    <p>Funnel 係 incremental 嘅 — 唔係每次 full reindex。只處理上次以嚟嘅 diff。好似 <code>git diff</code> — 唔使每次 clone 成個 repo。10 億 rows 只改 1000 行 → 只 index 呢 1000 行。</p>
+  </div>
+</section>
+
+<!-- Section 4: Read Flow -->
+<section class="card">
+  <h2>讀取流程：App → Ontology API → Index → 結果</h2>
+  <p class="subtitle">應用程式查詢<span class="hl-red">從來唔接觸 Backing Dataset</span>。全部讀取經 Object Database 嘅 inverted index。</p>
+  <div class="svg-wrap"><svg id="svg-read" viewBox="0 0 800 260"></svg></div>
+  <div class="code-block">GET /objects/Task?status=FAILED
+
+Object Database 查 status index:
+  FAILED → [TSK-005]
+  → 毫秒級回應，唔使 scan 全部 rows</div>
+  <div class="highlight-box">
+    <h3>Searchable Render Hint</h3>
+    <p>唔係每個 property 都會被 index。每個 property 有 <code>Searchable</code> 設定：<span class="hl-green">ON</span> → 建 inverted index，可以 search / filter；<span class="hl-red">OFF</span> → 唔建 index，慳 reindexing 時間。Java 類比：<code>@Indexed</code> annotation 控制邊啲 column 有 DB index。</p>
+  </div>
+</section>
+
+<!-- Section 5: Write Path B — Actions -->
+<section class="card">
+  <h2>寫入路徑 B：Actions — 用戶操作點樣即時生效</h2>
+  <p class="subtitle">User edit <span class="hl-red">唔會寫回 Backing Dataset</span>。走獨立嘅 queue path，改動<span class="hl-green">即時可見</span>。</p>
+  <div class="svg-wrap"><svg id="svg-write" viewBox="0 0 800 400"></svg></div>
+
+  <h3 style="font-size:16px;font-weight:500;margin:20px 0 10px">Query-Time Merge 機制</h3>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Offset 係一個順序號碼。Base Index 記住自己 index 到邊個 offset。Query 時套用後續 edits：</p>
+  <div class="code-block">Base Index（indexed at offset 0）:
+  TSK-005.status = "IN_PROGRESS"
+
+Edit Queue:
+  offset 1: TSK-005.status = "FAILED"
+  offset 2: TSK-005.status = "RETRY", robotId = "R-HIK-01"
+
+Query "status=IN_PROGRESS":
+  Step 1: Base Index → [TSK-002, TSK-005]
+  Step 2: Apply offset 1 → TSK-005 改成 FAILED（移除）
+          Apply offset 2 → TSK-005 改成 RETRY（仍然唔係 IN_PROGRESS）
+  Result: [TSK-002]</div>
+
+  <table class="compare-table">
+    <thead><tr><th>概念</th><th>Git 類比</th><th>Java 類比</th></tr></thead>
+    <tbody>
+      <tr><td>Base Index</td><td><code>git last commit</code></td><td>JPA L2 cache snapshot</td></tr>
+      <tr><td>Edit Queue</td><td>uncommitted changes</td><td>pending <code>EntityManager</code> operations</td></tr>
+      <tr><td>Offset</td><td>change sequence number</td><td>JPA <code>@Version</code></td></tr>
+      <tr><td>Query = base + apply queue</td><td><code>git stash apply</code></td><td>read-through cache with dirty writes</td></tr>
+      <tr><td>Reindex = bake in</td><td><code>git commit</code></td><td>cache evict + reload</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Section 6: Why This Design -->
+<section class="card">
+  <h2>點解要咁設計</h2>
+  <p class="subtitle">每個設計決策背後都有一個具體問題要解決。</p>
+  <table class="compare-table">
+    <thead><tr><th>問題</th><th>PLTR 嘅解法</th></tr></thead>
+    <tbody>
+      <tr><td>Backing Dataset 可能係 <span class="hl-red">read-only</span>（唔係你嘅 DB）</td><td>User edits 係獨立一層，唔改原始數據</td></tr>
+      <tr><td>一個 Object Type 可能接<span class="hl">多個 data source</span></td><td>Funnel merge by PK</td></tr>
+      <tr><td>10 億 rows 每次全部 reindex <span class="hl-red">太慢</span></td><td>Incremental：只 index diff + queue edits</td></tr>
+      <tr><td>User edit 要<span class="hl-green">立即可見</span></td><td>Queue offset 套用到 live index</td></tr>
+      <tr><td>Index 要 search-optimized</td><td>Inverted index on search nodes（唔係 row store）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Section 7: Six Microservices -->
+<section class="card">
+  <h2>六大微服務：完整架構</h2>
+  <p class="subtitle">PLTR Ontology 後端由 <span class="hl">6 個獨立服務</span>組成，各司其職。</p>
+  <div class="svc-grid">
+    <div class="svc-card" style="border-color:var(--blue)">
+      <h3><span class="num" style="background:var(--blue)">1</span> OMS</h3>
+      <p>Schema 定義 — Object Types / Link Types / Action Types。全平台嘅「型態系統」。</p>
+    </div>
+    <div class="svc-card" style="border-color:var(--green)">
+      <h3><span class="num" style="background:var(--green)">2</span> Object Data Funnel</h3>
+      <p>ETL pipeline：Changelog → Merge → Index → Hydrate。將 raw data 轉成 searchable index。</p>
+    </div>
+    <div class="svc-card" style="border-color:var(--yellow)">
+      <h3><span class="num" style="background:var(--yellow)">3</span> Object Databases (OSv2)</h3>
+      <p>Indexed data storage + query engine。所有 query 嘅最終目的地。</p>
+    </div>
+    <div class="svc-card" style="border-color:var(--purple)">
+      <h3><span class="num" style="background:var(--purple)">4</span> Object Set Service (OSS)</h3>
+      <p>讀取 API：search / filter / aggregate。應用層同 Object Database 之間嘅接口。</p>
+    </div>
+    <div class="svc-card" style="border-color:var(--red)">
+      <h3><span class="num" style="background:var(--red)">5</span> Actions Service</h3>
+      <p>寫入 API：structured edits + 權限 + validation。User edit 嘅入口。</p>
+    </div>
+    <div class="svc-card" style="border-color:var(--blue)">
+      <h3><span class="num" style="background:var(--blue)">6</span> Functions on Objects</h3>
+      <p>自定義業務邏輯。好似 Spring <code>@Service</code> methods，但註冊喺 Ontology 上。</p>
+    </div>
+  </div>
+</section>
+
+<!-- Section 8: Our MVP -->
+<section class="card">
+  <h2>我哋嘅 MVP：簡化但保留核心</h2>
+  <p class="subtitle">一間工廠、萬級數據、own 個 database。<span class="hl">唔需要 PLTR 嘅完整架構</span>。</p>
+  <div class="svg-wrap"><svg id="svg-mvp" viewBox="0 0 800 300"></svg></div>
+
+  <table class="compare-table">
+    <thead><tr><th>PLTR 需要</th><th>我哋唔需要（MVP）</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td>Backing Dataset + Index 分離</td><td>Direct PG query</td><td>我哋 own 個 DB</td></tr>
+      <tr><td>Funnel incremental indexing</td><td>PG B-tree index</td><td>萬級數據</td></tr>
+      <tr><td>Edit Queue + offset</td><td>Direct UPDATE + transaction</td><td>即時 commit</td></tr>
+      <tr><td>Multi-source merge</td><td>Single WMS source</td><td>MVP 只有 1 個</td></tr>
+      <tr><td>Inverted index on search nodes</td><td>PG index</td><td>夠用</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:16px;font-weight:500;margin:20px 0 10px">升級路線</h3>
+  <div class="workflow">
+    <div class="wf-step">
+      <div class="wf-num" style="background:var(--green)">0</div>
+      <div class="wf-content">
+        <h4>Phase 0-2（MVP）</h4>
+        <p>PG table = 唯一 data store，B-tree index = 唯一 search index，直接寫直接讀。</p>
+        <div class="flow">User → ActionExecutor → UPDATE PG → commit → done</div>
+      </div>
+    </div>
+    <div class="wf-connector"><div class="line"></div></div>
+    <div class="wf-step">
+      <div class="wf-num" style="background:var(--blue)">3</div>
+      <div class="wf-content">
+        <h4>Phase 3（第 2 客戶，十萬級）</h4>
+        <p>加 Materialized View 做 pre-join（輕量 index）。</p>
+        <div class="flow">REFRESH MATERIALIZED VIEW CONCURRENTLY = 簡化版 Funnel reindex</div>
+      </div>
+    </div>
+    <div class="wf-connector"><div class="line"></div></div>
+    <div class="wf-step">
+      <div class="wf-num" style="background:var(--yellow)">4</div>
+      <div class="wf-content">
+        <h4>Phase 4+（多客戶，百萬級）</h4>
+        <p>加 Elasticsearch 做 search layer + Debezium CDC 做 change capture。PG = backing store，ES = query index。接近 PLTR 架構。</p>
+        <div class="flow">PG(backing) → Debezium(CDC=Funnel) → ES(index=OSv2) → API(read)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box green">
+    <h3>核心洞察</h3>
+    <p>PLTR 嘅架構係為<span class="hl">多租戶、read-only 數據源、10 億級數據</span>而設計。我哋 MVP 唔需要呢啲，但保留核心概念（schema-driven、通用引擎、structured actions），等升級時可以自然演進，唔使重寫。</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">架構參考基於 Palantir 官方文檔。Query-time merge 機制係基於通用 CS pattern 嘅推斷，唔係 PLTR 官方公開嘅實現細節。</footer>
+
+<script>
+function S(tag,attrs){const el=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(attrs||{}))el.setAttribute(k,v);return el}
+function R(x,y,w,h,o){return S('rect',{x,y,width:w,height:h,rx:o?.rx||8,fill:o?.fill||'#fff',stroke:o?.stroke||'#dadce0','stroke-width':o?.sw||1.5,...(o?.extra||{})})}
+function T(x,y,txt,o){const t=S('text',{x,y,'text-anchor':o?.anchor||'middle','dominant-baseline':o?.baseline||'central','font-size':o?.size||12,'font-weight':o?.weight||400,fill:o?.fill||'#202124',...(o?.extra||{})});t.textContent=txt;return t}
+function L(x1,y1,x2,y2,o){return S('line',{x1,y1,x2,y2,stroke:o?.stroke||'#dadce0','stroke-width':o?.sw||1.5,...(o?.dash?{'stroke-dasharray':o.dash}:{})})}
+function A(x1,y1,x2,y2,o){const g=S('g');g.appendChild(L(x1,y1,x2,y2,o));const angle=Math.atan2(y2-y1,x2-x1);const sz=8;const p=S('polygon',{points:`${x2},${y2} ${x2-sz*Math.cos(angle-0.4)},${y2-sz*Math.sin(angle-0.4)} ${x2-sz*Math.cos(angle+0.4)},${y2-sz*Math.sin(angle+0.4)}`,fill:o?.stroke||'#dadce0'});g.appendChild(p);return g}
+
+// Section 2: Three-Layer Architecture
+(function(){
+  const svg=document.getElementById('svg-layers');
+  const layers=[
+    {y:20,label:'Ontology Metadata Service (OMS)',sub:'Schema: Object Types / Link Types / Action Types',color:'#1a73e8',bg:'#e8f0fe'},
+    {y:160,label:'Backing Dataset（原始數據）',sub:'Parquet / CSV / Kafka Stream — 原始數據永遠住呢度',color:'#f9ab00',bg:'#fef7e0'},
+    {y:300,label:'Object Database (OSv2)',sub:'Inverted index on search nodes — 所有 query 打呢度',color:'#34a853',bg:'#e6f4ea'},
+  ];
+  layers.forEach(l=>{
+    svg.appendChild(R(60,l.y,680,100,{fill:l.bg,stroke:l.color,rx:12}));
+    svg.appendChild(T(400,l.y+38,l.label,{size:15,weight:600,fill:l.color}));
+    svg.appendChild(T(400,l.y+65,l.sub,{size:11,fill:'#5f6368'}));
+  });
+  // Arrow: OMS → Backing
+  svg.appendChild(A(400,120,400,160,{stroke:'#5f6368',sw:2}));
+  svg.appendChild(T(440,140,'maps to',{size:10,fill:'#5f6368',anchor:'start'}));
+  // Arrow: Backing → Object DB
+  svg.appendChild(A(400,260,400,300,{stroke:'#34a853',sw:2}));
+  svg.appendChild(T(440,280,'Funnel Pipeline（4 步）',{size:10,fill:'#34a853',anchor:'start',weight:600}));
+})();
+
+// Section 3: Funnel Pipeline
+(function(){
+  const svg=document.getElementById('svg-funnel');
+  const steps=[
+    {x:20,label:'Backing\nDataset',color:'#f9ab00',bg:'#fef7e0',w:100},
+    {x:160,label:'① Changelog',color:'#1a73e8',bg:'#e8f0fe',w:120,note:'比較 diff'},
+    {x:320,label:'② Merge',color:'#1a73e8',bg:'#e8f0fe',w:120,note:'diff + edits'},
+    {x:480,label:'③ Indexing',color:'#1a73e8',bg:'#e8f0fe',w:120,note:'inverted index'},
+    {x:640,label:'④ Hydration',color:'#34a853',bg:'#e6f4ea',w:120,note:'下載到 nodes'},
+  ];
+  steps.forEach(s=>{
+    svg.appendChild(R(s.x,40,s.w,70,{fill:s.bg,stroke:s.color,rx:10}));
+    const lines=s.label.split('\n');
+    lines.forEach((line,i)=>{
+      svg.appendChild(T(s.x+s.w/2,65+i*16,line,{size:12,weight:600,fill:s.color}));
+    });
+    if(s.note)svg.appendChild(T(s.x+s.w/2,125,s.note,{size:10,fill:'#5f6368'}));
+  });
+  // Arrows between steps
+  [[120,160],[280,320],[440,480],[600,640]].forEach(([x1,x2])=>{
+    svg.appendChild(A(x1,75,x2,75,{stroke:'#dadce0',sw:2}));
+  });
+  // Final output label
+  svg.appendChild(R(640,150,120,30,{fill:'#e6f4ea',stroke:'#34a853',rx:15}));
+  svg.appendChild(T(700,165,'Object Database',{size:10,weight:600,fill:'#34a853'}));
+  svg.appendChild(A(700,110,700,150,{stroke:'#34a853',sw:1.5}));
+})();
+
+// Section 4: Read Flow
+(function(){
+  const svg=document.getElementById('svg-read');
+  const boxes=[
+    {x:30,y:80,w:150,h:70,label:'Application',sub:'Dashboard / AIP',color:'#7b1fa2',bg:'#f3e5f5'},
+    {x:280,y:80,w:180,h:70,label:'Object Set Service',sub:'search / filter / aggregate',color:'#1a73e8',bg:'#e8f0fe'},
+    {x:570,y:80,w:180,h:70,label:'Object Database',sub:'Inverted Index',color:'#34a853',bg:'#e6f4ea'},
+  ];
+  boxes.forEach(b=>{
+    svg.appendChild(R(b.x,b.y,b.w,b.h,{fill:b.bg,stroke:b.color,rx:10}));
+    svg.appendChild(T(b.x+b.w/2,b.y+28,b.label,{size:13,weight:600,fill:b.color}));
+    svg.appendChild(T(b.x+b.w/2,b.y+48,b.sub,{size:10,fill:'#5f6368'}));
+  });
+  // Arrows
+  svg.appendChild(A(180,115,280,115,{stroke:'#1a73e8',sw:2}));
+  svg.appendChild(A(460,115,570,115,{stroke:'#34a853',sw:2}));
+  // Result arrow back
+  svg.appendChild(A(570,140,460,140,{stroke:'#34a853',sw:1.5}));
+  svg.appendChild(T(515,158,'返回 objects',{size:10,fill:'#34a853'}));
+  // Crossed-out arrow to Backing Dataset
+  svg.appendChild(R(280,195,180,40,{fill:'#fef7e0',stroke:'#f9ab00',rx:10}));
+  svg.appendChild(T(370,215,'Backing Dataset',{size:11,weight:500,fill:'#f9ab00'}));
+  svg.appendChild(L(180,150,280,215,{stroke:'#ea4335',sw:2,dash:'6 4'}));
+  // Red X
+  svg.appendChild(T(225,175,'X',{size:22,weight:700,fill:'#ea4335'}));
+  svg.appendChild(T(265,175,'永遠唔打呢度',{size:10,fill:'#ea4335',anchor:'start'}));
+})();
+
+// Section 5: Write Path — Actions
+(function(){
+  const svg=document.getElementById('svg-write');
+  // Top: User triggers action
+  svg.appendChild(R(280,10,240,50,{fill:'#f3e5f5',stroke:'#7b1fa2',rx:10}));
+  svg.appendChild(T(400,35,'用戶觸發 Action',{size:13,weight:600,fill:'#7b1fa2'}));
+  svg.appendChild(A(400,60,400,90,{stroke:'#5f6368',sw:2}));
+
+  // Actions Service
+  svg.appendChild(R(250,90,300,50,{fill:'#fce8e6',stroke:'#ea4335',rx:10}));
+  svg.appendChild(T(400,115,'Actions Service（驗證 + 權限）',{size:12,weight:600,fill:'#ea4335'}));
+  svg.appendChild(A(400,140,400,170,{stroke:'#5f6368',sw:2}));
+
+  // Funnel Queue
+  svg.appendChild(R(260,170,280,50,{fill:'#e8f0fe',stroke:'#1a73e8',rx:10}));
+  svg.appendChild(T(400,195,'Funnel Queue（offset tracking）',{size:12,weight:600,fill:'#1a73e8'}));
+
+  // Fork: left = immediate, right = periodic
+  // Left branch
+  svg.appendChild(A(300,220,180,270,{stroke:'#34a853',sw:2}));
+  svg.appendChild(R(60,270,240,80,{fill:'#e6f4ea',stroke:'#34a853',rx:10}));
+  svg.appendChild(T(180,295,'即時：offset → live index',{size:12,weight:600,fill:'#34a853'}));
+  svg.appendChild(T(180,318,'下一個 query 已經睇到改動',{size:10,fill:'#5f6368'}));
+  // Green badge
+  svg.appendChild(R(110,255,50,18,{fill:'#34a853',rx:9}));
+  svg.appendChild(T(135,264,'即時',{size:10,weight:700,fill:'#fff'}));
+
+  // Right branch
+  svg.appendChild(A(500,220,620,270,{stroke:'#f9ab00',sw:2}));
+  svg.appendChild(R(500,270,260,80,{fill:'#fef7e0',stroke:'#f9ab00',rx:10}));
+  svg.appendChild(T(630,295,'定期：merge 回 dataset',{size:12,weight:600,fill:'#f9ab00'}));
+  svg.appendChild(T(630,318,'Base index 重建 → queue 清空',{size:10,fill:'#5f6368'}));
+  // Yellow badge
+  svg.appendChild(R(580,255,50,18,{fill:'#f9ab00',rx:9}));
+  svg.appendChild(T(605,264,'定期',{size:10,weight:700,fill:'#fff'}));
+
+  // Reindex trigger note
+  svg.appendChild(T(400,380,'觸發條件：Backing Dataset 有新 transaction，或每 6 小時（如果有 edits）',{size:10,fill:'#5f6368'}));
+})();
+
+// Section 8: MVP Comparison
+(function(){
+  const svg=document.getElementById('svg-mvp');
+  // Left: PLTR full
+  svg.appendChild(R(20,20,340,260,{fill:'#f8f9fa',stroke:'#dadce0',rx:12}));
+  svg.appendChild(T(190,50,'PLTR 完整架構',{size:14,weight:600,fill:'#5f6368'}));
+  // Mini layers
+  svg.appendChild(R(50,70,280,45,{fill:'#e8f0fe',stroke:'#1a73e8',rx:8}));
+  svg.appendChild(T(190,93,'OMS (Schema)',{size:11,weight:500,fill:'#1a73e8'}));
+  svg.appendChild(A(190,115,190,135,{stroke:'#5f6368',sw:1}));
+  svg.appendChild(R(50,135,280,45,{fill:'#fef7e0',stroke:'#f9ab00',rx:8}));
+  svg.appendChild(T(190,158,'Backing Dataset',{size:11,weight:500,fill:'#f9ab00'}));
+  svg.appendChild(A(190,180,190,195,{stroke:'#34a853',sw:1}));
+  svg.appendChild(R(100,195,180,25,{fill:'#e6f4ea',stroke:'#34a853',rx:6}));
+  svg.appendChild(T(190,208,'Funnel Pipeline',{size:10,weight:500,fill:'#34a853'}));
+  svg.appendChild(A(190,220,190,235,{stroke:'#34a853',sw:1}));
+  svg.appendChild(R(50,235,280,35,{fill:'#e6f4ea',stroke:'#34a853',rx:8}));
+  svg.appendChild(T(190,253,'Object Database (Index)',{size:11,weight:500,fill:'#34a853'}));
+
+  // Arrow between
+  svg.appendChild(R(385,120,30,50,{fill:'#e8f0fe',stroke:'#1a73e8',rx:6}));
+  svg.appendChild(T(400,145,'→',{size:16,weight:700,fill:'#1a73e8'}));
+  svg.appendChild(T(400,100,'簡化',{size:11,weight:600,fill:'#1a73e8'}));
+
+  // Right: Our MVP
+  svg.appendChild(R(440,20,340,260,{fill:'#f8f9fa',stroke:'#dadce0',rx:12}));
+  svg.appendChild(T(610,50,'我哋嘅 MVP',{size:14,weight:600,fill:'#34a853'}));
+  svg.appendChild(R(470,80,280,70,{fill:'#e6f4ea',stroke:'#34a853',rx:8}));
+  svg.appendChild(T(610,105,'PostgreSQL',{size:14,weight:600,fill:'#34a853'}));
+  svg.appendChild(T(610,128,'data + B-tree index 合一',{size:11,fill:'#5f6368'}));
+  // Direct read/write arrows
+  svg.appendChild(R(520,190,180,50,{fill:'#e8f0fe',stroke:'#1a73e8',rx:8}));
+  svg.appendChild(T(610,210,'直接讀 + 直接寫',{size:12,weight:600,fill:'#1a73e8'}));
+  svg.appendChild(T(610,230,'Transaction commit = done',{size:10,fill:'#5f6368'}));
+  svg.appendChild(A(610,150,610,190,{stroke:'#1a73e8',sw:1.5}));
+  svg.appendChild(A(610,190,610,150,{stroke:'#34a853',sw:1.5}));
+})();
+</script>
+</body>
+</html>

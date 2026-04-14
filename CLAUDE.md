@@ -22,7 +22,7 @@
 
 ## GitHub 推送
 
-公司網絡封鎖 git push，用 GitHub REST API 上傳。本地有 `gh-push.sh` helper script，用 `$GH_TOKEN` 環境變數。
+公司網絡封鎖 git push，用 GitHub REST API 上傳。本地有 `gh-push-tree.sh` helper script，用 `$GH_TOKEN` 環境變數。HTML 頁面正式放喺 `pages/`，對外 URL 亦會係 `/pages/*.html`。
 
 ## Memory Palace
 

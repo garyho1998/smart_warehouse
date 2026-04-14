@@ -69,14 +69,17 @@ Key capabilities:
 
 ```
 warehouse-platform/
-├── docs/plans/          # Design docs and implementation plans
-├── platform-core/       # Canonical model, shared utilities
-├── integration-svc/     # Adapters for external systems
-├── workflow-svc/        # Task orchestration and workflow engine
-├── operations-svc/      # Dashboard, alerts, audit
-└── gateway/             # API gateway
+├── docs/                # Research, architecture, feasibility, deployment notes
+├── pages/               # GitHub Pages HTML files (published under /pages/*)
+├── gh-push-tree.sh      # GitHub API deploy helper
+├── ontology-sdk-notes.md
+├── CLAUDE.md
+└── README.md
 ```
 
 ## Getting Started
 
-> TODO — setup instructions after initial scaffolding
+Open the published pages directly from the `pages/` path, for example:
+
+- `https://garyho1998.github.io/smart_warehouse/pages/industry-landscape.html`
+- `https://garyho1998.github.io/smart_warehouse/pages/product-overview.html`

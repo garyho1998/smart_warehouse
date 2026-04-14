@@ -20,18 +20,22 @@
 #### 1. 推送檔案
 
 ```bash
-# 推送單個檔案
-bash gh-push.sh <file_path> "commit message"
+# 推送一個或多個檔案
+bash gh-push-tree.sh -m "commit message" <file_path> [more_files...]
 
 # 例子
-bash gh-push.sh industry-landscape.html "Update industry landscape"
-bash gh-push.sh pltr-explainer.html "Update PLTR explainer"
+bash gh-push-tree.sh -m "Update industry landscape" pages/industry-landscape.html
+bash gh-push-tree.sh -m "Update product + explainer" pages/product-overview.html pages/pltr-explainer.html
+
+# 刪除舊檔 / redirect 檔案
+bash gh-push-tree.sh --delete industry-landscape.html --delete product-overview.html -m "Remove root redirects"
 ```
 
-`gh-push.sh` 做嘅事：
-- 將檔案 base64 編碼
-- 用 GitHub Contents API (`PUT /repos/{owner}/{repo}/contents/{path}`) 上傳
-- 自動處理新建 vs 更新（會查 SHA）
+`gh-push-tree.sh` 做嘅事：
+- 讀 remote `main` HEAD
+- 為新檔 / 更新檔建立 blobs
+- 用 Git Trees API 一次過提交多個新增、更新、刪除、搬位操作
+- 最後更新 remote branch 指向新 commit
 
 #### 2. 等 GitHub Pages 部署（~1-2 分鐘）
 
@@ -48,7 +52,7 @@ curl -s -H "Authorization: token $GH_TOKEN" \
 ```bash
 # 檢查 HTTP status
 curl -s -o /dev/null -w "%{http_code}" \
-  https://garyho1998.github.io/smart_warehouse/industry-landscape.html
+  https://garyho1998.github.io/smart_warehouse/pages/industry-landscape.html
 # 200 = OK
 ```
 
@@ -56,10 +60,13 @@ curl -s -o /dev/null -w "%{http_code}" \
 
 | 頁面 | URL |
 |------|-----|
-| 行業象限圖 | https://garyho1998.github.io/smart_warehouse/industry-landscape.html |
-| 產品定位 | https://garyho1998.github.io/smart_warehouse/product-overview.html |
-| 系統架構 | https://garyho1998.github.io/smart_warehouse/system-backbone.html |
-| Palantir 解說 | https://garyho1998.github.io/smart_warehouse/pltr-explainer.html |
+| 行業象限圖 | https://garyho1998.github.io/smart_warehouse/pages/industry-landscape.html |
+| 產品定位 | https://garyho1998.github.io/smart_warehouse/pages/product-overview.html |
+| 系統架構 | https://garyho1998.github.io/smart_warehouse/pages/system-backbone.html |
+| Palantir 解說 | https://garyho1998.github.io/smart_warehouse/pages/pltr-explainer.html |
+| 數據流 | https://garyho1998.github.io/smart_warehouse/pages/pltr-data-flow.html |
+
+> 注意：如果 root redirect 檔已刪除，舊網址例如 `/industry-landscape.html` 會唔再存在，請直接分享 `/pages/industry-landscape.html`。
 
 ### 首次設定 GitHub Pages
 
@@ -85,10 +92,10 @@ Claude Code 啟動時會 load shell profile，但如果 token 係後來加入 `~
 
 `! source ~/.zshrc` **唔 work** — `!` 命令跑喺 subshell，env var 唔會傳返去。
 
-**解決方法：**喺 `gh-push.sh` 命令前面 inline source：
+**解決方法：**喺 `gh-push-tree.sh` 命令前面 inline source：
 
 ```bash
-source ~/.zshrc && bash gh-push.sh industry-landscape.html "Update"
+source ~/.zshrc && bash gh-push-tree.sh -m "Update industry landscape" pages/industry-landscape.html
 ```
 
 或者直接開新 Claude Code session（會自動 load `~/.zshrc`）。
@@ -104,4 +111,4 @@ source ~/.zshrc && bash gh-push.sh industry-landscape.html "Update"
    ```bash
    export GH_TOKEN=ghp_新token
    ```
-5. 開新 Claude Code session（或 `source ~/.zshrc && bash gh-push.sh ...`）
+5. 開新 Claude Code session（或 `source ~/.zshrc && bash gh-push-tree.sh ...`）
