@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.warehouse.ontology.adapter.OntologyRecord;
+import java.util.List;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class JushuitanAdapterTest {
 
     private final JushuitanClient client = mock(JushuitanClient.class);
-    private final JushuitanAdapter adapter = new JushuitanAdapter(client);
+    private final JushuitanAdapter adapter = new JushuitanAdapter(client, List.of());
 
     @Test
     void name_is_jushuitan() {

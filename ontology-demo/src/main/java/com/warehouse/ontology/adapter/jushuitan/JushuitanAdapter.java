@@ -45,11 +45,11 @@ public class JushuitanAdapter implements WmsAdapter {
     @Override
     public List<OntologyRecord> pullWarehouses(Instant since) {
         return client.queryPartners(since).stream()
-                .filter(p -> isAllowed(p.wmsCoId()))
+                .filter(p -> isAllowed(p.wmsCoIdStr()))
                 .map(p -> {
                     Map<String, Object> m = new HashMap<>();
-                    m.put("id", p.wmsCoId());
-                    m.put("code", p.wmsCoId());
+                    m.put("id", p.wmsCoIdStr());
+                    m.put("code", p.wmsCoIdStr());
                     m.put("name", p.name());
                     m.put("wmsType", "JST");
                     return new OntologyRecord("Warehouse", m);

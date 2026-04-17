@@ -18,6 +18,10 @@ anthropic:
   model: claude-sonnet-4-20250514
 
 wms:
+  shipbob:
+    base-url: https://sandbox-api.shipbob.com/2026-01
+    token: 9F504CCCADEB51C3FAE963A969F759DE6AF369A749A2BC4273C28F55AFDDC2DD-1
+
   jst:
     base-url: https://dev-api.jushuitan.com
     app-key: b0b7d1db226d4216a3d58df9ffa2dde5
