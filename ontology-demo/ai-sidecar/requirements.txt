@@ -1,0 +1,4 @@
+claude-code-sdk
+aiohttp>=3.9
+aiohttp-cors>=0.7
+requests>=2.31
