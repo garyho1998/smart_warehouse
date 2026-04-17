@@ -2,3 +2,11 @@
 *.jpg
 *.jpeg
 .DS_Store
+target/
+data/
+.m2/
+.mvn/
+node_modules/
+dist/
+.venv/
+__pycache__/

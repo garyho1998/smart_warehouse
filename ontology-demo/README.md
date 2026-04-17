@@ -94,6 +94,58 @@ Example `POST /api/schema/actions` payload:
 }
 ```
 
+## WMS Adapter Demo
+
+Shows Ontology as a deployment accelerator: adding a new WMS only needs one
+Adapter class — Graph / AI / Rules / UI keep working with zero changes.
+
+### Architecture
+
+```
+旺店通 Mock (9001, PHP form-encoded)  ─┐                     ┌─→ Graph / AI /
+                                      ├─→ Ontology (8080) ───┤   Rules / UI
+聚水潭 Mock (9002, REST JSON)         ─┘                     └─→ (zero changes)
+```
+
+Adapters in `src/main/java/com/warehouse/ontology/adapter/` pull every 30s
+via `modified_after` and upsert into the ontology through `GenericRepository`.
+
+### Run the demo
+
+```bash
+bash ontology-demo/scripts/run-demo.sh         # starts 5 processes in background
+bash ontology-demo/scripts/run-demo.sh stop    # stops everything
+```
+
+Then open:
+- `http://localhost:5173/sources` — see both WMS sync status + counts
+- `http://localhost:5173/graph` — search `Location`, see records from BOTH WMS
+- `http://localhost:5173/ai` — ask "有幾多個倉?" — AI doesn't know there are 2 WMS
+
+### Key files
+
+- `docs/plans/2026-04-17-wms-adapter-demo-design.md` — design rationale
+- `docs/plans/2026-04-17-wms-adapter-demo.md` — task-by-task plan
+- `src/main/java/.../adapter/WmsAdapter.java` — contract
+- `src/main/java/.../adapter/wangdiantong/WangdiantongAdapter.java` — WDT mapping
+- `src/main/java/.../adapter/jushuitan/JushuitanAdapter.java` — JST mapping
+- `src/main/java/.../adapter/sync/WmsSyncScheduler.java` — poll + cursor
+- `mock-wms/wangdiantong-mock/` — fake PHP-style 旺店通 server
+- `mock-wms/jushuitan-mock/` — fake REST/JSON 聚水潭 server
+
+### What the demo shows
+
+| | 旺店通 (WDT) | 聚水潭 (JST) |
+|---|---|---|
+| URL style | `warehouse_query.php` | `/open/wms/partner/query` |
+| Wire format | form-encoded | JSON |
+| Field naming | `bin_code`, `goods_no` | `slot_id`, `sku_id` |
+| Zone terms | 中文 (`揀貨區`) | 英文 enum (`pick`) |
+| Pagination | — | `page_index` + `page_size` |
+
+Despite the radical difference, **both flow into the same ontology** and every
+downstream consumer (Graph view, AI chat, rules engine) just works.
+
 ## Current Limits
 
 - Schema mutation is create-only. No rename, drop, destructive update, or backfill path yet.
