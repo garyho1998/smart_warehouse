@@ -7,5 +7,5 @@ import java.time.Instant;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record JstInventoryDto(Long id, String skuId, String slotId, String wmsCoId,
-                              Integer qty, Integer lockQty, Instant modifiedTime) {}
+// Real JST inventory fields from /open/inventory/query
+public record JstInventoryDto(String iId, String skuId, String name, Integer qty, String ts) {}

@@ -93,10 +93,10 @@ public class JushuitanAdapter implements WmsAdapter {
         return client.queryInventory(since).stream()
                 .map(inv -> {
                     Map<String, Object> m = new HashMap<>();
-                    m.put("id", inv.skuId() + "@" + inv.slotId());
+                    // Real JST: no slot_id in inventory — use iId as unique key
+                    m.put("id", "JST-INV-" + inv.iId());
                     m.put("skuId", inv.skuId());
-                    m.put("locationId", inv.slotId());
-                    m.put("quantity", inv.qty());
+                    m.put("quantity", inv.qty() == null ? 0 : inv.qty());
                     return new OntologyRecord("Inventory", m);
                 })
                 .toList();

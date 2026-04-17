@@ -7,4 +7,4 @@ import java.time.Instant;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record JstWarehouseDto(String wmsCoId, String name, Instant modifiedTime) {}
+public record JstWarehouseDto(String wmsCoId, String name, String status) {}
