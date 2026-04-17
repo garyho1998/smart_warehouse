@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,9 +25,16 @@ public class JushuitanAdapter implements WmsAdapter {
     );
 
     private final JushuitanClient client;
+    private final Set<String> allowedWarehouseIds;
 
-    public JushuitanAdapter(JushuitanClient client) {
+    public JushuitanAdapter(JushuitanClient client,
+                            @Value("${wms.jst.warehouse-ids:}") List<String> warehouseIds) {
         this.client = client;
+        this.allowedWarehouseIds = new HashSet<>(warehouseIds);
+    }
+
+    private boolean isAllowed(String warehouseId) {
+        return allowedWarehouseIds.isEmpty() || allowedWarehouseIds.contains(warehouseId);
     }
 
     @Override
@@ -37,6 +45,7 @@ public class JushuitanAdapter implements WmsAdapter {
     @Override
     public List<OntologyRecord> pullWarehouses(Instant since) {
         return client.queryPartners(since).stream()
+                .filter(p -> isAllowed(p.wmsCoId()))
                 .map(p -> {
                     Map<String, Object> m = new HashMap<>();
                     m.put("id", p.wmsCoId());
@@ -46,33 +55,6 @@ public class JushuitanAdapter implements WmsAdapter {
                     return new OntologyRecord("Warehouse", m);
                 })
                 .toList();
-    }
-
-    @Override
-    public List<OntologyRecord> pullLocations(Instant since) {
-        List<OntologyRecord> out = new ArrayList<>();
-        Set<String> emittedZoneIds = new HashSet<>();
-        for (JstLocationDto loc : client.querySlots(since)) {
-            String zoneType = ZONE_MAP.getOrDefault(loc.area(), "STORAGE");
-            String zoneId = loc.wmsCoId() + "-" + zoneType;
-            if (emittedZoneIds.add(zoneId)) {
-                Map<String, Object> zp = new HashMap<>();
-                zp.put("id", zoneId);
-                zp.put("warehouseId", loc.wmsCoId());
-                zp.put("code", zoneType);
-                zp.put("name", loc.area());
-                zp.put("type", zoneType);
-                out.add(new OntologyRecord("Zone", zp));
-            }
-            Map<String, Object> lp = new HashMap<>();
-            lp.put("id", loc.slotId());
-            lp.put("zoneId", zoneId);
-            lp.put("code", loc.slotId());
-            lp.put("floor", loc.floor() == null ? 1 : loc.floor());
-            lp.put("type", "BIN");
-            out.add(new OntologyRecord("Location", lp));
-        }
-        return out;
     }
 
     @Override
@@ -100,5 +82,33 @@ public class JushuitanAdapter implements WmsAdapter {
                     return new OntologyRecord("Inventory", m);
                 })
                 .toList();
+    }
+
+    @Override
+    public List<OntologyRecord> pullLocations(Instant since) {
+        List<OntologyRecord> out = new ArrayList<>();
+        Set<String> emittedZoneIds = new HashSet<>();
+        for (JstLocationDto loc : client.querySlots(since)) {
+            if (!isAllowed(loc.wmsCoId())) continue;
+            String zoneType = ZONE_MAP.getOrDefault(loc.area(), "STORAGE");
+            String zoneId = loc.wmsCoId() + "-" + zoneType;
+            if (emittedZoneIds.add(zoneId)) {
+                Map<String, Object> zp = new HashMap<>();
+                zp.put("id", zoneId);
+                zp.put("warehouseId", loc.wmsCoId());
+                zp.put("code", zoneType);
+                zp.put("name", loc.area());
+                zp.put("type", zoneType);
+                out.add(new OntologyRecord("Zone", zp));
+            }
+            Map<String, Object> lp = new HashMap<>();
+            lp.put("id", loc.slotId());
+            lp.put("zoneId", zoneId);
+            lp.put("code", loc.slotId());
+            lp.put("floor", loc.floor() == null ? 1 : loc.floor());
+            lp.put("type", "BIN");
+            out.add(new OntologyRecord("Location", lp));
+        }
+        return out;
     }
 }
