@@ -1,0 +1,21 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: wangdiantong-mock
+  datasource:
+    url: jdbc:h2:mem:wdt;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
