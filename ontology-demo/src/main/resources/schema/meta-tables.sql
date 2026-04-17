@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS action_type_def (
     mutations       CLOB,
     side_effects    CLOB,
     audit           BOOLEAN DEFAULT TRUE,
-    mode            VARCHAR(20) DEFAULT 'UPDATE',
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_action_object_type FOREIGN KEY (object_type_id) REFERENCES object_type_def(id)
 );

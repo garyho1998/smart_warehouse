@@ -129,8 +129,7 @@ public class SchemaBootstrap {
                     toJson(actionDefMap.get("preconditions")),
                     toJson(actionDefMap.get("mutations")),
                     toJson(actionDefMap.get("sideEffects")),
-                    booleanValue(actionDefMap.getOrDefault("audit", Boolean.TRUE)),
-                    stringValue(actionDefMap.get("mode"))
+                    booleanValue(actionDefMap.getOrDefault("audit", Boolean.TRUE))
             );
             schemaMetaRepository.insertActionType(actionTypeDef);
             schemaMetaRepository.recordSchemaChange(

@@ -90,8 +90,8 @@ public class SchemaMetaRepository {
 
     public void insertActionType(ActionTypeDef def) {
         jdbcTemplate.update(
-                "INSERT INTO action_type_def (id, description, object_type_id, parameters, preconditions, mutations, side_effects, audit, mode) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO action_type_def (id, description, object_type_id, parameters, preconditions, mutations, side_effects, audit) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 def.id(),
                 def.description(),
                 def.objectTypeId(),
@@ -99,8 +99,7 @@ public class SchemaMetaRepository {
                 def.preconditionsJson(),
                 def.mutationsJson(),
                 def.sideEffectsJson(),
-                def.audit(),
-                def.mode()
+                def.audit()
         );
     }
 
@@ -176,7 +175,7 @@ public class SchemaMetaRepository {
 
         Map<String, ActionTypeDef> actionTypes = new LinkedHashMap<>();
         jdbcTemplate.query(
-                "SELECT id, description, object_type_id, parameters, preconditions, mutations, side_effects, audit, mode "
+                "SELECT id, description, object_type_id, parameters, preconditions, mutations, side_effects, audit "
                         + "FROM action_type_def ORDER BY id",
                 rs -> {
                     actionTypes.put(rs.getString("id"), new ActionTypeDef(
@@ -187,8 +186,7 @@ public class SchemaMetaRepository {
                             rs.getString("preconditions"),
                             rs.getString("mutations"),
                             rs.getString("side_effects"),
-                            rs.getBoolean("audit"),
-                            rs.getString("mode")
+                            rs.getBoolean("audit")
                     ));
                 }
         );
