@@ -1,0 +1,380 @@
+objectTypes:
+  Warehouse:
+    description: "倉庫設施"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      code: { type: string, required: true, unique: true }
+      name: { type: string, required: true }
+      address: { type: string }
+      wmsType: { type: enum, values: [FLUX, WDT, CSV, MANUAL] }
+
+  Zone:
+    description: "倉庫內功能區域"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      warehouseId: { type: string, required: true }
+      code: { type: string, required: true }
+      name: { type: string, required: true }
+      type: { type: enum, values: [RECEIVE, STORAGE, PICK, DOCK, STAGING, QC] }
+      capacity: { type: integer }
+
+  Location:
+    description: "物理儲位"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      zoneId: { type: string, required: true }
+      code: { type: string, required: true }
+      floor: { type: integer, default: 1 }
+      type: { type: enum, values: [BIN, SHELF, FLOOR, DOCK_DOOR] }
+      maxWeightKg: { type: decimal }
+      occupied: { type: boolean, default: false }
+
+  Sku:
+    description: "庫存單位"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      code: { type: string, required: true, unique: true }
+      name: { type: string, required: true }
+      barcode: { type: string }
+      weightKg: { type: decimal }
+      category: { type: string }
+
+  Inventory:
+    description: "庫存記錄（Location + SKU + 數量）"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      locationId: { type: string, required: true }
+      skuId: { type: string, required: true }
+      quantity: { type: integer, required: true, default: 0 }
+      lotNumber: { type: string }
+
+  WarehouseOrder:
+    description: "倉庫訂單"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      warehouseId: { type: string, required: true }
+      externalId: { type: string }
+      type: { type: enum, values: [INBOUND, OUTBOUND, TRANSFER] }
+      status: { type: enum, values: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED] }
+      priority: { type: integer, default: 0 }
+
+  OrderLine:
+    description: "訂單明細行"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      orderId: { type: string, required: true }
+      skuId: { type: string, required: true }
+      quantity: { type: integer, required: true }
+      pickedQuantity: { type: integer, default: 0 }
+
+  Robot:
+    description: "自動化機器人"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      code: { type: string, required: true, unique: true }
+      brand: { type: enum, values: [HIKROBOT, GEEKPLUS, QUICKTRON, SIMULATED] }
+      model: { type: string }
+      status: { type: enum, values: [IDLE, BUSY, CHARGING, OFFLINE, ERROR] }
+      batteryPct: { type: integer }
+      currentLocationId: { type: string }
+      assignedZoneId: { type: string }
+
+  Task:
+    description: "工作任務 - 連結 OrderLine + Location + Robot"
+    primaryKey: id
+    properties:
+      id: { type: string, required: true }
+      orderLineId: { type: string }
+      type: { type: enum, values: [MOVE, PICK, PUTAWAY, SORT, TRANSFER] }
+      status: { type: enum, values: [PENDING, ASSIGNED, IN_PROGRESS, COMPLETED, FAILED, CANCELLED] }
+      priority: { type: integer, default: 0 }
+      robotId: { type: string }
+      fromLocationId: { type: string }
+      toLocationId: { type: string }
+      assignedAt: { type: timestamp }
+      completedAt: { type: timestamp }
+
+linkTypes:
+  warehouse_has_zones:
+    from: Warehouse
+    to: Zone
+    foreignKey: warehouseId
+    cardinality: one_to_many
+    description: "倉庫包含多個區域"
+
+  zone_has_locations:
+    from: Zone
+    to: Location
+    foreignKey: zoneId
+    cardinality: one_to_many
+
+  location_has_inventory:
+    from: Location
+    to: Inventory
+    foreignKey: locationId
+    cardinality: one_to_many
+
+  sku_in_inventory:
+    from: Sku
+    to: Inventory
+    foreignKey: skuId
+    cardinality: one_to_many
+
+  warehouse_has_orders:
+    from: Warehouse
+    to: WarehouseOrder
+    foreignKey: warehouseId
+    cardinality: one_to_many
+
+  order_has_lines:
+    from: WarehouseOrder
+    to: OrderLine
+    foreignKey: orderId
+    cardinality: one_to_many
+
+  sku_has_orderlines:
+    from: Sku
+    to: OrderLine
+    foreignKey: skuId
+    cardinality: one_to_many
+    description: "SKU 被多張訂單明細行引用"
+
+  orderline_has_tasks:
+    from: OrderLine
+    to: Task
+    foreignKey: orderLineId
+    cardinality: one_to_many
+
+  task_assigned_to_robot:
+    from: Task
+    to: Robot
+    foreignKey: robotId
+    cardinality: many_to_one
+
+  task_from_location:
+    from: Task
+    to: Location
+    foreignKey: fromLocationId
+    cardinality: many_to_one
+
+  task_to_location:
+    from: Task
+    to: Location
+    foreignKey: toLocationId
+    cardinality: many_to_one
+
+  location_has_robot:
+    from: Location
+    to: Robot
+    foreignKey: currentLocationId
+    cardinality: one_to_many
+
+  zone_has_robots:
+    from: Zone
+    to: Robot
+    foreignKey: assignedZoneId
+    cardinality: one_to_many
+
+actionTypes:
+  completeTask:
+    description: "完成一個 task，自動釋放機器人並更新訂單行已揀數量"
+    objectType: Task
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [ASSIGNED, IN_PROGRESS]"
+    mutations:
+      - set: { status: COMPLETED, completedAt: NOW }
+    sideEffects:
+      - target: Robot
+        via: robotId
+        set: { status: IDLE }
+      - target: OrderLine
+        via: orderLineId
+        whenFieldPresent: orderLineId
+        set: { pickedQuantity: "$target.quantity" }
+    audit: true
+
+  assignTask:
+    description: "指派機器人到一個 PENDING 的任務"
+    objectType: Task
+    parameters:
+      robotId: { type: string, required: true }
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [PENDING]"
+    mutations:
+      - set: { status: ASSIGNED, robotId: "$param.robotId", assignedAt: NOW }
+    sideEffects:
+      - target: Robot
+        via: robotId
+        set: { status: BUSY }
+    audit: true
+
+  startTask:
+    description: "開始執行一個 ASSIGNED 的任務"
+    objectType: Task
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [ASSIGNED]"
+    mutations:
+      - set: { status: IN_PROGRESS }
+    audit: true
+
+  cancelTask:
+    description: "取消一個任務"
+    objectType: Task
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [PENDING, ASSIGNED, IN_PROGRESS]"
+    mutations:
+      - set: { status: CANCELLED }
+    sideEffects:
+      - target: Robot
+        via: robotId
+        whenFieldPresent: robotId
+        set: { status: IDLE }
+    audit: true
+
+  createOutboundOrder:
+    description: "建立新的出庫訂單"
+    objectType: WarehouseOrder
+    mode: CREATE
+    parameters:
+      id: { type: string, required: true }
+      warehouseId: { type: string, required: true }
+      externalId: { type: string, required: false }
+      priority: { type: integer, required: false }
+      actor: { type: string, required: true }
+    mutations:
+      - set: { id: "$param.id", warehouseId: "$param.warehouseId", externalId: "$param.externalId", type: OUTBOUND, status: PENDING, priority: "$param.priority" }
+    audit: true
+
+  startOrder:
+    description: "開始處理訂單（PENDING → IN_PROGRESS）"
+    objectType: WarehouseOrder
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [PENDING]"
+    mutations:
+      - set: { status: IN_PROGRESS }
+    audit: true
+
+  completeOrder:
+    description: "完成訂單（IN_PROGRESS → COMPLETED）"
+    objectType: WarehouseOrder
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [IN_PROGRESS]"
+    mutations:
+      - set: { status: COMPLETED }
+    audit: true
+
+  addOrderLine:
+    description: "為訂單新增一行明細（SKU + 數量）"
+    objectType: OrderLine
+    mode: CREATE
+    parameters:
+      id: { type: string, required: true }
+      orderId: { type: string, required: true }
+      skuId: { type: string, required: true }
+      quantity: { type: integer, required: true }
+      actor: { type: string, required: true }
+    mutations:
+      - set: { id: "$param.id", orderId: "$param.orderId", skuId: "$param.skuId", quantity: "$param.quantity" }
+    audit: true
+
+  createPickTask:
+    description: "為訂單明細建立揀貨任務"
+    objectType: Task
+    mode: CREATE
+    parameters:
+      id: { type: string, required: true }
+      orderLineId: { type: string, required: true }
+      fromLocationId: { type: string, required: true }
+      toLocationId: { type: string, required: true }
+      priority: { type: integer, required: false }
+      actor: { type: string, required: true }
+    mutations:
+      - set: { id: "$param.id", orderLineId: "$param.orderLineId", type: PICK, status: PENDING, fromLocationId: "$param.fromLocationId", toLocationId: "$param.toLocationId", priority: "$param.priority" }
+    audit: true
+
+functions:
+  robotHealthScore:
+    objectType: Robot
+    returnType: string
+    cases:
+      - when: { property: batteryPct, operator: lte, value: 20 }
+        then: CRITICAL
+      - when: { property: batteryPct, operator: lte, value: 50 }
+        then: WARNING
+      - default: HEALTHY
+
+  robotEstimatedRuntime:
+    objectType: Robot
+    returnType: string
+    cases:
+      - when: { property: batteryPct, operator: lte, value: 10 }
+        then: "< 12 minutes"
+      - when: { property: batteryPct, operator: lte, value: 25 }
+        then: "12-30 minutes"
+      - default: "> 60 minutes"
+
+  taskRiskLevel:
+    objectType: Task
+    returnType: string
+    cases:
+      - when: { property: status, operator: eq, value: FAILED }
+        then: CRITICAL
+      - when: { property: priority, operator: gte, value: 90 }
+        then: HIGH
+      - default: NORMAL
+
+rules:
+  low_battery_risk:
+    description: "低電量機器人可能導致任務失敗"
+    objectType: Task
+    severity: HIGH
+    when:
+      property: status
+      operator: eq
+      value: FAILED
+    check:
+      follow: task_assigned_to_robot
+      condition:
+        property: batteryPct
+        operator: lte
+        value: 20
+    message: "Robot {target.id} batteryPct={target.batteryPct} may be causing task failure"
+
+  task_failure_impact:
+    description: "失敗任務影響訂單行"
+    objectType: Task
+    severity: MEDIUM
+    when:
+      property: status
+      operator: eq
+      value: FAILED
+    message: "Task {id} failure impacts order line {orderLineId}"
+
+  zone_capacity_warning:
+    description: "Zone 容量接近上限"
+    objectType: Zone
+    severity: MEDIUM
+    when:
+      property: capacity
+      operator: lte
+      value: 60
+    message: "Zone {id} capacity={capacity} approaching limit"
