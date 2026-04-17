@@ -17,7 +17,7 @@ class SchemaBootstrapTest {
     @Test
     void seedsMetaTablesFromOntologyYaml() {
         assertThat(count("object_type_def")).isEqualTo(9);
-        assertThat(count("link_type_def")).isEqualTo(13);
+        assertThat(count("link_type_def")).isEqualTo(12);
         assertThat(count("action_type_def")).isEqualTo(1);
         assertThat(count("schema_history")).isGreaterThan(0);
     }
