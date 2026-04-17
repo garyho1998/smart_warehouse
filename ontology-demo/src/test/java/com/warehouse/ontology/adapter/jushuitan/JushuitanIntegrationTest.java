@@ -57,7 +57,7 @@ class JushuitanIntegrationTest {
         ));
 
         when(jstClient.queryPartners(any())).thenReturn(List.of(
-                new JstWarehouseDto("JST-WH-001", "上海自营仓", now)
+                new JstWarehouseDto("JST-WH-001", "上海自营仓", "生效")
         ));
         when(jstClient.querySlots(any())).thenReturn(List.of(
                 new JstLocationDto("SH_R2_S3", "JST-WH-001", "storage", 2, true, now)
@@ -66,7 +66,7 @@ class JushuitanIntegrationTest {
                 new JstSkuDto("JST-SKU-001", "行動電源", now)
         ));
         when(jstClient.queryInventory(any())).thenReturn(List.of(
-                new JstInventoryDto(1L, "JST-SKU-001", "SH_R2_S3", "JST-WH-001", 120, 5, now)
+                new JstInventoryDto("INV-001", "JST-SKU-001", "行動電源", 120, null)
         ));
 
         scheduler.runOnce();

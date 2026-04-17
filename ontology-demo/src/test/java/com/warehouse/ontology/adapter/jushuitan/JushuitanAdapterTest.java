@@ -24,7 +24,7 @@ class JushuitanAdapterTest {
     @Test
     void maps_partner_to_warehouse() {
         when(client.queryPartners(any())).thenReturn(List.of(
-                new JstWarehouseDto("JST-WH-001", "上海自营仓", Instant.now())
+                new JstWarehouseDto("JST-WH-001", "上海自营仓", "生效")
         ));
 
         List<OntologyRecord> records = adapter.pullWarehouses(Instant.EPOCH);
@@ -77,7 +77,7 @@ class JushuitanAdapterTest {
     @Test
     void maps_inventory_to_ontology() {
         when(client.queryInventory(any())).thenReturn(List.of(
-                new JstInventoryDto(1L, "JST-SKU-001", "SH_R1_S1", "JST-WH-001", 120, 5, Instant.now())
+                new JstInventoryDto("INV-001", "JST-SKU-001", "行動電源", 120, null)
         ));
 
         List<OntologyRecord> records = adapter.pullInventory(Instant.EPOCH);
@@ -86,7 +86,6 @@ class JushuitanAdapterTest {
         Map<String, Object> p = records.get(0).properties();
         assertThat(records.get(0).type()).isEqualTo("Inventory");
         assertThat(p.get("skuId")).isEqualTo("JST-SKU-001");
-        assertThat(p.get("locationId")).isEqualTo("SH_R1_S1");
         assertThat(p.get("quantity")).isEqualTo(120);
     }
 }

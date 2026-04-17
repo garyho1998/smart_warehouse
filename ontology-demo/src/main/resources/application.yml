@@ -17,6 +17,13 @@ anthropic:
   api-key: ${ANTHROPIC_API_KEY:}
   model: claude-sonnet-4-20250514
 
+wms:
+  jst:
+    base-url: https://dev-api.jushuitan.com
+    app-key: b0b7d1db226d4216a3d58df9ffa2dde5
+    app-secret: 99c4cef262f34ca882975a7064de0b87
+    access-token: b7e3b1e24e174593af8ca5c397e53dad
+
 logging:
   level:
     com.warehouse.ontology: INFO
