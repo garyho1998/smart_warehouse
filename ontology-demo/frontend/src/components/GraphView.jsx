@@ -1,11 +1,11 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
-import { TYPE_COLORS } from './graphConstants';
+import { buildColorMap } from './graphConstants';
 
 cytoscape.use(dagre);
 
-const stylesheet = [
+const BASE_STYLESHEET = [
   // Rectangle nodes with 2-line label (Type + ID)
   {
     selector: 'node',
@@ -23,10 +23,6 @@ const stylesheet = [
       'background-color': '#94a3b8',
     },
   },
-  ...Object.entries(TYPE_COLORS).map(([type, color]) => ({
-    selector: `node[nodeType="${type}"]`,
-    style: { 'background-color': color },
-  })),
   {
     selector: 'node.start-node',
     style: {
@@ -94,6 +90,20 @@ function toElements(graphResult) {
 export default function GraphView({ graphResult, onNodeClick }) {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
+
+  const colorMap = useMemo(() => {
+    if (!graphResult) return {};
+    const typeNames = [...new Set(graphResult.nodes.map((n) => n.type))];
+    return buildColorMap(typeNames);
+  }, [graphResult]);
+
+  const stylesheet = useMemo(() => [
+    ...BASE_STYLESHEET,
+    ...Object.entries(colorMap).map(([type, color]) => ({
+      selector: `node[nodeType="${type}"]`,
+      style: { 'background-color': color },
+    })),
+  ], [colorMap]);
 
   useEffect(() => {
     if (!containerRef.current || !graphResult || !graphResult.nodes.length) return;
@@ -277,7 +287,7 @@ export default function GraphView({ graphResult, onNodeClick }) {
     <div className="relative h-full">
       {/* Legend */}
       <div className="absolute top-2 right-2 z-10 bg-white/90 border border-gray-200 rounded p-2 text-xs flex flex-wrap gap-x-3 gap-y-1">
-        {Object.entries(TYPE_COLORS).map(([type, color]) => (
+        {Object.entries(colorMap).map(([type, color]) => (
           <span key={type} className="flex items-center gap-1">
             <span
               className="inline-block w-3 h-2 rounded-sm"

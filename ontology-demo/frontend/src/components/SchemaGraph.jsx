@@ -1,11 +1,11 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
-import { TYPE_COLORS, CARDINALITY_SHORT } from './graphConstants';
+import { buildColorMap, CARDINALITY_SHORT } from './graphConstants';
 
 cytoscape.use(dagre);
 
-const stylesheet = [
+const BASE_STYLESHEET = [
   // ── Nodes ──
   {
     selector: 'node',
@@ -23,10 +23,6 @@ const stylesheet = [
       'background-color': '#94a3b8',
     },
   },
-  ...Object.entries(TYPE_COLORS).map(([type, color]) => ({
-    selector: `node[id="${type}"]`,
-    style: { 'background-color': color },
-  })),
 
   // ── Edges: default — show only cardinality badge ──
   {
@@ -177,6 +173,19 @@ export default function SchemaGraph({ types, links, onNodeClick }) {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
 
+  const colorMap = useMemo(
+    () => buildColorMap((types || []).map((t) => t.id)),
+    [types]
+  );
+
+  const stylesheet = useMemo(() => [
+    ...BASE_STYLESHEET,
+    ...Object.entries(colorMap).map(([type, color]) => ({
+      selector: `node[id="${type}"]`,
+      style: { 'background-color': color },
+    })),
+  ], [colorMap]);
+
   useEffect(() => {
     if (!containerRef.current || !types || !types.length) return;
 
@@ -266,7 +275,7 @@ export default function SchemaGraph({ types, links, onNodeClick }) {
   return (
     <div className="relative h-full">
       <div className="absolute top-2 right-2 z-10 bg-white/90 border border-gray-200 rounded p-2 text-xs flex flex-wrap gap-x-3 gap-y-1">
-        {Object.entries(TYPE_COLORS).map(([type, color]) => (
+        {Object.entries(colorMap).map(([type, color]) => (
           <span key={type} className="flex items-center gap-1">
             <span
               className="inline-block w-3 h-2 rounded-sm"
