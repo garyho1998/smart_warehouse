@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getTypes, getType, listObjects, createObject, updateObject } from '../api/client';
+import { getTypes, getType, listObjects, createObject, updateObject, getActions } from '../api/client';
 import ObjectTable from '../components/ObjectTable';
 import ObjectForm from '../components/ObjectForm';
 
@@ -8,16 +8,18 @@ export default function ObjectsPage() {
   const [selectedType, setSelectedType] = useState('');
   const [properties, setProperties] = useState([]);
   const [objects, setObjects] = useState([]);
+  const [actions, setActions] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
   const [error, setError] = useState(null);
 
-  // Load type list
+  // Load type list + actions
   useEffect(() => {
-    getTypes()
-      .then((data) => {
-        const arr = Array.isArray(data) ? data : [];
+    Promise.all([getTypes(), getActions()])
+      .then(([typesData, actionsData]) => {
+        const arr = Array.isArray(typesData) ? typesData : [];
         setTypes(arr);
+        setActions(Array.isArray(actionsData) ? actionsData : []);
         if (arr.length > 0) setSelectedType(arr[0].id);
       })
       .catch((e) => setError(e.message));
@@ -43,6 +45,8 @@ export default function ObjectsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const typeActions = actions.filter((a) => a.objectTypeId === selectedType);
 
   function handleCreate() {
     setEditData(null);
@@ -71,7 +75,7 @@ export default function ObjectsPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <select
@@ -118,6 +122,33 @@ export default function ObjectsPage() {
               setEditData(null);
             }}
           />
+        </div>
+      )}
+
+      {/* Available Actions */}
+      {typeActions.length > 0 && (
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+          <div className="text-xs font-medium text-indigo-700 mb-2">
+            可用 Actions ({typeActions.length})
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {typeActions.map((a) => (
+              <div
+                key={a.id}
+                className="bg-white border border-indigo-200 rounded px-3 py-1.5 text-xs"
+              >
+                <span className="font-mono font-medium text-indigo-800">{a.id}</span>
+                {a.mode && a.mode !== 'UPDATE' && (
+                  <span className="ml-1 text-[10px] bg-indigo-100 text-indigo-600 rounded px-1">
+                    {a.mode}
+                  </span>
+                )}
+                {a.description && (
+                  <span className="ml-1.5 text-gray-500">{a.description}</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

@@ -39,15 +39,33 @@ public class ChatService {
 
     private static final String SYSTEM_PROMPT_TEMPLATE = """
             你係倉庫管理 AI 助手，基於 Ontology 驅動嘅數據模型運作。
-            你可以查詢同操作倉庫嘅所有實體（Object Types）、關係（Link Types）同動作（Action Types）。
 
-            規則：
+            你有以下工具，必須根據操作類型選擇正確嘅工具：
+
+            讀取操作：
+            - search_objects — 搜尋某類型嘅所有物件，可按屬性過濾
+            - get_object — 用 ID 取得單一物件
+            - explore_connections — 圖形遍歷，追蹤物件之間嘅關係
+            - analyze_anomaly — 分析 Task 嘅異常同根因
+
+            寫入操作：
+            - create_object — 建立新物件（WarehouseOrder、Task、OrderLine 等任何 Object Type）
+            - update_object — 更新現有物件嘅屬性
+            - execute_action — 執行預定義嘅 ontology action（有 preconditions、mutations、side effects）
+
+            重要：
+            - 要「建立新記錄」→ 用 create_object，唔係 execute_action
+            - 要「更新現有記錄嘅欄位」→ 用 update_object
+            - 只有 ontology 中定義咗嘅 Action Types 先可以用 execute_action（詳見下面 schema）
+            - 唔好自己發明 action name，只用 schema 中列出嘅 action
+            - 執行任何寫入操作之前，必須先同用戶描述會發生咩改變，等用戶確認
+
+            其他規則：
             1. 用繁體中文回答
-            2. 執行寫入操作（execute_action）之前，必須先同用戶描述會發生咩改變，等用戶確認
-            3. 查詢完數據後，用簡潔嘅自然語言總結，唔好直接 dump raw JSON
-            4. 如果需要多步查詢（例如先搵 Task，再 trace 佢嘅 connections），自動 chain tool calls
-            5. 當用戶問「有咩問題」或「目前狀態」，優先參考下面嘅 ACTIVE ALERTS 同 DATA SUMMARY
-            6. 用 explore_connections 嘅結果會自動喺右側顯示圖形，唔使額外描述圖形結構
+            2. 查詢完數據後，用簡潔嘅自然語言總結，唔好直接 dump raw JSON
+            3. 如果需要多步查詢（例如先搵 Task，再 trace 佢嘅 connections），自動 chain tool calls
+            4. 當用戶問「有咩問題」或「目前狀態」，優先參考下面嘅 ACTIVE ALERTS 同 DATA SUMMARY
+            5. 用 explore_connections 嘅結果會自動喺右側顯示圖形，唔使額外描述圖形結構
 
             %s
             """;
@@ -56,6 +74,7 @@ public class ChatService {
     private final String modelName;
     private final RestClient restClient;
     private final RetrievalContextBuilder retrievalContextBuilder;
+    private final OntologyToolDefinitions toolDefinitions;
     private final OntologyToolExecutor toolExecutor;
     private final ObjectMapper objectMapper;
 
@@ -66,12 +85,14 @@ public class ChatService {
             @Value("${anthropic.api-key:}") String apiKey,
             @Value("${anthropic.model:claude-sonnet-4-20250514}") String modelName,
             RetrievalContextBuilder retrievalContextBuilder,
+            OntologyToolDefinitions toolDefinitions,
             OntologyToolExecutor toolExecutor,
             ObjectMapper objectMapper
     ) {
         this.apiKey = apiKey;
         this.modelName = modelName;
         this.retrievalContextBuilder = retrievalContextBuilder;
+        this.toolDefinitions = toolDefinitions;
         this.toolExecutor = toolExecutor;
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder()
@@ -201,7 +222,7 @@ public class ChatService {
             messages.forEach(messagesArray::add);
             requestBody.set("messages", messagesArray);
 
-            ArrayNode toolsArray = objectMapper.valueToTree(OntologyToolDefinitions.allTools());
+            ArrayNode toolsArray = objectMapper.valueToTree(toolDefinitions.allTools());
             requestBody.set("tools", toolsArray);
 
             String body = objectMapper.writeValueAsString(requestBody);

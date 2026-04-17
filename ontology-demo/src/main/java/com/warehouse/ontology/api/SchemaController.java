@@ -124,7 +124,8 @@ public class SchemaController {
                 toJson(request.preconditions()),
                 toJson(request.mutations()),
                 toJson(request.sideEffects()),
-                request.audit() == null || request.audit()
+                request.audit() == null || request.audit(),
+                request.mode()
         ));
     }
 
@@ -177,7 +178,8 @@ public class SchemaController {
             List<Object> preconditions,
             List<Object> mutations,
             List<Object> sideEffects,
-            Boolean audit
+            Boolean audit,
+            String mode
     ) {
     }
 }

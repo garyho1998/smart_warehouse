@@ -48,6 +48,8 @@ public class OntologyToolExecutor {
             return switch (toolName) {
                 case "search_objects" -> executeSearchObjects(input);
                 case "get_object" -> executeGetObject(input);
+                case "create_object" -> executeCreateObject(input);
+                case "update_object" -> executeUpdateObject(input);
                 case "explore_connections" -> executeExploreConnections(input);
                 case "analyze_anomaly" -> executeAnalyzeAnomaly(input);
                 case "execute_action" -> executeExecuteAction(input);
@@ -90,6 +92,47 @@ public class OntologyToolExecutor {
 
         String json = objectMapper.writeValueAsString(result.get());
         return new ToolExecutionResult(json, "object", Map.of("type", objectType, "object", result.get()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private ToolExecutionResult executeCreateObject(JsonNode input) throws JsonProcessingException {
+        String objectType = input.get("objectType").asText();
+        JsonNode propsNode = input.get("properties");
+        Map<String, Object> properties = propsNode != null
+                ? objectMapper.convertValue(propsNode, LinkedHashMap.class)
+                : Map.of();
+
+        String id = genericRepository.insert(objectType, properties);
+        Map<String, Object> created = genericRepository.findById(objectType, id)
+                .orElseThrow(() -> new IllegalStateException("Unable to load created object: " + objectType + ":" + id));
+
+        String json = objectMapper.writeValueAsString(created);
+        return new ToolExecutionResult(
+                "Created " + objectType + ":" + id + "\n" + json,
+                "object",
+                Map.of("type", objectType, "object", created)
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private ToolExecutionResult executeUpdateObject(JsonNode input) throws JsonProcessingException {
+        String objectType = input.get("objectType").asText();
+        String objectId = input.get("objectId").asText();
+        JsonNode propsNode = input.get("properties");
+        Map<String, Object> properties = propsNode != null
+                ? objectMapper.convertValue(propsNode, LinkedHashMap.class)
+                : Map.of();
+
+        genericRepository.update(objectType, objectId, properties);
+        Map<String, Object> updated = genericRepository.findById(objectType, objectId)
+                .orElseThrow(() -> new IllegalStateException("Unable to reload updated object: " + objectType + ":" + objectId));
+
+        String json = objectMapper.writeValueAsString(updated);
+        return new ToolExecutionResult(
+                "Updated " + objectType + ":" + objectId + "\n" + json,
+                "object",
+                Map.of("type", objectType, "object", updated)
+        );
     }
 
     private ToolExecutionResult executeExploreConnections(JsonNode input) throws JsonProcessingException {
