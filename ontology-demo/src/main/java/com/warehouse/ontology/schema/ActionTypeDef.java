@@ -8,11 +8,6 @@ public record ActionTypeDef(
         String preconditionsJson,
         String mutationsJson,
         String sideEffectsJson,
-        boolean audit,
-        String mode
+        boolean audit
 ) {
-
-    public String mode() {
-        return mode == null || mode.isBlank() ? "UPDATE" : mode;
-    }
 }

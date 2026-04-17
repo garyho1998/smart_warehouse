@@ -16,25 +16,16 @@ public class SideEffectExecutor {
         this.actionValueResolver = actionValueResolver;
     }
 
-    public List<ActionSideEffectResult> execute(
-            List<SideEffectDef> effects, Map<String, Object> sourceObject, Map<String, Object> context
-    ) {
+    public List<ActionSideEffectResult> execute(List<SideEffectDef> effects, Map<String, Object> sourceObject) {
         List<ActionSideEffectResult> results = new ArrayList<>();
         for (SideEffectDef effect : effects) {
-            if (effect.whenFieldPresent() != null) {
-                Object fieldValue = sourceObject.get(effect.whenFieldPresent());
-                if (fieldValue == null || String.valueOf(fieldValue).isBlank()) {
-                    continue;
-                }
-            }
-
             String targetId = targetId(effect.via(), sourceObject);
             Map<String, Object> beforeState = genericRepository.findById(effect.target(), targetId)
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Missing target for side effect: " + effect.target() + ":" + targetId
                     ));
 
-            genericRepository.update(effect.target(), targetId, actionValueResolver.resolveSet(effect.set(), context, beforeState));
+            genericRepository.update(effect.target(), targetId, actionValueResolver.resolveSet(effect.set()));
             Map<String, Object> afterState = genericRepository.findById(effect.target(), targetId)
                     .orElseThrow(() -> new IllegalStateException(
                             "Unable to reload target after side effect: " + effect.target() + ":" + targetId
