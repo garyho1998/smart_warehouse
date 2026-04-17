@@ -71,8 +71,7 @@ public class ActionDefinitionParser {
                     return new SideEffectDef(
                             stringValue(effectDef.get("target")),
                             stringValue(effectDef.get("via")),
-                            asMap(effectDef.get("set"), "side effect set"),
-                            stringValue(effectDef.get("whenFieldPresent"))
+                            asMap(effectDef.get("set"), "side effect set")
                     );
                 })
                 .toList();
