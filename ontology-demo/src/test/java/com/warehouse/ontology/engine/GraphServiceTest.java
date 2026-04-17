@@ -47,7 +47,7 @@ class GraphServiceTest {
                 .extracting(GraphInsight::severity, GraphInsight::message)
                 .contains(
                         org.assertj.core.groups.Tuple.tuple("HIGH", "Robot R-GEK-001 batteryPct=15 may be causing task failure"),
-                        org.assertj.core.groups.Tuple.tuple("MEDIUM", "Task TSK-005 failure impacts order ORD-OUT-001")
+                        org.assertj.core.groups.Tuple.tuple("MEDIUM", "Task TSK-005 failure impacts order line LINE-002")
                 );
     }
 }
