@@ -7,7 +7,8 @@ import java.util.Map;
 public record SideEffectDef(
         String target,
         String via,
-        Map<String, Object> set
+        Map<String, Object> set,
+        String whenFieldPresent
 ) {
 
     public SideEffectDef {

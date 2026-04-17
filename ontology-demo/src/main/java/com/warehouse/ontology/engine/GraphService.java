@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class GraphService {
 
     private static final int MAX_DEPTH_CAP = 4;
+    private static final int MAX_NODES = 200;
 
     private final GenericRepository genericRepository;
     private final SchemaMetaRepository schemaMetaRepository;
@@ -92,7 +93,8 @@ public class GraphService {
         String currentKey = nodeKey(currentType, currentId);
         traversalState.nodes().putIfAbsent(currentKey, graphNode(currentType, currentId, currentObject));
 
-        if (!traversalState.visited().add(currentKey) || remainingDepth == 0) {
+        if (!traversalState.visited().add(currentKey) || remainingDepth == 0
+                || traversalState.nodes().size() >= MAX_NODES) {
             return;
         }
 
