@@ -25,7 +25,7 @@ export default function SchemaPage() {
   const selectedType = types.find((t) => t.id === selected) || null;
 
   return (
-    <div className="flex gap-6 h-full p-6">
+    <div className="flex gap-6 h-[calc(100vh-7rem)]">
       {/* Left: Type list */}
       <div className="w-56 shrink-0 bg-white border border-gray-200 rounded-lg p-3 overflow-y-auto">
         <h2 className="text-sm font-semibold text-gray-600 mb-2">

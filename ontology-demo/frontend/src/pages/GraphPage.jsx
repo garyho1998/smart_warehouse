@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { traverse, traceAnomaly, getTypes, getLinks, listObjects } from '../api/client';
+import { traverse, traceAnomaly, getTypes, getLinks } from '../api/client';
 import GraphView from '../components/GraphView';
 import NodeDetail from '../components/NodeDetail';
 import InsightBanner from '../components/InsightBanner';
@@ -41,8 +41,7 @@ export default function GraphPage() {
   // --- Instance tab state ---
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState('Task');
-  const [instances, setInstances] = useState([]);
-  const [objectId, setObjectId] = useState('');
+  const [objectId, setObjectId] = useState('TSK-005');
   const [depth, setDepth] = useState(3);
   const [graphResult, setGraphResult] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
@@ -59,28 +58,13 @@ export default function GraphPage() {
     });
   }, []);
 
-  // Load instances when type changes
-  useEffect(() => {
-    if (!selectedType) return;
-    listObjects(selectedType)
-      .then((objs) => {
-        const sorted = (Array.isArray(objs) ? objs : []).sort((a, b) =>
-          String(a.id).localeCompare(String(b.id))
-        );
-        setInstances(sorted);
-        if (sorted.length > 0) setObjectId(sorted[0].id);
-        else setObjectId('');
-      })
-      .catch(() => setInstances([]));
-  }, [selectedType]);
-
   // Load instance graph on first switch to instance tab
   useEffect(() => {
-    if (activeTab === 'instance' && !instanceLoaded && objectId) {
-      handleTraverse();
+    if (activeTab === 'instance' && !instanceLoaded) {
+      handleTraceAnomaly();
       setInstanceLoaded(true);
     }
-  }, [activeTab, objectId]);
+  }, [activeTab]);
 
   async function handleTraverse() {
     setLoading(true);
@@ -98,19 +82,24 @@ export default function GraphPage() {
   }
 
   async function handleTraceAnomaly() {
-    if (!objectId) return;
     setLoading(true);
     setError(null);
     setSelectedNode(null);
     try {
-      const result = await traceAnomaly(objectId);
+      const result = await traceAnomaly(objectId || 'TSK-005');
       setGraphResult(result);
+      setSelectedType('Task');
+      if (!objectId) setObjectId('TSK-005');
     } catch (e) {
       setError(e.message);
       setGraphResult(null);
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter') handleTraverse();
   }
 
   function handleViewInstances(typeId) {
@@ -120,7 +109,7 @@ export default function GraphPage() {
   }
 
   return (
-    <div className="h-full flex flex-col p-6">
+    <div className="h-[calc(100vh-7rem)] flex flex-col">
       <TabBar activeTab={activeTab} onChange={setActiveTab} />
 
       {activeTab === 'schema' && (
@@ -163,18 +152,14 @@ export default function GraphPage() {
               {types.length === 0 && <option value="Task">Task</option>}
             </select>
 
-            <select
+            <input
+              type="text"
               value={objectId}
               onChange={(e) => setObjectId(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm"
-            >
-              {instances.map((obj) => (
-                <option key={obj.id} value={obj.id}>
-                  {obj.id}{obj.name ? ` — ${obj.name}` : obj.code ? ` — ${obj.code}` : obj.status ? ` (${obj.status})` : ''}
-                </option>
-              ))}
-              {instances.length === 0 && <option value="">（無資料）</option>}
-            </select>
+              onKeyDown={handleKeyDown}
+              placeholder="Object ID"
+              className="border border-gray-300 rounded px-3 py-1.5 text-sm w-40"
+            />
 
             <label className="text-sm text-gray-600 flex items-center gap-1">
               深度:
