@@ -1,0 +1,27 @@
+{
+  "planPath": "docs/plans/2026-04-17-wms-adapter-demo.md",
+  "tasks": [
+    {"id": 1, "subject": "Task 1: Create mock-wms Maven multi-module structure", "status": "pending"},
+    {"id": 2, "subject": "Task 2: Define WmsAdapter interface with unit test", "status": "pending", "blockedBy": [1]},
+    {"id": 3, "subject": "Task 3: Scaffold WangDianTong Mock Spring Boot app", "status": "pending", "blockedBy": [1]},
+    {"id": 4, "subject": "Task 4: WDT entities + seed data", "status": "pending", "blockedBy": [3]},
+    {"id": 5, "subject": "Task 5: Implement warehouse_query.php endpoint (TDD)", "status": "pending", "blockedBy": [4]},
+    {"id": 6, "subject": "Task 6: Implement stock_query.php with modified_after (TDD)", "status": "pending", "blockedBy": [4]},
+    {"id": 7, "subject": "Task 7: WangDianTong HTTP client (TDD with @RestClientTest)", "status": "pending", "blockedBy": [5, 6]},
+    {"id": 8, "subject": "Task 8: WangDianTong Adapter field mapping (TDD)", "status": "pending", "blockedBy": [2, 7]},
+    {"id": 9, "subject": "Task 9: WmsSyncScheduler with cursor tracking (TDD)", "status": "pending", "blockedBy": [8]},
+    {"id": 10, "subject": "Task 10: Wire WDT adapter end-to-end (integration test)", "status": "pending", "blockedBy": [9]},
+    {"id": 11, "subject": "Task 11: Scaffold JST Mock Spring Boot app (port 9002)", "status": "pending", "blockedBy": [1]},
+    {"id": 12, "subject": "Task 12: JST entities + seed data (JST-native field names)", "status": "pending", "blockedBy": [11]},
+    {"id": 13, "subject": "Task 13: JST /open/wms/partner/query endpoint (TDD)", "status": "pending", "blockedBy": [12]},
+    {"id": 14, "subject": "Task 14: JST /open/inventory/query with pagination + modified range (TDD)", "status": "pending", "blockedBy": [12]},
+    {"id": 15, "subject": "Task 15: JushuitanClient HTTP client (TDD)", "status": "pending", "blockedBy": [13, 14]},
+    {"id": 16, "subject": "Task 16: JushuitanAdapter field mapping (TDD)", "status": "pending", "blockedBy": [2, 15]},
+    {"id": 17, "subject": "Task 17: JST end-to-end integration test", "status": "pending", "blockedBy": [16, 9]},
+    {"id": 18, "subject": "Task 18: /api/sources REST endpoint (TDD)", "status": "pending", "blockedBy": [10, 17]},
+    {"id": 19, "subject": "Task 19: SourcesPage.jsx", "status": "pending", "blockedBy": [18]},
+    {"id": 20, "subject": "Task 20: Demo run script + README", "status": "pending", "blockedBy": [19]},
+    {"id": 21, "subject": "Task 21: End-to-end verification", "status": "pending", "blockedBy": [20]}
+  ],
+  "lastUpdated": "2026-04-17"
+}
