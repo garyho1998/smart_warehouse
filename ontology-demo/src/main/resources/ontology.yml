@@ -7,7 +7,7 @@ objectTypes:
       code: { type: string, required: true, unique: true }
       name: { type: string, required: true }
       address: { type: string }
-      wmsType: { type: enum, values: [FLUX, WDT, JST, CSV, MANUAL] }
+      wmsType: { type: enum, values: [FLUX, WDT, CSV, MANUAL] }
 
   Zone:
     description: "倉庫內功能區域"
@@ -185,7 +185,7 @@ linkTypes:
 
 actionTypes:
   completeTask:
-    description: "完成一個 task"
+    description: "完成一個 task，自動釋放機器人並更新訂單行已揀數量"
     objectType: Task
     parameters:
       actor: { type: string, required: true }
@@ -197,6 +197,118 @@ actionTypes:
       - target: Robot
         via: robotId
         set: { status: IDLE }
+      - target: OrderLine
+        via: orderLineId
+        whenFieldPresent: orderLineId
+        set: { pickedQuantity: "$target.quantity" }
+    audit: true
+
+  assignTask:
+    description: "指派機器人到一個 PENDING 的任務"
+    objectType: Task
+    parameters:
+      robotId: { type: string, required: true }
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [PENDING]"
+    mutations:
+      - set: { status: ASSIGNED, robotId: "$param.robotId", assignedAt: NOW }
+    sideEffects:
+      - target: Robot
+        via: robotId
+        set: { status: BUSY }
+    audit: true
+
+  startTask:
+    description: "開始執行一個 ASSIGNED 的任務"
+    objectType: Task
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [ASSIGNED]"
+    mutations:
+      - set: { status: IN_PROGRESS }
+    audit: true
+
+  cancelTask:
+    description: "取消一個任務"
+    objectType: Task
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [PENDING, ASSIGNED, IN_PROGRESS]"
+    mutations:
+      - set: { status: CANCELLED }
+    sideEffects:
+      - target: Robot
+        via: robotId
+        whenFieldPresent: robotId
+        set: { status: IDLE }
+    audit: true
+
+  createOutboundOrder:
+    description: "建立新的出庫訂單"
+    objectType: WarehouseOrder
+    mode: CREATE
+    parameters:
+      id: { type: string, required: true }
+      warehouseId: { type: string, required: true }
+      externalId: { type: string, required: false }
+      priority: { type: integer, required: false }
+      actor: { type: string, required: true }
+    mutations:
+      - set: { id: "$param.id", warehouseId: "$param.warehouseId", externalId: "$param.externalId", type: OUTBOUND, status: PENDING, priority: "$param.priority" }
+    audit: true
+
+  startOrder:
+    description: "開始處理訂單（PENDING → IN_PROGRESS）"
+    objectType: WarehouseOrder
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [PENDING]"
+    mutations:
+      - set: { status: IN_PROGRESS }
+    audit: true
+
+  completeOrder:
+    description: "完成訂單（IN_PROGRESS → COMPLETED）"
+    objectType: WarehouseOrder
+    parameters:
+      actor: { type: string, required: true }
+    preconditions:
+      - "status in [IN_PROGRESS]"
+    mutations:
+      - set: { status: COMPLETED }
+    audit: true
+
+  addOrderLine:
+    description: "為訂單新增一行明細（SKU + 數量）"
+    objectType: OrderLine
+    mode: CREATE
+    parameters:
+      id: { type: string, required: true }
+      orderId: { type: string, required: true }
+      skuId: { type: string, required: true }
+      quantity: { type: integer, required: true }
+      actor: { type: string, required: true }
+    mutations:
+      - set: { id: "$param.id", orderId: "$param.orderId", skuId: "$param.skuId", quantity: "$param.quantity" }
+    audit: true
+
+  createPickTask:
+    description: "為訂單明細建立揀貨任務"
+    objectType: Task
+    mode: CREATE
+    parameters:
+      id: { type: string, required: true }
+      orderLineId: { type: string, required: true }
+      fromLocationId: { type: string, required: true }
+      toLocationId: { type: string, required: true }
+      priority: { type: integer, required: false }
+      actor: { type: string, required: true }
+    mutations:
+      - set: { id: "$param.id", orderLineId: "$param.orderLineId", type: PICK, status: PENDING, fromLocationId: "$param.fromLocationId", toLocationId: "$param.toLocationId", priority: "$param.priority" }
     audit: true
 
 functions:

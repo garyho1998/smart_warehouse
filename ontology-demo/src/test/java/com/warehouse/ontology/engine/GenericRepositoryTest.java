@@ -22,7 +22,7 @@ class GenericRepositoryTest {
     void insertsValidTaskAndAppliesDefaultValues() {
         String id = genericRepository.insert("Task", Map.of(
                 "id", "TSK-900",
-                "orderLineId", "LINE-004",
+                "orderId", "ORD-OUT-002",
                 "type", "MOVE",
                 "status", "PENDING"
         ));
@@ -30,7 +30,7 @@ class GenericRepositoryTest {
         Map<String, Object> inserted = genericRepository.findById("Task", id).orElseThrow();
         assertThat(inserted.get("id")).isEqualTo("TSK-900");
         assertThat(inserted.get("priority")).isEqualTo(0);
-        assertThat(inserted.get("orderLineId")).isEqualTo("LINE-004");
+        assertThat(inserted.get("orderId")).isEqualTo("ORD-OUT-002");
     }
 
     @Test
