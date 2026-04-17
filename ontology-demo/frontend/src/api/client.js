@@ -41,11 +41,6 @@ export const traceAnomaly = (taskId) =>
 export const executeAction = (name, payload) =>
   request(`/actions/${name}`, { method: 'POST', body: JSON.stringify(payload) });
 
-// WMS Sources
-export const getSources = () => request('/sources');
-export const syncSource = (name) =>
-  request(`/sources/${name}/sync`, { method: 'POST' });
-
 // AI Chat — Python sidecar (port 8421, proxied via /ai)
 export const chatStatus = () =>
   fetch('/ai/chat/status').then((r) => r.json());

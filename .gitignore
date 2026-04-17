@@ -5,7 +5,6 @@
 target/
 data/
 .m2/
-.mvn/
 node_modules/
 dist/
 .venv/

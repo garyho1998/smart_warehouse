@@ -132,20 +132,76 @@ async def analyze_anomaly(args):
             return _text_result(await r.text())
 
 
+def _build_execute_action_tool():
+    """Build execute_action tool with dynamic action list from schema."""
+    import requests
+
+    desc = (
+        "Execute an ontology action (write operation). "
+        "IMPORTANT: Only call this AFTER the user has explicitly confirmed. "
+    )
+    try:
+        actions = requests.get(f"{JAVA_API}/schema/actions", timeout=5).json()
+        action_lines = []
+        for a in actions:
+            mode = a.get("mode") or "UPDATE"
+            params = a.get("parametersJson") or a.get("parameters", "{}")
+            action_lines.append(
+                f"  - {a['id']} (on {a.get('objectTypeId', '?')}, mode={mode}): "
+                f"{a.get('description', '')} | params: {params}"
+            )
+        desc += "Available actions:\n" + "\n".join(action_lines)
+        desc += "\nDo NOT invent action names. Use ONLY the exact names listed above."
+    except Exception as e:
+        log.warning("Failed to fetch action list for tool description: %s", e)
+        desc += "Use action names from the schema context."
+    return desc
+
+
+_execute_action_desc = _build_execute_action_tool()
+
+
 @tool(
     "execute_action",
-    "Execute an ontology action (write operation). "
-    "IMPORTANT: Only call this AFTER the user has explicitly confirmed they want to proceed.",
+    _execute_action_desc,
     {
-        "actionName": Annotated[str, "Action name, e.g. completeTask"],
-        "parameters": Annotated[dict, "Action parameters including the object ID"],
+        "actionName": Annotated[str, "Exact action name from the list above, e.g. createOutboundOrder, assignTask"],
+        "parameters": Annotated[dict, "Action parameters as flat key-value pairs (NOT nested)"],
     },
 )
 async def execute_action(args):
-    url = f"{JAVA_API}/actions/{args['actionName']}"
+    action_name = args['actionName']
+    params = args.get("parameters", {})
+    if isinstance(params, str):
+        params = json.loads(params)
+    url = f"{JAVA_API}/actions/{action_name}"
+    log.info("execute_action: name=%s params=%s type=%s", action_name, json.dumps(params, default=str), type(params).__name__)
     async with aiohttp_lib.ClientSession() as s:
-        async with s.post(url, json=args.get("parameters", {})) as r:
-            return _text_result(await r.text())
+        async with s.post(url, json=params) as r:
+            body = await r.text()
+            log.info("execute_action: status=%s body=%s", r.status, body[:300])
+            if r.status != 200:
+                return _text_result(body)
+
+            # Auto-fetch graph for the affected object
+            try:
+                result = json.loads(body)
+                obj_type = result.get("objectType")
+                obj_id = result.get("objectId")
+                if obj_type and obj_id:
+                    graph_url = f"{JAVA_API}/graph/traverse/{obj_type}/{obj_id}?depth=2"
+                    async with s.get(graph_url) as gr:
+                        if gr.status == 200:
+                            graph_data = await gr.text()
+                            combined = json.dumps({
+                                "__actionResult": result,
+                                "__graph": json.loads(graph_data),
+                            })
+                            return _text_result(combined)
+            except Exception as e:
+                log.debug("Auto-graph fetch failed (non-fatal): %s", e)
+
+            return _text_result(body)
 
 
 def _text_result(text: str) -> dict:
@@ -277,20 +333,25 @@ async def build_retrieval_context() -> str:
 PERSONA = """\
 你係一個倉庫管理 AI 助手。你可以查詢同管理倉庫嘅所有資產：機器人、任務、訂單、倉庫、貨架等。
 
-你擁有以下 ontology-native 工具：
-- search_objects: 搜尋同列出物件
-- get_object: 攞單一物件詳情
-- explore_connections: Graph traversal，追蹤物件之間嘅關係
-- analyze_anomaly: 分析任何物件嘅異常（Task, Robot, Zone 等），用 ontology rules 自動檢測
-- execute_action: 執行操作（需要用戶確認）
+你擁有以下工具：
 
-回覆規則：
+讀取操作：
+- search_objects — 搜尋同列出物件
+- get_object — 攞單一物件詳情
+- explore_connections — Graph traversal，追蹤物件之間嘅關係
+- analyze_anomaly — 分析任何物件嘅異常（Task, Robot, Zone 等）
+
+寫入操作：
+- execute_action — 執行 ontology 定義嘅 action（包括建立新物件同更新現有物件）
+
+重要規則：
 1. 用繁體中文回覆
-2. 先理解用戶問題，再決定用邊個工具
-3. 如果問題關於「點解」或「原因」，優先用 analyze_anomaly 或 explore_connections
-4. 如果要執行操作，必須先同用戶確認
+2. execute_action 嘅 actionName 必須用 schema 中定義嘅確切名稱，唔好自己發明
+3. execute_action 嘅 parameters 必須係 flat key-value pairs，唔好 nest
+4. 執行寫入操作之前，必須先同用戶確認
 5. 簡潔回覆，唔好重複工具返回嘅 raw data
-6. 用 explore_connections 嘅時候，結果會自動顯示喺右側 graph panel
+6. 如果問題關於「點解」或「原因」，優先用 analyze_anomaly 或 explore_connections
+7. 用 explore_connections 嘅時候，結果會自動顯示喺右側 graph panel
 
 以下係目前嘅 ontology schema 同倉庫狀態：
 
@@ -342,6 +403,8 @@ def build_display_data(tool_name: str, content) -> dict:
     if tool_name == "get_object" and isinstance(data, dict):
         return {"object": data}
     if tool_name == "execute_action" and isinstance(data, dict):
+        if "__graph" in data and "nodes" in data["__graph"]:
+            return {"actionResult": data.get("__actionResult", data), "graphResult": data["__graph"]}
         return {"actionResult": data}
     return {}
 
@@ -499,6 +562,9 @@ async def handle_chat(req: web.Request) -> web.StreamResponse:
                             tool_name = raw_name.split("__")[-1] if "__" in raw_name else raw_name
                             display_type = TOOL_DISPLAY.get(tool_name, "text")
                             display_data = build_display_data(tool_name, block.content)
+                            # Promote to graph display if action result includes graph data
+                            if display_data.get("graphResult"):
+                                display_type = "graph"
                             await sse_write(
                                 resp,
                                 {

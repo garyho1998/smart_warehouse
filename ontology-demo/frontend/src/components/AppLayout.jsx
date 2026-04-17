@@ -5,13 +5,12 @@ const links = [
   { to: '/graph', label: '圖形探索' },
   { to: '/schema', label: 'Schema 瀏覽' },
   { to: '/objects', label: '資料管理' },
-  { to: '/sources', label: 'WMS 資料源' },
 ];
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-8">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      <nav className="shrink-0 bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-8">
         <span className="font-bold text-lg text-gray-800">Ontology Explorer</span>
         <div className="flex gap-1">
           {links.map((l) => (
@@ -31,7 +30,7 @@ export default function AppLayout() {
           ))}
         </div>
       </nav>
-      <main className="flex-1 p-6">
+      <main className="flex-1 overflow-auto">
         <Outlet />
       </main>
     </div>
