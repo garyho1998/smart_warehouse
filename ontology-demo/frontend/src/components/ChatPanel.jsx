@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { chatStream } from '../api/client';
 import ChatMessage from './ChatMessage';
-import { useChatContext } from '../context/ChatContext';
 
 const SUGGESTIONS = [
   '而家倉庫有咩問題？',
@@ -11,13 +10,11 @@ const SUGGESTIONS = [
 ];
 
 export default function ChatPanel({ onGraphData }) {
-  const {
-    messages, setMessages,
-    conversationId, setConversationId,
-    loading, setLoading,
-    scrollRef,
-  } = useChatContext();
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [conversationId, setConversationId] = useState(null);
+  const scrollRef = useRef(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
