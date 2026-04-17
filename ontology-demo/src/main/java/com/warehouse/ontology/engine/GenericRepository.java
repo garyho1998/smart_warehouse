@@ -81,30 +81,6 @@ public class GenericRepository {
         return String.valueOf(normalized.get(typeDef.primaryKey()));
     }
 
-    public String upsert(String typeName, Map<String, Object> data) {
-        ObjectTypeDef typeDef = typeDef(typeName);
-        Object idValue = data.get(typeDef.primaryKey());
-        if (idValue == null) {
-            throw new IllegalArgumentException("Upsert requires primary key '" + typeDef.primaryKey() + "' in payload for type " + typeName);
-        }
-        String id = String.valueOf(idValue);
-        if (findById(typeName, id).isPresent()) {
-            LinkedHashMap<String, Object> withoutPk = new LinkedHashMap<>(data);
-            withoutPk.remove(typeDef.primaryKey());
-            if (!withoutPk.isEmpty()) {
-                update(typeName, id, withoutPk);
-            }
-            return id;
-        }
-        return insert(typeName, data);
-    }
-
-    public long count(String typeName) {
-        String sql = "SELECT COUNT(*) FROM " + tableName(typeName);
-        Long result = jdbcTemplate.queryForObject(sql, Long.class);
-        return result == null ? 0L : result;
-    }
-
     public void update(String typeName, String id, Map<String, Object> data) {
         ObjectTypeDef typeDef = typeDef(typeName);
         LinkedHashMap<String, Object> normalized = schemaValueValidator.validateForUpdate(typeDef, data);

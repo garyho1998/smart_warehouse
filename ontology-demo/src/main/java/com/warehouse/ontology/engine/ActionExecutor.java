@@ -47,6 +47,15 @@ public class ActionExecutor {
         Map<String, ActionParameterDef> parameters = actionDefinitionParser.parseParameters(actionTypeDef.parametersJson());
         validateParameters(parameters, safePayload);
 
+        if ("CREATE".equalsIgnoreCase(actionTypeDef.mode())) {
+            return executeCreate(actionName, actionTypeDef, safePayload);
+        }
+        return executeUpdate(actionName, actionTypeDef, safePayload);
+    }
+
+    private ActionResult executeUpdate(
+            String actionName, ActionTypeDef actionTypeDef, Map<String, Object> safePayload
+    ) {
         String objectIdKey = sourceObjectIdKey(actionTypeDef.objectTypeId());
         Object rawObjectId = safePayload.get(objectIdKey);
         if (rawObjectId == null || String.valueOf(rawObjectId).isBlank()) {
@@ -60,7 +69,7 @@ public class ActionExecutor {
                 ));
 
         validatePreconditions(actionTypeDef, beforeState);
-        LinkedHashMap<String, Object> mutationSet = resolveMutations(actionTypeDef);
+        LinkedHashMap<String, Object> mutationSet = resolveMutations(actionTypeDef, safePayload);
         if (!mutationSet.isEmpty()) {
             genericRepository.update(actionTypeDef.objectTypeId(), objectId, mutationSet);
         }
@@ -72,19 +81,43 @@ public class ActionExecutor {
 
         List<ActionSideEffectResult> sideEffects = sideEffectExecutor.execute(
                 actionDefinitionParser.parseSideEffects(actionTypeDef.sideEffectsJson()),
-                afterState
+                afterState,
+                safePayload
         );
 
         if (actionTypeDef.audit()) {
             auditService.recordSuccessfulAction(
-                    actionName,
-                    actionTypeDef.objectTypeId(),
-                    objectId,
+                    actionName, actionTypeDef.objectTypeId(), objectId,
                     safeString(safePayload.get("actor")),
-                    safePayload,
-                    beforeState,
-                    afterState,
-                    sideEffects
+                    safePayload, beforeState, afterState, sideEffects
+            );
+        }
+
+        return new ActionResult(actionName, actionTypeDef.objectTypeId(), objectId, afterState, sideEffects);
+    }
+
+    private ActionResult executeCreate(
+            String actionName, ActionTypeDef actionTypeDef, Map<String, Object> safePayload
+    ) {
+        LinkedHashMap<String, Object> mutationSet = resolveMutations(actionTypeDef, safePayload);
+        String objectId = genericRepository.insert(actionTypeDef.objectTypeId(), mutationSet);
+
+        Map<String, Object> afterState = genericRepository.findById(actionTypeDef.objectTypeId(), objectId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Unable to load created object: " + actionTypeDef.objectTypeId() + ":" + objectId
+                ));
+
+        List<ActionSideEffectResult> sideEffects = sideEffectExecutor.execute(
+                actionDefinitionParser.parseSideEffects(actionTypeDef.sideEffectsJson()),
+                afterState,
+                safePayload
+        );
+
+        if (actionTypeDef.audit()) {
+            auditService.recordSuccessfulAction(
+                    actionName, actionTypeDef.objectTypeId(), objectId,
+                    safeString(safePayload.get("actor")),
+                    safePayload, Map.of(), afterState, sideEffects
             );
         }
 
@@ -134,10 +167,10 @@ public class ActionExecutor {
         }
     }
 
-    private LinkedHashMap<String, Object> resolveMutations(ActionTypeDef actionTypeDef) {
+    private LinkedHashMap<String, Object> resolveMutations(ActionTypeDef actionTypeDef, Map<String, Object> payload) {
         LinkedHashMap<String, Object> mutations = new LinkedHashMap<>();
         for (ActionMutationDef mutationDef : actionDefinitionParser.parseMutations(actionTypeDef.mutationsJson())) {
-            mutations.putAll(actionValueResolver.resolveSet(mutationDef.set()));
+            mutations.putAll(actionValueResolver.resolveSet(mutationDef.set(), payload));
         }
         return mutations;
     }
