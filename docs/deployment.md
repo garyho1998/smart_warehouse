@@ -37,6 +37,38 @@ bash scripts/gh-push-tree.sh --delete industry-landscape.html --delete product-o
 - 用 Git Trees API 一次過提交多個新增、更新、刪除、搬位操作
 - 最後更新 remote branch 指向新 commit
 
+#### 1a. 推送大量檔案（>20 個）
+
+公司網絡或 GitHub API 會 reject 過大 payload。超過 ~20 個檔案要分 batch 推送，每 batch 約 15 個。
+
+**重要：shell 展開要用 bash array，唔好用 `$FILES`**
+
+`bash script.sh -m "msg" $FILES` 喺某啲 shell（zsh、特定 IFS 設定）**唔會 word-split**，所有 filename 會被當成**一個 arg**，導致 "SKIP (not found)"。要用 `while read` 入 array：
+
+```bash
+# 取所有 diff 檔案
+git diff --name-only origin/main...<branch> > /tmp/push-files.txt
+
+# 分 batch（每 15 個一批）
+split -l 15 /tmp/push-files.txt /tmp/push-batch-
+
+# 逐個 batch 推送
+for batch in /tmp/push-batch-*; do
+  FILES=()
+  while IFS= read -r line; do
+    FILES+=("$line")
+  done < "$batch"
+  bash scripts/gh-push-tree.sh \
+    -m "Batch push: ${#FILES[@]} files" \
+    "${FILES[@]}"
+done
+```
+
+**注意事項：**
+- Script 必須喺**主 repo** 目錄跑（唔好喺 worktree 跑），因為佢 reads files relative to cwd
+- 每 batch 會產生一個 commit，N 個檔案 = ceil(N/15) 個 commits
+- 如果檔案喺 worktree 存在但主 repo 冇（例如 `.gitignore` 有 diff），script 會 "SKIP (not found)" 並跳過
+
 #### 2. 等 GitHub Pages 部署（~1-2 分鐘）
 
 ```bash
