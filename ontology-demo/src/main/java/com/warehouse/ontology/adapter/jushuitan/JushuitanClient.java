@@ -67,8 +67,31 @@ public class JushuitanClient {
     }
 
     public List<JstSkuDto> querySkus(Instant since) {
-        // Real sandbox requires both begin+end time for sku query — skip for now
-        return List.of();
+        List<JstSkuDto> all = new ArrayList<>();
+        Instant end = Instant.now();
+        Instant begin = (since == null || since.equals(Instant.EPOCH))
+                ? end.minusSeconds(MAX_WINDOW_SECONDS)
+                : since;
+        if (end.getEpochSecond() - begin.getEpochSecond() > MAX_WINDOW_SECONDS) {
+            begin = end.minusSeconds(MAX_WINDOW_SECONDS);
+        }
+        int page = 0;
+        while (true) {
+            Map<String, Object> biz = new HashMap<>();
+            biz.put("page_index", page);
+            biz.put("page_size", PAGE_SIZE);
+            biz.put("modified_begin", JST_FMT.format(begin));
+            biz.put("modified_end",   JST_FMT.format(end));
+            Map<String, Object> body = post("/open/sku/query", biz);
+            List<JstSkuDto> page_items = extractList(body, "datas", new TypeReference<>() {});
+            all.addAll(page_items);
+            Map<String, Object> data = asMap(body.get("data"));
+            if (data == null || !Boolean.TRUE.equals(data.get("has_next"))) {
+                break;
+            }
+            page++;
+        }
+        return all;
     }
 
     public List<JstInventoryDto> queryInventory(Instant since) {

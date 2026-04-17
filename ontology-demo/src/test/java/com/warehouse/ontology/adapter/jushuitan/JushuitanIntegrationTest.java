@@ -63,7 +63,7 @@ class JushuitanIntegrationTest {
                 new JstLocationDto("SH_R2_S3", "JST-WH-001", "storage", 2, true, now)
         ));
         when(jstClient.querySkus(any())).thenReturn(List.of(
-                new JstSkuDto("JST-SKU-001", "行動電源", now)
+                new JstSkuDto("JST-SKU-001", "行動電源", null)
         ));
         when(jstClient.queryInventory(any())).thenReturn(List.of(
                 new JstInventoryDto("INV-001", "JST-SKU-001", "行動電源", 120, null)

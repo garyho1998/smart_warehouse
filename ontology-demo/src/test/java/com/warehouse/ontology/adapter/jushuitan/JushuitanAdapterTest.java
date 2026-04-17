@@ -62,7 +62,7 @@ class JushuitanAdapterTest {
     @Test
     void maps_sku_to_ontology() {
         when(client.querySkus(any())).thenReturn(List.of(
-                new JstSkuDto("JST-SKU-001", "行動電源 10000mAh", Instant.now())
+                new JstSkuDto("JST-SKU-001", "行動電源 10000mAh", null)
         ));
 
         List<OntologyRecord> records = adapter.pullSkus(Instant.EPOCH);
